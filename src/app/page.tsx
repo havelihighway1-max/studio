@@ -80,12 +80,8 @@ export default function Home() {
        <div className="relative z-10 flex min-h-screen w-full flex-col bg-black/50">
           <Header onAddNewGuest={() => openGuestDialog()} />
           <main className="flex-1 p-4 md:p-6 lg:p-8">
-            <div className="mb-8 flex justify-between items-center">
+            <div className="mb-8">
               <h1 className="font-headline text-5xl font-bold">Welcome to <br/>Haveli Kebab & Grill</h1>
-              <Button onClick={handleWhatsAppBroadcast} size="lg">
-                <MessageSquare className="mr-2 h-5 w-5" />
-                WhatsApp Broadcast
-              </Button>
             </div>
 
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-5">
@@ -135,9 +131,15 @@ export default function Home() {
                   </CardContent>
               </Card>
             </div>
-            <div className="mt-8 text-center">
-                <p className="text-lg text-muted-foreground">Your Restaurant. Smarter</p>
+            
+            <div className="mt-12 text-center">
+              <Button onClick={handleWhatsAppBroadcast} size="lg">
+                <MessageSquare className="mr-2 h-5 w-5" />
+                WhatsApp Broadcast
+              </Button>
+              <p className="mt-4 text-lg text-muted-foreground">Your Restaurant. Smarter</p>
             </div>
+
           </main>
         </div>
 
