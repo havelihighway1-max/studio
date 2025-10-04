@@ -8,10 +8,24 @@ import { ArrowUpDown, MoreHorizontal, Pen, Trash2 } from "lucide-react"
 import { useGuestStore } from "@/hooks/use-guest-store"
 import { Badge } from "@/components/ui/badge"
 import { format } from "date-fns"
+import { MessageSquare } from "lucide-react";
+
 
 const DataTableRowActions = ({ row }: { row: { original: Guest } }) => {
   const guest = row.original
   const { openGuestDialog, deleteGuest } = useGuestStore();
+
+  const handleWhatsAppMessage = () => {
+    if (guest.phone) {
+      const phoneNumber = guest.phone.replace(/\D/g, '');
+      const text = encodeURIComponent(`Hello ${guest.name}! This is a message from Haveli Kebab & Grill.`);
+      const url = `https://wa.me/${phoneNumber}?text=${text}`;
+      window.open(url, '_blank');
+    } else {
+      alert("This guest does not have a phone number.");
+    }
+  };
+
 
   return (
     <DropdownMenu>
@@ -28,6 +42,10 @@ const DataTableRowActions = ({ row }: { row: { original: Guest } }) => {
         <DropdownMenuItem onSelect={() => openGuestDialog(guest)}>
           <Pen className="mr-2 h-4 w-4" />
           Edit
+        </DropdownMenuItem>
+        <DropdownMenuItem onSelect={handleWhatsAppMessage}>
+            <MessageSquare className="mr-2 h-4 w-4" />
+            WhatsApp
         </DropdownMenuItem>
         <DropdownMenuSeparator />
         <DropdownMenuItem onSelect={() => deleteGuest(guest.id)} className="text-destructive focus:text-destructive focus:bg-destructive/10">
