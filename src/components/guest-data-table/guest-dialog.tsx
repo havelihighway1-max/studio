@@ -51,6 +51,7 @@ export function GuestDialog({ open, onOpenChange, guest }: GuestDialogProps) {
       name: guest?.name || "",
       phone: guest?.phone || "",
       numberOfGuests: guest?.numberOfGuests || 1,
+      tables: guest?.tables || "",
       visitDate: guest?.visitDate || new Date(),
       preferences: guest?.preferences || "",
       feedback: guest?.feedback || "",
@@ -94,7 +95,7 @@ export function GuestDialog({ open, onOpenChange, guest }: GuestDialogProps) {
                 control={form.control}
                 name="name"
                 render={({ field }) => (
-                  <FormItem className="col-span-2 sm:col-span-1">
+                  <FormItem className="col-span-2">
                     <FormLabel>Full Name</FormLabel>
                     <FormControl>
                       <Input placeholder="John Doe" {...field} />
@@ -107,10 +108,23 @@ export function GuestDialog({ open, onOpenChange, guest }: GuestDialogProps) {
                 control={form.control}
                 name="numberOfGuests"
                 render={({ field }) => (
-                  <FormItem className="col-span-2 sm:col-span-1">
+                  <FormItem>
                     <FormLabel>Number of Guests</FormLabel>
                     <FormControl>
-                      <Input type="number" min="1" {...field} />
+                      <Input type="number" min="1" {...field} onChange={e => field.onChange(parseInt(e.target.value, 10))} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="tables"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Table(s)</FormLabel>
+                    <FormControl>
+                      <Input placeholder="e.g. 5, 6" {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>

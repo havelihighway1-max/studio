@@ -96,6 +96,11 @@ export const columns: ColumnDef<Guest>[] = [
     }
   },
   {
+    accessorKey: "tables",
+    header: "Table(s)",
+    cell: ({ row }) => <div className="text-muted-foreground text-center">{row.getValue("tables") || 'N/A'}</div>
+  },
+  {
     accessorKey: "visitDate",
     header: ({ column }) => {
       return (

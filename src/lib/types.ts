@@ -5,6 +5,7 @@ export const guestSchema = z.object({
   name: z.string().min(2, { message: "Name must be at least 2 characters." }),
   phone: z.string().optional(),
   numberOfGuests: z.coerce.number().min(1, { message: "Must have at least one guest." }),
+  tables: z.string().optional(),
   visitDate: z.date(),
   preferences: z.string().optional(),
   feedback: z.string().optional(),
