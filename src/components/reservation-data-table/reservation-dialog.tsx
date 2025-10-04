@@ -57,6 +57,7 @@ export function ReservationDialog({ open, onOpenChange, reservation }: Reservati
       reservationDate: reservation?.reservationDate || new Date(),
       status: reservation?.status || "upcoming",
       notes: reservation?.notes || "",
+      advancePayment: reservation?.advancePayment || undefined,
     },
   });
 
@@ -180,6 +181,19 @@ export function ReservationDialog({ open, onOpenChange, reservation }: Reservati
                         </div>
                     </PopoverContent>
                   </Popover>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="advancePayment"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Advance Payment</FormLabel>
+                  <FormControl>
+                    <Input type="number" placeholder="Amount" {...field} onChange={e => field.onChange(parseInt(e.target.value))} />
+                  </FormControl>
                   <FormMessage />
                 </FormItem>
               )}

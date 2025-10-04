@@ -85,6 +85,14 @@ export const columns: ColumnDef<Reservation>[] = [
       return <div className="text-muted-foreground">{format(date, "PPP p")}</div> // e.g., Jun 21, 2024 7:30 PM
     },
   },
+   {
+    accessorKey: "advancePayment",
+    header: "Advance Payment",
+    cell: ({ row }) => {
+      const payment = row.getValue("advancePayment") as number | undefined;
+      return <div className="text-center">{payment ? `$${payment}` : 'N/A'}</div>
+    }
+  },
   {
     accessorKey: "status",
     header: "Status",
