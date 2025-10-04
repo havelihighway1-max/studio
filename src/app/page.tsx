@@ -148,14 +148,16 @@ export default function Home() {
             </div>
             
             <div className="mt-12 text-center">
-              <Button onClick={handleWhatsAppBroadcast} size="lg">
-                <MessageSquare className="mr-2 h-5 w-5" />
-                WhatsApp Broadcast
-              </Button>
-              <p className="mt-4 text-lg text-muted-foreground">Your Restaurant. Smarter</p>
+              <p className="text-lg text-muted-foreground">Your Restaurant. Smarter</p>
             </div>
 
           </main>
+          <div className="fixed bottom-4 right-4 z-20">
+            <Button onClick={handleWhatsAppBroadcast} size="lg">
+              <MessageSquare className="mr-2 h-5 w-5" />
+              WhatsApp Broadcast
+            </Button>
+          </div>
         </div>
 
       <GuestDialog
