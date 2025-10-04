@@ -1,26 +1,87 @@
 "use client";
 
+import { useRef } from "react";
+import Papa from "papaparse";
 import { Header } from "@/components/header";
 import { TableDialog } from "@/components/table-data-table/table-dialog";
 import { DataTable } from "@/components/table-data-table/data-table";
 import { columns } from "@/components/table-data-table/columns";
 import { useGuestStore } from "@/hooks/use-guest-store";
+import { tableSchema, Table } from "@/lib/types";
+import { useToast } from "@/hooks/use-toast";
 
 export default function TablesPage() {
   const { 
     tables, 
+    setTables,
     openTableDialog, 
     isTableDialogOpen, 
     closeTableDialog,
     editingTable,
     openGuestDialog
   } = useGuestStore();
+  const { toast } = useToast();
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const handleImport = () => {
-    // This is a placeholder for the CSV import functionality.
-    // We will implement this in the next step.
-    alert("CSV import functionality will be added here.");
+  const handleImportClick = () => {
+    fileInputRef.current?.click();
   };
+
+  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) {
+      toast({
+        variant: "destructive",
+        title: "No file selected",
+        description: "Please select a CSV file to import.",
+      });
+      return;
+    }
+
+    Papa.parse(file, {
+      header: true,
+      skipEmptyLines: true,
+      complete: (results) => {
+        try {
+          const parsedData = results.data.map(row => {
+            const parsedRow = tableSchema.omit({ id: true }).parse({
+              ...row,
+              // Papaparse reads everything as strings, so we coerce
+              capacity: Number((row as any).capacity) 
+            });
+            return parsedRow;
+          });
+
+          // Assuming setTables can handle an array of tables without IDs
+          setTables(parsedData as Omit<Table, 'id'>[]);
+
+          toast({
+            title: "Import Successful",
+            description: `${parsedData.length} tables have been imported.`,
+          });
+        } catch (error) {
+           console.error("CSV Parsing Error:", error);
+           toast({
+            variant: "destructive",
+            title: "Import Failed",
+            description: "Please check the CSV file format and content. Ensure 'name' and 'capacity' columns are correct.",
+          });
+        }
+      },
+      error: (error) => {
+        console.error("CSV Error:", error);
+        toast({
+          variant: "destructive",
+          title: "Import Error",
+          description: "An error occurred while parsing the CSV file.",
+        });
+      }
+    });
+
+    // Reset the file input
+    if(event.target) event.target.value = "";
+  };
+
 
   return (
     <div className="flex min-h-screen w-full flex-col bg-background">
@@ -32,12 +93,20 @@ export default function TablesPage() {
             Define and manage your restaurant's table layout.
           </p>
         </div>
+        
+        <input
+          type="file"
+          ref={fileInputRef}
+          onChange={handleFileChange}
+          accept=".csv"
+          className="hidden"
+        />
 
         <DataTable 
           columns={columns} 
           data={tables} 
           onAddTable={openTableDialog}
-          onImport={handleImport}
+          onImport={handleImportClick}
         />
       </main>
       <TableDialog
