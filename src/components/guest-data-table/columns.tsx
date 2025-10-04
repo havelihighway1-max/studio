@@ -114,24 +114,6 @@ export const columns: ColumnDef<Guest>[] = [
     },
   },
   {
-    accessorKey: "reservationDate",
-    header: ({ column }) => {
-      return (
-        <Button
-          variant="ghost"
-          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-        >
-          Reservation
-          <ArrowUpDown className="ml-2 h-4 w-4" />
-        </Button>
-      )
-    },
-    cell: ({ row }) => {
-      const date = row.getValue("reservationDate") as Date | undefined;
-      return <div className="text-muted-foreground">{date ? format(date, "PPP") : 'N/A'}</div>
-    },
-  },
-  {
     id: "actions",
     cell: ({ row }) => <DataTableRowActions row={row} />,
   },

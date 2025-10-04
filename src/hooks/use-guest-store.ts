@@ -2,9 +2,9 @@
 
 import { create } from 'zustand';
 import { persist, createJSONStorage, type PersistStorage } from 'zustand/middleware';
-import type { Guest } from '@/lib/types';
+import type { Guest, Reservation } from '@/lib/types';
 
-interface GuestState {
+interface AppState {
   guests: Guest[];
   addGuest: (guest: Omit<Guest, 'id'>) => void;
   updateGuest: (id: string, guest: Partial<Omit<Guest, 'id'>>) => void;
@@ -19,39 +19,54 @@ interface GuestState {
   isInsightsDialogOpen: boolean;
   openInsightsDialog: () => void;
   closeInsightsDialog: () => void;
+
+  reservations: Reservation[];
+  addReservation: (reservation: Omit<Reservation, 'id'>) => void;
+  updateReservation: (id: string, reservation: Partial<Omit<Reservation, 'id'>>) => void;
+  deleteReservation: (id: string) => void;
+  
+  editingReservation: Reservation | null;
+  isReservationDialogOpen: boolean;
+  openReservationDialog: (reservation?: Reservation | null) => void;
+  closeReservationDialog: () => void;
 }
 
 // Custom storage implementation to handle Date objects
-const storage: PersistStorage<GuestState> = {
+const storage: PersistStorage<AppState> = {
   getItem: (name) => {
     const str = localStorage.getItem(name);
     if (!str) return null;
 
     const parsed = JSON.parse(str);
 
-    // Assuming the structure is { state: { guests: [...] } }
-    if (parsed.state && Array.isArray(parsed.state.guests)) {
-      parsed.state.guests = parsed.state.guests.map((g: any) => ({
-        ...g,
-        visitDate: new Date(g.visitDate),
-        reservationDate: g.reservationDate ? new Date(g.reservationDate) : undefined,
-      }));
+    if (parsed.state) {
+      if (Array.isArray(parsed.state.guests)) {
+        parsed.state.guests = parsed.state.guests.map((g: any) => ({
+          ...g,
+          visitDate: new Date(g.visitDate),
+        }));
+      }
+      if (Array.isArray(parsed.state.reservations)) {
+        parsed.state.reservations = parsed.state.reservations.map((r: any) => ({
+          ...r,
+          reservationDate: new Date(r.reservationDate),
+        }));
+      }
     }
 
     return parsed;
   },
   setItem: (name, newValue) => {
-    // Dates are automatically converted to strings in JSON.stringify,
-    // so no special handling is needed here.
     localStorage.setItem(name, JSON.stringify(newValue));
   },
   removeItem: (name) => localStorage.removeItem(name),
 }
 
 
-export const useGuestStore = create<GuestState>()(
+export const useGuestStore = create<AppState>()(
   persist(
     (set, get) => ({
+      // Guest management
       guests: [],
       addGuest: (guest) =>
         set((state) => ({
@@ -77,12 +92,34 @@ export const useGuestStore = create<GuestState>()(
       openGuestDialog: (guest = null) => set({ editingGuest: guest, isGuestDialogOpen: true }),
       closeGuestDialog: () => set({ isGuestDialogOpen: false, editingGuest: null }),
       
+      // Insights dialog
       isInsightsDialogOpen: false,
       openInsightsDialog: () => set({ isInsightsDialogOpen: true }),
       closeInsightsDialog: () => set({ isInsightsDialogOpen: false }),
+
+      // Reservation management
+      reservations: [],
+      addReservation: (reservation) =>
+        set((state) => ({
+          reservations: [...state.reservations, { ...reservation, id: crypto.randomUUID(), status: 'upcoming' }].sort((a, b) => b.reservationDate.getTime() - a.reservationDate.getTime()),
+        })),
+      updateReservation: (id, updatedData) =>
+        set((state) => ({
+          reservations: state.reservations.map((reservation) =>
+            reservation.id === id ? { ...reservation, ...updatedData } : reservation
+          ).sort((a, b) => b.reservationDate.getTime() - a.reservationDate.getTime()),
+        })),
+      deleteReservation: (id) =>
+        set((state) => ({
+          reservations: state.reservations.filter((reservation) => reservation.id !== id),
+        })),
+      editingReservation: null,
+      isReservationDialogOpen: false,
+      openReservationDialog: (reservation = null) => set({ editingReservation: reservation, isReservationDialogOpen: true }),
+      closeReservationDialog: () => set({ isReservationDialogOpen: false, editingReservation: null }),
     }),
     {
-      name: 'embertable-guest-storage',
+      name: 'embertable-storage', // Changed name to avoid conflicts with old structure
       storage,
     }
   )

@@ -1,3 +1,4 @@
+
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -24,51 +25,53 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { Guest, guestSchema } from "@/lib/types";
+import { Reservation, reservationSchema } from "@/lib/types";
 import { useGuestStore } from "@/hooks/use-guest-store";
 import { useToast } from "@/hooks/use-toast";
 import { Textarea } from "@/components/ui/textarea";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { cn } from "@/lib/utils";
 import { Calendar } from "@/components/ui/calendar";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
-type GuestFormValues = z.infer<typeof guestSchema>;
 
-interface GuestDialogProps {
+type ReservationFormValues = z.infer<typeof reservationSchema>;
+
+interface ReservationDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  guest?: Guest | null;
+  reservation?: Reservation | null;
 }
 
-export function GuestDialog({ open, onOpenChange, guest }: GuestDialogProps) {
-  const { addGuest, updateGuest } = useGuestStore();
+export function ReservationDialog({ open, onOpenChange, reservation }: ReservationDialogProps) {
+  const { addReservation, updateReservation } = useGuestStore();
   const { toast } = useToast();
-  const isEditMode = !!guest;
+  const isEditMode = !!reservation;
 
-  const form = useForm<Omit<GuestFormValues, 'id'>>({
-    resolver: zodResolver(guestSchema.omit({ id: true })),
+  const form = useForm<Omit<ReservationFormValues, 'id'>>({
+    resolver: zodResolver(reservationSchema.omit({ id: true })),
     defaultValues: {
-      name: guest?.name || "",
-      phone: guest?.phone || "",
-      numberOfGuests: guest?.numberOfGuests || 1,
-      visitDate: guest?.visitDate || new Date(),
-      preferences: guest?.preferences || "",
-      feedback: guest?.feedback || "",
+      name: reservation?.name || "",
+      phone: reservation?.phone || "",
+      numberOfGuests: reservation?.numberOfGuests || 1,
+      reservationDate: reservation?.reservationDate || new Date(),
+      status: reservation?.status || "upcoming",
+      notes: reservation?.notes || "",
     },
   });
 
-  function onSubmit(data: Omit<GuestFormValues, 'id'>) {
-    if (isEditMode && guest) {
-      updateGuest(guest.id, data);
+  function onSubmit(data: Omit<ReservationFormValues, 'id'>) {
+    if (isEditMode && reservation) {
+      updateReservation(reservation.id, data);
       toast({
-        title: "Guest Updated",
-        description: `${data.name}'s information has been successfully updated.`,
+        title: "Reservation Updated",
+        description: `Reservation for ${data.name} has been successfully updated.`,
       });
     } else {
-      addGuest(data);
+      addReservation(data);
       toast({
-        title: "Guest Added",
-        description: `${data.name} has been successfully added to your guest list.`,
+        title: "Reservation Added",
+        description: `Reservation for ${data.name} has been successfully added.`,
       });
     }
     onOpenChange(false);
@@ -79,12 +82,12 @@ export function GuestDialog({ open, onOpenChange, guest }: GuestDialogProps) {
       <DialogContent className="sm:max-w-[480px]">
         <DialogHeader>
           <DialogTitle className="font-headline text-2xl">
-            {isEditMode ? "Edit Guest" : "Add New Guest"}
+            {isEditMode ? "Edit Reservation" : "Add New Reservation"}
           </DialogTitle>
           <DialogDescription>
             {isEditMode
-              ? "Update the details for this guest entry."
-              : "Fill in the details below to add a new guest entry."}
+              ? "Update the details for this reservation."
+              : "Fill in the details below to add a new reservation."}
           </DialogDescription>
         </DialogHeader>
         <Form {...form}>
@@ -110,7 +113,7 @@ export function GuestDialog({ open, onOpenChange, guest }: GuestDialogProps) {
                   <FormItem className="col-span-2 sm:col-span-1">
                     <FormLabel>Number of Guests</FormLabel>
                     <FormControl>
-                      <Input type="number" min="1" {...field} />
+                      <Input type="number" min="1" {...field} onChange={e => field.onChange(parseInt(e.target.value))} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -130,13 +133,12 @@ export function GuestDialog({ open, onOpenChange, guest }: GuestDialogProps) {
                   </FormItem>
                 )}
               />
-            <div className="grid grid-cols-1 gap-4">
             <FormField
               control={form.control}
-              name="visitDate"
+              name="reservationDate"
               render={({ field }) => (
                 <FormItem className="flex flex-col">
-                  <FormLabel>Visit Date</FormLabel>
+                  <FormLabel>Reservation Date & Time</FormLabel>
                   <Popover>
                     <PopoverTrigger asChild>
                       <FormControl>
@@ -149,7 +151,7 @@ export function GuestDialog({ open, onOpenChange, guest }: GuestDialogProps) {
                         >
                           <CalendarIcon className="mr-2 h-4 w-4" />
                           {field.value ? (
-                            format(field.value, "PPP")
+                            format(field.value, "PPP p")
                           ) : (
                             <span>Pick a date</span>
                           )}
@@ -163,39 +165,58 @@ export function GuestDialog({ open, onOpenChange, guest }: GuestDialogProps) {
                         onSelect={field.onChange}
                         initialFocus
                       />
+                       <div className="p-2 border-t border-border">
+                            <Input
+                                type="time"
+                                value={field.value ? format(field.value, "HH:mm") : ''}
+                                onChange={(e) => {
+                                    const time = e.target.value;
+                                    const [hours, minutes] = time.split(':').map(Number);
+                                    const newDate = new Date(field.value || new Date());
+                                    newDate.setHours(hours, minutes);
+                                    field.onChange(newDate);
+                                }}
+                            />
+                        </div>
                     </PopoverContent>
                   </Popover>
                   <FormMessage />
                 </FormItem>
               )}
             />
-            </div>
-             <FormField
-              control={form.control}
-              name="preferences"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Preferences</FormLabel>
-                  <FormControl>
-                    <Textarea
-                      placeholder="e.g., Allergic to peanuts, prefers window seat..."
-                      className="resize-none"
-                      {...field}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+             {isEditMode && (
+              <FormField
+                control={form.control}
+                name="status"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Status</FormLabel>
+                    <Select onValueChange={field.onChange} defaultValue={field.value}>
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select a status" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        <SelectItem value="upcoming">Upcoming</SelectItem>
+                        <SelectItem value="seated">Seated</SelectItem>
+                        <SelectItem value="canceled">Canceled</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            )}
             <FormField
               control={form.control}
-              name="feedback"
+              name="notes"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Feedback / Notes</FormLabel>
+                  <FormLabel>Notes / Preferences</FormLabel>
                   <FormControl>
                     <Textarea
-                      placeholder="e.g., Enjoyed the special, service was excellent..."
+                      placeholder="e.g., Allergic to peanuts, birthday celebration..."
                       className="resize-none"
                       {...field}
                     />
@@ -208,7 +229,7 @@ export function GuestDialog({ open, onOpenChange, guest }: GuestDialogProps) {
               <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
                 Cancel
               </Button>
-              <Button type="submit">{isEditMode ? "Save Changes" : "Add Guest"}</Button>
+              <Button type="submit">{isEditMode ? "Save Changes" : "Add Reservation"}</Button>
             </DialogFooter>
           </form>
         </Form>
