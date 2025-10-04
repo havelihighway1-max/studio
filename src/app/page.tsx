@@ -81,7 +81,8 @@ export default function Home() {
           <Header onAddNewGuest={() => openGuestDialog()} />
           <main className="flex-1 p-4 md:p-6 lg:p-8">
             <div className="mb-8">
-              <h1 className="font-headline text-5xl font-bold">Welcome to <br/>HAVELI KEBAB & GRILL</h1>
+              <h1 className="font-headline text-5xl font-bold">Welcome to</h1>
+              <h2 className="font-body text-6xl font-bold text-primary mt-2">بسم الله الرحمن الرحيم</h2>
             </div>
 
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-5">
@@ -89,7 +90,7 @@ export default function Home() {
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                   <CardTitle className="text-sm font-medium">
                     Total Guests
-                    <span className="block text-base text-accent-foreground">الحمد لله</span>
+                    <span className="block text-xl text-accent-foreground">الحمد لله</span>
                   </CardTitle>
                   <Users className="h-4 w-4 text-muted-foreground" />
                 </CardHeader>
