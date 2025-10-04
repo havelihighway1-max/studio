@@ -39,6 +39,7 @@ export function DataTable<TData, TValue>({
     { id: 'visitDate', desc: true }
   ])
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([])
+  const [globalFilter, setGlobalFilter] = React.useState('')
   
   const { openGuestDialog, openInsightsDialog } = useGuestStore();
 
@@ -50,10 +51,12 @@ export function DataTable<TData, TValue>({
     onSortingChange: setSorting,
     getSortedRowModel: getSortedRowModel(),
     onColumnFiltersChange: setColumnFilters,
+    onGlobalFilterChange: setGlobalFilter,
     getFilteredRowModel: getFilteredRowModel(),
     state: {
       sorting,
       columnFilters,
+      globalFilter,
     },
   })
 
@@ -62,11 +65,8 @@ export function DataTable<TData, TValue>({
       <div className="flex items-center justify-between gap-4">
         <Input
           placeholder="Filter by name or email..."
-          value={(table.getColumn("name")?.getFilterValue() as string) ?? ""}
-          onChange={(event) => {
-            table.getColumn("name")?.setFilterValue(event.target.value)
-            table.getColumn("email")?.setFilterValue(event.target.value)
-          }}
+          value={globalFilter ?? ""}
+          onChange={(event) => setGlobalFilter(event.target.value)}
           className="max-w-sm"
         />
         <div className="flex items-center gap-2">
@@ -123,7 +123,7 @@ export function DataTable<TData, TValue>({
                   colSpan={columns.length}
                   className="h-24 text-center"
                 >
-                  No guests found.
+                  No guests found for the selected period.
                 </TableCell>
               </TableRow>
             )}

@@ -3,9 +3,11 @@
 
 import { useEffect, useState } from "react";
 import Image from "next/image";
+import Link from "next/link";
 import { Header } from "@/components/header";
 import { useGuestStore } from "@/hooks/use-guest-store";
 import { GuestDialog } from "@/components/guest-data-table/guest-dialog";
+import { InsightsDialog } from "@/components/guest-data-table/insights-dialog";
 import {
   isSameDay,
   isThisMonth,
@@ -18,8 +20,7 @@ import { PlaceHolderImages } from "@/lib/placeholder-images";
 
 export default function Home() {
   const [isClient, setIsClient] = useState(false);
-  const guests = useGuestStore((state) => state.guests);
-  const { isGuestDialogOpen, closeGuestDialog, openGuestDialog } = useGuestStore();
+  const { guests, isGuestDialogOpen, closeGuestDialog, openGuestDialog, isInsightsDialogOpen, closeInsightsDialog } = useGuestStore();
 
   useEffect(() => {
     setIsClient(true);
@@ -146,6 +147,7 @@ export default function Home() {
         onOpenChange={(isOpen) => !isOpen && closeGuestDialog()}
         guest={useGuestStore.getState().editingGuest}
       />
+      <InsightsDialog open={isInsightsDialogOpen} onOpenChange={closeInsightsDialog} />
     </div>
   );
 }
