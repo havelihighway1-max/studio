@@ -25,3 +25,11 @@ export const reservationSchema = z.object({
 });
 
 export type Reservation = z.infer<typeof reservationSchema>;
+
+export const tableSchema = z.object({
+  id: z.string(),
+  name: z.string().min(1, { message: "Table name cannot be empty." }),
+  capacity: z.coerce.number().min(1, { message: "Capacity must be at least 1." }),
+});
+
+export type Table = z.infer<typeof tableSchema>;

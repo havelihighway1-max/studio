@@ -2,7 +2,7 @@
 
 import { create } from 'zustand';
 import { persist, createJSONStorage, type PersistStorage } from 'zustand/middleware';
-import type { Guest, Reservation } from '@/lib/types';
+import type { Guest, Reservation, Table } from '@/lib/types';
 
 interface AppState {
   guests: Guest[];
@@ -29,6 +29,17 @@ interface AppState {
   isReservationDialogOpen: boolean;
   openReservationDialog: (reservation?: Reservation | null) => void;
   closeReservationDialog: () => void;
+
+  tables: Table[];
+  addTable: (table: Omit<Table, 'id'>) => void;
+  updateTable: (id: string, table: Partial<Omit<Table, 'id'>>) => void;
+  deleteTable: (id: string) => void;
+  setTables: (tables: Table[]) => void;
+
+  editingTable: Table | null;
+  isTableDialogOpen: boolean;
+  openTableDialog: (table?: Table | null) => void;
+  closeTableDialog: () => void;
 }
 
 // Custom storage implementation to handle Date objects
@@ -57,6 +68,19 @@ const storage: PersistStorage<AppState> = {
     return parsed;
   },
   setItem: (name, newValue) => {
+    // Prevent storing React event objects
+    if (newValue.state.editingGuest) {
+        // @ts-ignore
+        delete newValue.state.editingGuest.nativeEvent;
+    }
+    if (newValue.state.editingReservation) {
+        // @ts-ignore
+        delete newValue.state.editingReservation.nativeEvent;
+    }
+    if (newValue.state.editingTable) {
+        // @ts-ignore
+        delete newValue.state.editingTable.nativeEvent;
+    }
     localStorage.setItem(name, JSON.stringify(newValue));
   },
   removeItem: (name) => localStorage.removeItem(name),
@@ -117,9 +141,32 @@ export const useGuestStore = create<AppState>()(
       isReservationDialogOpen: false,
       openReservationDialog: (reservation = null) => set({ editingReservation: reservation, isReservationDialogOpen: true }),
       closeReservationDialog: () => set({ isReservationDialogOpen: false, editingReservation: null }),
+
+      // Table management
+      tables: [],
+      addTable: (table) =>
+        set((state) => ({
+          tables: [...state.tables, { ...table, id: crypto.randomUUID() }].sort((a, b) => a.name.localeCompare(b.name)),
+        })),
+      updateTable: (id, updatedData) =>
+        set((state) => ({
+          tables: state.tables.map((table) =>
+            table.id === id ? { ...table, ...updatedData } : table
+          ).sort((a, b) => a.name.localeCompare(b.name)),
+        })),
+      deleteTable: (id) =>
+        set((state) => ({
+          tables: state.tables.filter((table) => table.id !== id),
+        })),
+      setTables: (tables) => set({ tables: tables.sort((a, b) => a.name.localeCompare(b.name)) }),
+      editingTable: null,
+      isTableDialogOpen: false,
+      openTableDialog: (table = null) => set({ editingTable: table, isTableDialogOpen: true }),
+      closeTableDialog: () => set({ isTableDialogOpen: false, editingTable: null }),
+
     }),
     {
-      name: 'embertable-storage', // Changed name to avoid conflicts with old structure
+      name: 'embertable-storage',
       storage,
     }
   )
