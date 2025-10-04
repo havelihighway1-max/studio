@@ -58,13 +58,17 @@ export function DataTable<TData, TValue>({
       columnFilters,
       globalFilter,
     },
+    globalFilterFn: (row, columnId, filterValue) => {
+        const name = row.getValue('name') as string;
+        return name?.toLowerCase().includes(filterValue.toLowerCase());
+    }
   })
 
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between gap-4">
         <Input
-          placeholder="Filter by name or email..."
+          placeholder="Filter by name..."
           value={globalFilter ?? ""}
           onChange={(event) => setGlobalFilter(event.target.value)}
           className="max-w-sm"

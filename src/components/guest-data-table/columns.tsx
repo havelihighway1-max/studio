@@ -1,12 +1,11 @@
 "use client"
 
 import { ColumnDef } from "@tanstack/react-table"
-import { Guest, guestSchema } from "@/lib/types"
+import { Guest } from "@/lib/types"
 import { Button } from "@/components/ui/button"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import { ArrowUpDown, MoreHorizontal, Pen, Trash2 } from "lucide-react"
 import { useGuestStore } from "@/hooks/use-guest-store"
-import { Badge } from "@/components/ui/badge"
 import { format } from "date-fns"
 import { MessageSquare } from "lucide-react";
 
@@ -72,21 +71,6 @@ export const columns: ColumnDef<Guest>[] = [
       )
     },
     cell: ({ row }) => <div className="font-medium">{row.getValue("name")}</div>,
-  },
-  {
-    accessorKey: "email",
-    header: ({ column }) => {
-      return (
-        <Button
-          variant="ghost"
-          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-        >
-          Email
-          <ArrowUpDown className="ml-2 h-4 w-4" />
-        </Button>
-      )
-    },
-    cell: ({ row }) => <div className="text-muted-foreground">{row.getValue("email")}</div>,
   },
   {
     accessorKey: "phone",

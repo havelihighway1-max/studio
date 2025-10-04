@@ -49,7 +49,6 @@ export function GuestDialog({ open, onOpenChange, guest }: GuestDialogProps) {
     resolver: zodResolver(guestSchema.omit({ id: true })),
     defaultValues: {
       name: guest?.name || "",
-      email: guest?.email || "",
       phone: guest?.phone || "",
       visitDate: guest?.visitDate || new Date(),
       preferences: guest?.preferences || "",
@@ -105,22 +104,9 @@ export function GuestDialog({ open, onOpenChange, guest }: GuestDialogProps) {
               />
               <FormField
                 control={form.control}
-                name="email"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Email</FormLabel>
-                    <FormControl>
-                      <Input placeholder="john.doe@example.com" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
                 name="phone"
                 render={({ field }) => (
-                  <FormItem>
+                  <FormItem className="col-span-2">
                     <FormLabel>Phone</FormLabel>
                     <FormControl>
                       <Input placeholder="(123) 456-7890" {...field} />

@@ -21,26 +21,32 @@ interface GuestState {
   closeInsightsDialog: () => void;
 }
 
+// Custom storage implementation to handle Date objects
 const storage: PersistStorage<GuestState> = {
   getItem: (name) => {
     const str = localStorage.getItem(name);
     if (!str) return null;
-    const { state } = JSON.parse(str);
-    return {
-      state: {
-        ...state,
-        guests: state.guests.map((g: Guest) => ({
-          ...g,
-          visitDate: new Date(g.visitDate),
-        })),
-      },
-    };
+
+    const parsed = JSON.parse(str);
+
+    // Assuming the structure is { state: { guests: [...] } }
+    if (parsed.state && Array.isArray(parsed.state.guests)) {
+      parsed.state.guests = parsed.state.guests.map((g: any) => ({
+        ...g,
+        visitDate: new Date(g.visitDate),
+      }));
+    }
+
+    return parsed;
   },
   setItem: (name, newValue) => {
+    // Dates are automatically converted to strings in JSON.stringify,
+    // so no special handling is needed here.
     localStorage.setItem(name, JSON.stringify(newValue));
   },
   removeItem: (name) => localStorage.removeItem(name),
 }
+
 
 export const useGuestStore = create<GuestState>()(
   persist(
