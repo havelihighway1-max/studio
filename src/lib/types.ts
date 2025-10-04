@@ -6,6 +6,7 @@ export const guestSchema = z.object({
   phone: z.string().optional(),
   numberOfGuests: z.coerce.number().min(1, { message: "Must have at least one guest." }),
   visitDate: z.date(),
+  reservationDate: z.date().optional(),
   preferences: z.string().optional(),
   feedback: z.string().optional(),
 });

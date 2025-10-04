@@ -34,6 +34,7 @@ const storage: PersistStorage<GuestState> = {
       parsed.state.guests = parsed.state.guests.map((g: any) => ({
         ...g,
         visitDate: new Date(g.visitDate),
+        reservationDate: g.reservationDate ? new Date(g.reservationDate) : undefined,
       }));
     }
 
