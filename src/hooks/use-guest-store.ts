@@ -49,7 +49,7 @@ const storage: PersistStorage<AppState> = {
       if (Array.isArray(parsed.state.reservations)) {
         parsed.state.reservations = parsed.state.reservations.map((r: any) => ({
           ...r,
-          reservationDate: new Date(r.reservationDate),
+          dateOfEvent: new Date(r.dateOfEvent),
         }));
       }
     }
@@ -101,13 +101,13 @@ export const useGuestStore = create<AppState>()(
       reservations: [],
       addReservation: (reservation) =>
         set((state) => ({
-          reservations: [...state.reservations, { ...reservation, id: crypto.randomUUID(), status: 'upcoming' }].sort((a, b) => b.reservationDate.getTime() - a.reservationDate.getTime()),
+          reservations: [...state.reservations, { ...reservation, id: crypto.randomUUID(), status: 'upcoming' }].sort((a, b) => b.dateOfEvent.getTime() - a.dateOfEvent.getTime()),
         })),
       updateReservation: (id, updatedData) =>
         set((state) => ({
           reservations: state.reservations.map((reservation) =>
             reservation.id === id ? { ...reservation, ...updatedData } : reservation
-          ).sort((a, b) => b.reservationDate.getTime() - a.reservationDate.getTime()),
+          ).sort((a, b) => b.dateOfEvent.getTime() - a.dateOfEvent.getTime()),
         })),
       deleteReservation: (id) =>
         set((state) => ({

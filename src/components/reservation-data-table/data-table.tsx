@@ -38,7 +38,7 @@ export function DataTable<TData, TValue>({
   onAddReservation
 }: DataTableProps<TData, TValue>) {
   const [sorting, setSorting] = React.useState<SortingState>([
-    { id: 'reservationDate', desc: false }
+    { id: 'dateOfEvent', desc: false }
   ])
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([])
   const [globalFilter, setGlobalFilter] = React.useState('')

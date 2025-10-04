@@ -17,7 +17,7 @@ export const reservationSchema = z.object({
   name: z.string().min(2, { message: "Name must be at least 2 characters." }),
   phone: z.string().optional(),
   numberOfGuests: z.coerce.number().min(1, { message: "Must have at least one guest." }),
-  reservationDate: z.date(),
+  dateOfEvent: z.date(),
   status: z.enum(["upcoming", "seated", "canceled"]).default("upcoming"),
   notes: z.string().optional(),
   advancePayment: z.coerce.number().optional(),

@@ -74,14 +74,14 @@ export const columns: ColumnDef<Reservation>[] = [
     cell: ({ row }) => <div className="text-center">{row.getValue("numberOfGuests") as number}</div>
   },
   {
-    accessorKey: "reservationDate",
+    accessorKey: "dateOfEvent",
     header: ({ column }) => (
       <Button variant="ghost" onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}>
-        Date & Time <ArrowUpDown className="ml-2 h-4 w-4" />
+        Event Date & Time <ArrowUpDown className="ml-2 h-4 w-4" />
       </Button>
     ),
     cell: ({ row }) => {
-      const date = row.getValue("reservationDate") as Date
+      const date = row.getValue("dateOfEvent") as Date
       return <div className="text-muted-foreground">{format(date, "PPP p")}</div> // e.g., Jun 21, 2024 7:30 PM
     },
   },

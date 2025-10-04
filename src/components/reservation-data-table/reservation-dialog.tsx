@@ -54,7 +54,7 @@ export function ReservationDialog({ open, onOpenChange, reservation }: Reservati
       name: reservation?.name || "",
       phone: reservation?.phone || "",
       numberOfGuests: reservation?.numberOfGuests || 1,
-      reservationDate: reservation?.reservationDate || new Date(),
+      dateOfEvent: reservation?.dateOfEvent || new Date(),
       status: reservation?.status || "upcoming",
       notes: reservation?.notes || "",
       advancePayment: reservation?.advancePayment || undefined,
@@ -136,10 +136,10 @@ export function ReservationDialog({ open, onOpenChange, reservation }: Reservati
               />
             <FormField
               control={form.control}
-              name="reservationDate"
+              name="dateOfEvent"
               render={({ field }) => (
                 <FormItem className="flex flex-col">
-                  <FormLabel>Reservation Date & Time</FormLabel>
+                  <FormLabel>Event Date & Time</FormLabel>
                   <Popover>
                     <PopoverTrigger asChild>
                       <FormControl>
