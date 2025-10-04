@@ -4,7 +4,7 @@ import { ColumnDef } from "@tanstack/react-table"
 import { Guest } from "@/lib/types"
 import { Button } from "@/components/ui/button"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
-import { ArrowUpDown, MoreHorizontal, Pen, Trash2 } from "lucide-react"
+import { ArrowUpDown, MoreHorizontal, Pen, Trash2, Users } from "lucide-react"
 import { useGuestStore } from "@/hooks/use-guest-store"
 import { format } from "date-fns"
 import { MessageSquare } from "lucide-react";
@@ -76,6 +76,24 @@ export const columns: ColumnDef<Guest>[] = [
     accessorKey: "phone",
     header: "Phone",
     cell: ({ row }) => <div className="text-muted-foreground">{row.getValue("phone") || 'N/A'}</div>
+  },
+  {
+    accessorKey: "numberOfGuests",
+    header: ({ column }) => {
+      return (
+        <Button
+          variant="ghost"
+          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+        >
+          Guests
+          <ArrowUpDown className="ml-2 h-4 w-4" />
+        </Button>
+      )
+    },
+    cell: ({ row }) => {
+      const num = row.getValue("numberOfGuests");
+      return <div className="text-muted-foreground text-center">{num as number}</div>
+    }
   },
   {
     accessorKey: "visitDate",

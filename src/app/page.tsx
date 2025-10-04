@@ -26,14 +26,14 @@ export default function Home() {
     setIsClient(true);
   }, []);
 
-  const totalGuests = guests.length;
-  const newToday = guests.filter((g) => isSameDay(g.visitDate, new Date())).length;
-  const newThisMonth = guests.filter((g) => isThisMonth(g.visitDate)).length;
+  const totalGuests = guests.reduce((sum, guest) => sum + guest.numberOfGuests, 0);
+  const newToday = guests.filter((g) => isSameDay(g.visitDate, new Date())).reduce((sum, guest) => sum + guest.numberOfGuests, 0);
+  const newThisMonth = guests.filter((g) => isThisMonth(g.visitDate)).reduce((sum, guest) => sum + guest.numberOfGuests, 0);
   
   const today = new Date();
   const lastWeekSameDay = new Date(today);
   lastWeekSameDay.setDate(today.getDate() - 7);
-  const sameDayLastWeekCount = guests.filter((g) => isSameDay(g.visitDate, lastWeekSameDay)).length;
+  const sameDayLastWeekCount = guests.filter((g) => isSameDay(g.visitDate, lastWeekSameDay)).reduce((sum, guest) => sum + guest.numberOfGuests, 0);
   const backgroundImage = PlaceHolderImages.find(img => img.id === 'blurry-dishes');
 
   const handleWhatsAppBroadcast = () => {

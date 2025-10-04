@@ -50,6 +50,7 @@ export function GuestDialog({ open, onOpenChange, guest }: GuestDialogProps) {
     defaultValues: {
       name: guest?.name || "",
       phone: guest?.phone || "",
+      numberOfGuests: guest?.numberOfGuests || 1,
       visitDate: guest?.visitDate || new Date(),
       preferences: guest?.preferences || "",
       feedback: guest?.feedback || "",
@@ -93,7 +94,7 @@ export function GuestDialog({ open, onOpenChange, guest }: GuestDialogProps) {
                 control={form.control}
                 name="name"
                 render={({ field }) => (
-                  <FormItem className="col-span-2">
+                  <FormItem className="col-span-2 sm:col-span-1">
                     <FormLabel>Full Name</FormLabel>
                     <FormControl>
                       <Input placeholder="John Doe" {...field} />
@@ -102,11 +103,25 @@ export function GuestDialog({ open, onOpenChange, guest }: GuestDialogProps) {
                   </FormItem>
                 )}
               />
-              <FormField
+               <FormField
+                control={form.control}
+                name="numberOfGuests"
+                render={({ field }) => (
+                  <FormItem className="col-span-2 sm:col-span-1">
+                    <FormLabel>Number of Guests</FormLabel>
+                    <FormControl>
+                      <Input type="number" min="1" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              </div>
+               <FormField
                 control={form.control}
                 name="phone"
                 render={({ field }) => (
-                  <FormItem className="col-span-2">
+                  <FormItem>
                     <FormLabel>Phone</FormLabel>
                     <FormControl>
                       <Input placeholder="(123) 456-7890" {...field} />
@@ -115,7 +130,6 @@ export function GuestDialog({ open, onOpenChange, guest }: GuestDialogProps) {
                   </FormItem>
                 )}
               />
-            </div>
             <FormField
               control={form.control}
               name="visitDate"
