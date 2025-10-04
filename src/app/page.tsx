@@ -81,7 +81,7 @@ export default function Home() {
           <Header onAddNewGuest={() => openGuestDialog()} />
           <main className="flex-1 p-4 md:p-6 lg:p-8">
             <div className="mb-8">
-              <h1 className="font-headline text-5xl font-bold">Welcome to <br/>Haveli Kebab & Grill</h1>
+              <h1 className="font-headline text-5xl font-bold">Welcome to <br/>HAVELI KEBAB & GRILL</h1>
             </div>
 
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-5">
