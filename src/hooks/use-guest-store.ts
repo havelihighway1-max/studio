@@ -1,7 +1,7 @@
 "use client";
 
 import { create } from 'zustand';
-import { persist, createJSONStorage } from 'zustand/middleware';
+import { persist, createJSONStorage, type PersistStorage } from 'zustand/middleware';
 import type { Guest } from '@/lib/types';
 
 interface GuestState {
@@ -19,6 +19,27 @@ interface GuestState {
   isInsightsDialogOpen: boolean;
   openInsightsDialog: () => void;
   closeInsightsDialog: () => void;
+}
+
+const storage: PersistStorage<GuestState> = {
+  getItem: (name) => {
+    const str = localStorage.getItem(name);
+    if (!str) return null;
+    const { state } = JSON.parse(str);
+    return {
+      state: {
+        ...state,
+        guests: state.guests.map((g: Guest) => ({
+          ...g,
+          visitDate: new Date(g.visitDate),
+        })),
+      },
+    };
+  },
+  setItem: (name, newValue) => {
+    localStorage.setItem(name, JSON.stringify(newValue));
+  },
+  removeItem: (name) => localStorage.removeItem(name),
 }
 
 export const useGuestStore = create<GuestState>()(
@@ -55,12 +76,7 @@ export const useGuestStore = create<GuestState>()(
     }),
     {
       name: 'embertable-guest-storage',
-      storage: createJSONStorage(() => localStorage),
-      onRehydrateStorage: () => (state) => {
-        if (state) {
-          state.guests = state.guests.map(g => ({ ...g, visitDate: new Date(g.visitDate) }));
-        }
-      }
+      storage,
     }
   )
 );
