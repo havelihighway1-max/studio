@@ -1,3 +1,10 @@
 {
-  "placeholderImages": []
+  "placeholderImages": [
+    {
+      "id": "blurry-dishes",
+      "description": "A blurry background image of various delicious dishes on a table.",
+      "imageUrl": "https://images.unsplash.com/photo-1555939594-58d7cb561ad1?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw0fHxmb29kJTIwZGlzaGVzfGVufDB8fHx8MTc1OTU2MTY4M3ww&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "food dishes"
+    }
+  ]
 }
