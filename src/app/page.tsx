@@ -102,7 +102,10 @@ export default function Home() {
               </Card>
               <Card>
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium">New Today</CardTitle>
+                  <CardTitle className="text-sm font-medium">
+                    New Today
+                    <span className="block text-xl text-accent-foreground">الحمد لله</span>
+                  </CardTitle>
                   <Calendar className="h-4 w-4 text-muted-foreground" />
                 </CardHeader>
                 <CardContent>
@@ -111,7 +114,10 @@ export default function Home() {
               </Card>
               <Card>
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium">New This Month</CardTitle>
+                  <CardTitle className="text-sm font-medium">
+                    New This Month
+                    <span className="block text-xl text-accent-foreground">الحمد لله</span>
+                  </CardTitle>
                   <UserPlus className="h-4 w-4 text-muted-foreground" />
                 </CardHeader>
                 <CardContent>
@@ -120,7 +126,10 @@ export default function Home() {
               </Card>
               <Card>
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium">Same Day Last Week</CardTitle>
+                  <CardTitle className="text-sm font-medium">
+                    Same Day Last Week
+                    <span className="block text-xl text-accent-foreground">الحمد لله</span>
+                  </CardTitle>
                   <CalendarCheck className="h-4 w-4 text-muted-foreground" />
                 </CardHeader>
                 <CardContent>
