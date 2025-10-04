@@ -73,7 +73,7 @@ export function DataTable<TData, TValue>({
           onChange={(event) => setGlobalFilter(event.target.value)}
           className="max-w-sm"
         />
-        <Button onClick={onAddReservation}>
+        <Button onClick={() => onAddReservation()}>
             <PlusCircle className="mr-2 h-4 w-4" />
             Add Reservation
         </Button>
