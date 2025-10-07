@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Flame, PlusCircle, BarChart2, CalendarClock, Table } from "lucide-react";
+import { Flame, PlusCircle, BarChart2, CalendarClock, Table, UserCheck } from "lucide-react";
 import { Button } from "./ui/button";
 
 interface HeaderProps {
@@ -27,6 +27,12 @@ export function Header({ onAddNewGuest }: HeaderProps) {
             <Link href="/tables">
               <Table className="mr-2 h-4 w-4" />
               Tables
+            </Link>
+          </Button>
+          <Button asChild variant="outline">
+            <Link href="/waitlist">
+              <UserCheck className="mr-2 h-4 w-4" />
+              Waitlist
             </Link>
           </Button>
         </div>

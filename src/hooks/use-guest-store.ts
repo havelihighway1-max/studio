@@ -2,7 +2,7 @@
 
 import { create } from 'zustand';
 import { persist, createJSONStorage, type PersistStorage } from 'zustand/middleware';
-import type { Guest, Reservation, Table } from '@/lib/types';
+import type { Guest, Reservation, Table, WaitingGuest } from '@/lib/types';
 
 interface AppState {
   guests: Guest[];
@@ -34,12 +34,23 @@ interface AppState {
   addTable: (table: Omit<Table, 'id'>) => void;
   updateTable: (id: string, table: Partial<Omit<Table, 'id'>>) => void;
   deleteTable: (id: string) => void;
-  setTables: (tables: Table[]) => void;
+  setTables: (tables: Omit<Table, 'id'>[]) => void;
 
   editingTable: Table | null;
   isTableDialogOpen: boolean;
   openTableDialog: (table?: Table | null) => void;
   closeTableDialog: () => void;
+
+  waitingGuests: WaitingGuest[];
+  addWaitingGuest: (guest: Omit<WaitingGuest, 'id' | 'tokenNumber' | 'createdAt' | 'status'>) => void;
+  updateWaitingGuest: (id: string, data: Partial<Omit<WaitingGuest, 'id'>>) => void;
+  deleteWaitingGuest: (id: string) => void;
+  getNextTokenNumber: () => number;
+
+  editingWaitingGuest: WaitingGuest | null;
+  isWaitingGuestDialogOpen: boolean;
+  openWaitingGuestDialog: (guest?: WaitingGuest | null) => void;
+  closeWaitingGuestDialog: () => void;
 }
 
 // Custom storage implementation to handle Date objects
@@ -63,25 +74,36 @@ const storage: PersistStorage<AppState> = {
           dateOfEvent: new Date(r.dateOfEvent),
         }));
       }
+      if (Array.isArray(parsed.state.waitingGuests)) {
+        parsed.state.waitingGuests = parsed.state.waitingGuests.map((w: any) => ({
+          ...w,
+          createdAt: new Date(w.createdAt),
+        }));
+      }
     }
 
     return parsed;
   },
   setItem: (name, newValue) => {
     // Prevent storing React event objects
-    if (newValue.state.editingGuest) {
+    const stateToStore = { ...newValue.state };
+    if (stateToStore.editingGuest) {
         // @ts-ignore
-        delete newValue.state.editingGuest.nativeEvent;
+        delete stateToStore.editingGuest.nativeEvent;
     }
-    if (newValue.state.editingReservation) {
+    if (stateToStore.editingReservation) {
         // @ts-ignore
-        delete newValue.state.editingReservation.nativeEvent;
+        delete stateToStore.editingReservation.nativeEvent;
     }
-    if (newValue.state.editingTable) {
+    if (stateToStore.editingTable) {
         // @ts-ignore
-        delete newValue.state.editingTable.nativeEvent;
+        delete stateToStore.editingTable.nativeEvent;
     }
-    localStorage.setItem(name, JSON.stringify(newValue));
+    if (stateToStore.editingWaitingGuest) {
+        // @ts-ignore
+        delete stateToStore.editingWaitingGuest.nativeEvent;
+    }
+    localStorage.setItem(name, JSON.stringify({ ...newValue, state: stateToStore }));
   },
   removeItem: (name) => localStorage.removeItem(name),
 }
@@ -158,11 +180,48 @@ export const useGuestStore = create<AppState>()(
         set((state) => ({
           tables: state.tables.filter((table) => table.id !== id),
         })),
-      setTables: (tables) => set({ tables: tables.sort((a, b) => a.name.localeCompare(b.name)) }),
+      setTables: (tables) => set({ tables: tables.map(t => ({...t, id: crypto.randomUUID()})).sort((a, b) => a.name.localeCompare(b.name)) }),
       editingTable: null,
       isTableDialogOpen: false,
       openTableDialog: (table = null) => set({ editingTable: table, isTableDialogOpen: true }),
       closeTableDialog: () => set({ isTableDialogOpen: false, editingTable: null }),
+
+      // Waiting list management
+      waitingGuests: [],
+      addWaitingGuest: (guest) => {
+        const newGuest = {
+          ...guest,
+          id: crypto.randomUUID(),
+          tokenNumber: get().getNextTokenNumber(),
+          createdAt: new Date(),
+          status: 'waiting' as const,
+        };
+        set((state) => ({
+          waitingGuests: [...state.waitingGuests, newGuest],
+        }));
+      },
+      updateWaitingGuest: (id, data) =>
+        set((state) => ({
+          waitingGuests: state.waitingGuests.map((guest) =>
+            guest.id === id ? { ...guest, ...data } : guest
+          ),
+        })),
+      deleteWaitingGuest: (id) =>
+        set((state) => ({
+          waitingGuests: state.waitingGuests.filter((guest) => guest.id !== id),
+        })),
+      getNextTokenNumber: () => {
+        const waitingGuests = get().waitingGuests;
+        if (waitingGuests.length === 0) {
+          return 1;
+        }
+        const maxToken = Math.max(...waitingGuests.map(g => g.tokenNumber));
+        return maxToken + 1;
+      },
+      editingWaitingGuest: null,
+      isWaitingGuestDialogOpen: false,
+      openWaitingGuestDialog: (guest = null) => set({ editingWaitingGuest: guest, isWaitingGuestDialogOpen: true }),
+      closeWaitingGuestDialog: () => set({ isWaitingGuestDialogOpen: false, editingWaitingGuest: null }),
 
     }),
     {

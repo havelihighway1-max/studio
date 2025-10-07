@@ -33,3 +33,15 @@ export const tableSchema = z.object({
 });
 
 export type Table = z.infer<typeof tableSchema>;
+
+export const waitingGuestSchema = z.object({
+  id: z.string(),
+  tokenNumber: z.number(),
+  name: z.string().min(2, { message: "Name must be at least 2 characters." }),
+  phone: z.string().optional(),
+  numberOfGuests: z.coerce.number().min(1, { message: "Must have at least one guest." }),
+  status: z.enum(["waiting", "called", "seated"]).default("waiting"),
+  createdAt: z.date(),
+});
+
+export type WaitingGuest = z.infer<typeof waitingGuestSchema>;
