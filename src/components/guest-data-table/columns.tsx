@@ -8,11 +8,13 @@ import { ArrowUpDown, MoreHorizontal, Pen, Trash2, Users } from "lucide-react"
 import { useGuestStore } from "@/hooks/use-guest-store"
 import { format } from "date-fns"
 import { MessageSquare } from "lucide-react";
+import { useAdmin } from "@/hooks/use-admin"
 
 
 const DataTableRowActions = ({ row }: { row: { original: Guest } }) => {
   const guest = row.original
   const { openGuestDialog, deleteGuest } = useGuestStore();
+  const { isAdmin } = useAdmin();
 
   const handleWhatsAppMessage = () => {
     if (guest.phone) {
@@ -38,18 +40,22 @@ const DataTableRowActions = ({ row }: { row: { original: Guest } }) => {
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-[160px]">
-        <DropdownMenuItem onSelect={() => openGuestDialog(guest)}>
-          <Pen className="mr-2 h-4 w-4" />
-          Edit
-        </DropdownMenuItem>
+        {isAdmin && (
+          <>
+            <DropdownMenuItem onSelect={() => openGuestDialog(guest)}>
+              <Pen className="mr-2 h-4 w-4" />
+              Edit
+            </DropdownMenuItem>
+            <DropdownMenuItem onSelect={() => deleteGuest(guest.id)} className="text-destructive focus:text-destructive focus:bg-destructive/10">
+              <Trash2 className="mr-2 h-4 w-4" />
+              Delete
+            </DropdownMenuItem>
+            <DropdownMenuSeparator />
+          </>
+        )}
         <DropdownMenuItem onSelect={handleWhatsAppMessage}>
             <MessageSquare className="mr-2 h-4 w-4" />
             WhatsApp
-        </DropdownMenuItem>
-        <DropdownMenuSeparator />
-        <DropdownMenuItem onSelect={() => deleteGuest(guest.id)} className="text-destructive focus:text-destructive focus:bg-destructive/10">
-          <Trash2 className="mr-2 h-4 w-4" />
-          Delete
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>

@@ -1,12 +1,21 @@
 import Link from "next/link";
-import { Flame, PlusCircle, BarChart2, CalendarClock, Table, UserCheck } from "lucide-react";
+import { Flame, PlusCircle, BarChart2, CalendarClock, Table, UserCheck, LogOut, LogIn } from "lucide-react";
 import { Button } from "./ui/button";
+import { useAdmin } from "@/hooks/use-admin";
+import { useAuth } from "@/firebase";
 
 interface HeaderProps {
   onAddNewGuest: () => void;
 }
 
 export function Header({ onAddNewGuest }: HeaderProps) {
+  const { user, isAdmin } = useAdmin();
+  const auth = useAuth();
+
+  const handleLogout = () => {
+    auth.signOut();
+  }
+
   return (
     <header className="sticky top-0 z-10 border-b bg-background/80 backdrop-blur-sm">
       <div className="container mx-auto grid h-16 grid-cols-3 items-center px-4 md:px-6">
@@ -43,10 +52,25 @@ export function Header({ onAddNewGuest }: HeaderProps) {
           </h1>
         </Link>
         <div className="flex items-center gap-2 justify-end">
-          <Button onClick={onAddNewGuest}>
-            <PlusCircle className="mr-2 h-4 w-4" />
-            Add New Guest
-          </Button>
+          {isAdmin && (
+            <Button onClick={onAddNewGuest}>
+              <PlusCircle className="mr-2 h-4 w-4" />
+              Add New Guest
+            </Button>
+          )}
+          {user ? (
+            <Button variant="ghost" onClick={handleLogout}>
+              <LogOut className="mr-2 h-4 w-4" />
+              Logout
+            </Button>
+          ) : (
+            <Button asChild variant="ghost">
+              <Link href="/login">
+                <LogIn className="mr-2 h-4 w-4" />
+                Admin Login
+              </Link>
+            </Button>
+          )}
         </div>
       </div>
     </header>

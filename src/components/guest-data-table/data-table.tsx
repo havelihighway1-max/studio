@@ -25,6 +25,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { useGuestStore } from "@/hooks/use-guest-store"
 import { PlusCircle, Sparkles } from "lucide-react"
+import { useAdmin } from "@/hooks/use-admin"
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[]
@@ -42,6 +43,7 @@ export function DataTable<TData, TValue>({
   const [globalFilter, setGlobalFilter] = React.useState('')
   
   const { openGuestDialog, openInsightsDialog } = useGuestStore();
+  const { isAdmin } = useAdmin();
 
   const table = useReactTable({
     data,
@@ -78,10 +80,12 @@ export function DataTable<TData, TValue>({
             <Sparkles className="mr-2 h-4 w-4" />
             Generate Insights
           </Button>
-          <Button onClick={() => openGuestDialog()}>
-            <PlusCircle className="mr-2 h-4 w-4" />
-            Add Guest
-          </Button>
+          {isAdmin && (
+            <Button onClick={() => openGuestDialog()}>
+              <PlusCircle className="mr-2 h-4 w-4" />
+              Add Guest
+            </Button>
+          )}
         </div>
       </div>
       <div className="rounded-lg border shadow-sm bg-card">

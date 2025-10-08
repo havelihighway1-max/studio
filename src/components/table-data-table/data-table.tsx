@@ -24,6 +24,7 @@ import {
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { PlusCircle, Upload } from "lucide-react"
+import { useAdmin } from "@/hooks/use-admin"
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[]
@@ -43,6 +44,7 @@ export function DataTable<TData, TValue>({
   ])
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([])
   const [globalFilter, setGlobalFilter] = React.useState('')
+  const { isAdmin } = useAdmin();
   
   const table = useReactTable({
     data,
@@ -74,16 +76,18 @@ export function DataTable<TData, TValue>({
           onChange={(event) => setGlobalFilter(event.target.value)}
           className="max-w-sm"
         />
-        <div className="flex items-center gap-2">
-            <Button onClick={onImport} variant="outline">
-                <Upload className="mr-2 h-4 w-4" />
-                Import from CSV
-            </Button>
-            <Button onClick={onAddTable}>
-                <PlusCircle className="mr-2 h-4 w-4" />
-                Add Table
-            </Button>
-        </div>
+        {isAdmin && (
+          <div className="flex items-center gap-2">
+              <Button onClick={onImport} variant="outline">
+                  <Upload className="mr-2 h-4 w-4" />
+                  Import from CSV
+              </Button>
+              <Button onClick={onAddTable}>
+                  <PlusCircle className="mr-2 h-4 w-4" />
+                  Add Table
+              </Button>
+          </div>
+        )}
       </div>
       <div className="rounded-lg border shadow-sm bg-card">
         <Table>
