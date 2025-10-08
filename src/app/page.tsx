@@ -3,7 +3,6 @@
 
 import { useEffect, useState } from "react";
 import Image from "next/image";
-import Link from "next/link";
 import { Header } from "@/components/header";
 import { useGuestStore } from "@/hooks/use-guest-store";
 import { GuestDialog } from "@/components/guest-data-table/guest-dialog";
@@ -13,18 +12,48 @@ import {
   isThisMonth,
 } from "date-fns";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Users, Calendar, UserPlus, CalendarCheck, MessageSquare } from "lucide-react";
+import { Users, Calendar, UserPlus, CalendarCheck, MessageSquare, History } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { PlaceHolderImages } from "@/lib/placeholder-images";
+import { AnniversaryDialog } from "@/components/anniversary-dialog";
+import { Guest, Reservation } from "@/lib/types";
 
 
 export default function Home() {
   const [isClient, setIsClient] = useState(false);
-  const { guests, isGuestDialogOpen, closeGuestDialog, openGuestDialog, isInsightsDialogOpen, closeInsightsDialog } = useGuestStore();
+  const { guests, reservations, isGuestDialogOpen, closeGuestDialog, openGuestDialog, isInsightsDialogOpen, closeInsightsDialog } = useGuestStore();
+
+  const [isAnniversaryDialogOpen, setIsAnniversaryDialogOpen] = useState(false);
+  const [anniversaryEvents, setAnniversaryEvents] = useState<(Guest | Reservation)[]>([]);
 
   useEffect(() => {
     setIsClient(true);
   }, []);
+
+  useEffect(() => {
+    if (isClient) {
+      const today = new Date();
+      const currentMonth = today.getMonth();
+      const currentDay = today.getDate();
+
+      const anniversaryGuests = guests.filter(guest => {
+        const visitDate = new Date(guest.visitDate);
+        return visitDate.getMonth() === currentMonth &&
+               visitDate.getDate() === currentDay &&
+               visitDate.getFullYear() < today.getFullYear();
+      });
+
+      const anniversaryReservations = reservations.filter(reservation => {
+        const eventDate = new Date(reservation.dateOfEvent);
+        return eventDate.getMonth() === currentMonth &&
+               eventDate.getDate() === currentDay &&
+               eventDate.getFullYear() < today.getFullYear();
+      });
+
+      setAnniversaryEvents([...anniversaryGuests, ...anniversaryReservations]);
+    }
+  }, [isClient, guests, reservations]);
+
 
   const totalGuests = guests.reduce((sum, guest) => sum + (Number(guest.numberOfGuests) || 0), 0);
   const newToday = guests.filter((g) => isSameDay(g.visitDate, new Date())).reduce((sum, guest) => sum + (Number(guest.numberOfGuests) || 0), 0);
@@ -136,14 +165,23 @@ export default function Home() {
                   <div className="text-2xl font-bold">{sameDayLastWeekCount}</div>
                 </CardContent>
               </Card>
-               {/* This card is a placeholder for the 5th item */}
-              <Card className="opacity-0 pointer-events-none md:col-span-2 lg:col-span-1">
-                  <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                      <CardTitle className="text-sm font-medium"></CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                      <div className="text-2xl font-bold"></div>
-                  </CardContent>
+               <Card
+                className={anniversaryEvents.length > 0 ? "cursor-pointer hover:bg-card/80" : ""}
+                onClick={() => anniversaryEvents.length > 0 && setIsAnniversaryDialogOpen(true)}
+              >
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                  <CardTitle className="text-sm font-medium">
+                    This Day in History
+                    <span className="block text-xl text-accent-foreground">ما شاء الله</span>
+                  </CardTitle>
+                  <History className="h-4 w-4 text-muted-foreground" />
+                </CardHeader>
+                <CardContent>
+                  <div className="text-2xl font-bold">{anniversaryEvents.length}</div>
+                   <p className="text-xs text-muted-foreground">
+                    {anniversaryEvents.length > 0 ? "Click to view anniversaries" : "No events from past years"}
+                  </p>
+                </CardContent>
               </Card>
             </div>
             
@@ -167,6 +205,11 @@ export default function Home() {
         guest={useGuestStore.getState().editingGuest}
       />
       <InsightsDialog open={isInsightsDialogOpen} onOpenChange={closeInsightsDialog} />
+       <AnniversaryDialog
+        open={isAnniversaryDialogOpen}
+        onOpenChange={setIsAnniversaryDialogOpen}
+        events={anniversaryEvents}
+      />
     </div>
   );
 }

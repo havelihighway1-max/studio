@@ -1,3 +1,4 @@
+
 "use client";
 
 import { create } from 'zustand';
@@ -87,23 +88,37 @@ const storage: PersistStorage<AppState> = {
   setItem: (name, newValue) => {
     // Prevent storing React event objects
     const stateToStore = { ...newValue.state };
-    if (stateToStore.editingGuest) {
-        // @ts-ignore
-        delete stateToStore.editingGuest.nativeEvent;
+    const newEditingGuest = stateToStore.editingGuest ? { ...stateToStore.editingGuest } : null;
+    const newEditingReservation = stateToStore.editingReservation ? { ...stateToStore.editingReservation } : null;
+    const newEditingTable = stateToStore.editingTable ? { ...stateToStore.editingTable } : null;
+    const newEditingWaitingGuest = stateToStore.editingWaitingGuest ? { ...stateToStore.editingWaitingGuest } : null;
+
+    if (newEditingGuest) {
+      // @ts-ignore
+      delete newEditingGuest.nativeEvent;
     }
-    if (stateToStore.editingReservation) {
-        // @ts-ignore
-        delete stateToStore.editingReservation.nativeEvent;
+    if (newEditingReservation) {
+       // @ts-ignore
+      delete newEditingReservation.nativeEvent;
     }
-    if (stateToStore.editingTable) {
-        // @ts-ignore
-        delete stateToStore.editingTable.nativeEvent;
+    if (newEditingTable) {
+       // @ts-ignore
+      delete newEditingTable.nativeEvent;
     }
-    if (stateToStore.editingWaitingGuest) {
-        // @ts-ignore
-        delete stateToStore.editingWaitingGuest.nativeEvent;
+    if (newEditingWaitingGuest) {
+       // @ts-ignore
+      delete newEditingWaitingGuest.nativeEvent;
     }
-    localStorage.setItem(name, JSON.stringify({ ...newValue, state: stateToStore }));
+
+    const cleanedState = {
+      ...stateToStore,
+      editingGuest: newEditingGuest,
+      editingReservation: newEditingReservation,
+      editingTable: newEditingTable,
+      editingWaitingGuest: newEditingWaitingGuest,
+    };
+    
+    localStorage.setItem(name, JSON.stringify({ ...newValue, state: cleanedState }));
   },
   removeItem: (name) => localStorage.removeItem(name),
 }
