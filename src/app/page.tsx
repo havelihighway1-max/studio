@@ -103,7 +103,7 @@ export default function Home() {
         )}
        <div className="relative z-10 flex min-h-screen w-full flex-col bg-black/50">
           <div className="w-full bg-background/80 py-2 text-center backdrop-blur-sm">
-             <h2 className="font-body text-4xl font-bold text-primary">بسم الله الرحمن الرحيم</h2>
+             <h2 className="font-body text-3xl font-bold text-primary [text-shadow:0_0_1px_hsl(var(--foreground))]">بسم الله الرحمن الرحيم</h2>
           </div>
           <Header onAddNewGuest={() => openGuestDialog()} />
           <main className="flex-1 p-4 md:p-6 lg:p-8">
