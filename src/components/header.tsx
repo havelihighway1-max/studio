@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Flame, PlusCircle, BarChart2, CalendarClock, Table, UserCheck, LogOut, LogIn } from "lucide-react";
+import { PlusCircle, BarChart2, CalendarClock, Table, UserCheck, LogOut, LogIn } from "lucide-react";
 import { Button } from "./ui/button";
 import { useAdmin } from "@/hooks/use-admin";
 import { useAuth } from "@/firebase";
@@ -46,7 +46,7 @@ export function Header({ onAddNewGuest }: HeaderProps) {
           </Button>
         </div>
         <Link href="/" className="flex items-center gap-2 justify-center text-center">
-          <Flame className="h-7 w-7 text-primary" />
+          
         </Link>
         <div className="flex items-center gap-2 justify-end">
           {isAdmin && (
