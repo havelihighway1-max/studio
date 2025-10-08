@@ -58,6 +58,7 @@ export function ReservationDialog({ open, onOpenChange, reservation }: Reservati
       status: reservation?.status || "upcoming",
       notes: reservation?.notes || "",
       advancePayment: reservation?.advancePayment || undefined,
+      occasion: reservation?.occasion || undefined,
     },
   });
 
@@ -185,19 +186,44 @@ export function ReservationDialog({ open, onOpenChange, reservation }: Reservati
                 </FormItem>
               )}
             />
-            <FormField
-              control={form.control}
-              name="advancePayment"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Advance Payment</FormLabel>
-                  <FormControl>
-                    <Input type="number" placeholder="Amount" {...field} onChange={e => field.onChange(parseInt(e.target.value))} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+            <div className="grid grid-cols-2 gap-4">
+              <FormField
+                control={form.control}
+                name="occasion"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Occasion</FormLabel>
+                    <Select onValueChange={field.onChange} defaultValue={field.value}>
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select an occasion" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        <SelectItem value="birthday">Birthday</SelectItem>
+                        <SelectItem value="anniversary">Anniversary</SelectItem>
+                        <SelectItem value="marriage">Marriage</SelectItem>
+                        <SelectItem value="other">Other</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="advancePayment"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Advance Payment</FormLabel>
+                    <FormControl>
+                      <Input type="number" placeholder="Amount" {...field} onChange={e => field.onChange(parseInt(e.target.value))} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
              {isEditMode && (
               <FormField
                 control={form.control}

@@ -22,6 +22,7 @@ export const reservationSchema = z.object({
   status: z.enum(["upcoming", "seated", "canceled"]).default("upcoming"),
   notes: z.string().optional(),
   advancePayment: z.coerce.number().optional(),
+  occasion: z.enum(["birthday", "anniversary", "marriage", "other"]).optional(),
 });
 
 export type Reservation = z.infer<typeof reservationSchema>;

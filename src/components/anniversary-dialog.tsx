@@ -9,10 +9,11 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { History, Cake, Calendar as CalendarIcon } from "lucide-react";
+import { History, Cake, Calendar as CalendarIcon, GlassWater } from "lucide-react";
 import { Guest, Reservation } from "@/lib/types";
 import { format } from "date-fns";
 import { ScrollArea } from "./ui/scroll-area";
+import { Badge } from "./ui/badge";
 
 interface AnniversaryDialogProps {
   open: boolean;
@@ -41,13 +42,19 @@ export function AnniversaryDialog({ open, onOpenChange, events }: AnniversaryDia
             {events.length > 0 ? (
               events.map((event) => {
                 const eventDate = isGuest(event) ? event.visitDate : event.dateOfEvent;
+                const reservation = !isGuest(event) ? (event as Reservation) : null;
                 return (
                   <div key={event.id} className="p-4 rounded-lg border bg-card/50 flex items-start gap-4">
                     <div className="bg-primary/10 p-2 rounded-full">
-                       {isGuest(event) ? <Cake className="h-5 w-5 text-primary" /> : <CalendarIcon className="h-5 w-5 text-primary" />}
+                       {reservation?.occasion === 'birthday' ? <Cake className="h-5 w-5 text-primary" /> : reservation ? <CalendarIcon className="h-5 w-5 text-primary" /> : <GlassWater className="h-5 w-5 text-primary" />}
                     </div>
-                    <div>
-                      <p className="font-semibold">{event.name}</p>
+                    <div className="flex-1">
+                      <div className="flex justify-between items-center">
+                        <p className="font-semibold">{event.name}</p>
+                        {reservation?.occasion && (
+                          <Badge variant="secondary" className="capitalize">{reservation.occasion}</Badge>
+                        )}
+                      </div>
                       <p className="text-sm text-muted-foreground">
                         {isGuest(event) ? "Visited on" : "Reservation on"} {format(eventDate, "MMMM d, yyyy")}
                       </p>
