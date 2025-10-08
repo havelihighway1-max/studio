@@ -1,0 +1,111 @@
+{
+  "entities": {
+    "GuestEntry": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "GuestEntry",
+      "type": "object",
+      "description": "Represents a guest entry with their contact details, visit information, and feedback.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the GuestEntry entity."
+        },
+        "firstName": {
+          "type": "string",
+          "description": "The first name of the guest."
+        },
+        "lastName": {
+          "type": "string",
+          "description": "The last name of the guest."
+        },
+        "email": {
+          "type": "string",
+          "description": "The email address of the guest.",
+          "format": "email"
+        },
+        "phoneNumber": {
+          "type": "string",
+          "description": "The phone number of the guest."
+        },
+        "visitDate": {
+          "type": "string",
+          "description": "The date of the guest's visit.",
+          "format": "date-time"
+        },
+        "feedback": {
+          "type": "string",
+          "description": "Specific feedback or notes about the guest's experience."
+        }
+      },
+      "required": [
+        "id",
+        "firstName",
+        "lastName",
+        "visitDate"
+      ]
+    },
+    "AdminUser": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "AdminUser",
+      "type": "object",
+      "description": "Represents an administrator user who can edit and delete guest entries.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the AdminUser entity."
+        },
+        "username": {
+          "type": "string",
+          "description": "The username of the administrator."
+        }
+      },
+      "required": [
+        "id",
+        "username"
+      ]
+    }
+  },
+  "auth": {
+    "providers": [
+      "password",
+      "anonymous"
+    ]
+  },
+  "firestore": {
+    "structure": [
+      {
+        "path": "/guest_entries/{guestEntryId}",
+        "definition": {
+          "entityName": "GuestEntry",
+          "schema": {
+            "$ref": "#/backend/entities/GuestEntry"
+          },
+          "description": "Collection to store all guest entries. All entries can be read by authenticated users. Includes 'guestEntryId' as the document ID.",
+          "params": [
+            {
+              "name": "guestEntryId",
+              "description": "Unique identifier for each guest entry."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/roles_admin/{adminUserId}",
+        "definition": {
+          "entityName": "AdminUser",
+          "schema": {
+            "$ref": "#/backend/entities/AdminUser"
+          },
+          "description": "Collection to store admin user IDs. Existence in this collection grants admin privileges.",
+          "params": [
+            {
+              "name": "adminUserId",
+              "description": "The Firebase UID of the administrator user."
+            }
+          ]
+        }
+      }
+    ],
+    "reasoning": "The Firestore structure is designed to manage guest entries and administrator access for the EmberTable application. It prioritizes Authorization Independence by avoiding hierarchical authorization dependencies. The admin role is managed via a dedicated collection. Guest entries are stored in a top-level collection, which ensures security rules can be applied consistently across all documents within that collection.\n\n**Authorization Independence:** No `get()` calls are needed in security rules because access control is determined either by path-based ownership (admin users) or the absence of ownership (guest entries, all entries can be read). Admin users are managed via a dedicated collection. The structure supports atomic operations.\n\n**QAPs Support:**\n*   List operation is secured because there are no custom claims and authorization depends solely on request.auth.uid.\n*   Admin authorization is managed via a roles collection, not based on document content.\n\n"
+  }
+}
