@@ -47,9 +47,6 @@ export function Header({ onAddNewGuest }: HeaderProps) {
         </div>
         <Link href="/" className="flex items-center gap-2 justify-center text-center">
           <Flame className="h-7 w-7 text-primary" />
-          <h1 className="font-headline text-2xl font-bold tracking-wide text-foreground">
-            HAVELI KEBAB & GRILL
-          </h1>
         </Link>
         <div className="flex items-center gap-2 justify-end">
           {isAdmin && (
