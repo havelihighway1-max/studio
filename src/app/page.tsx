@@ -180,10 +180,6 @@ export default function Home() {
               </Card>
             </div>
             
-            <div className="mt-12 text-center">
-              <p className="text-lg text-muted-foreground">Your Restaurant. Smarter</p>
-            </div>
-
           </main>
           <div className="fixed bottom-4 right-4 z-20">
             <Button onClick={handleWhatsAppBroadcast} size="lg">
@@ -208,5 +204,3 @@ export default function Home() {
     </div>
   );
 }
-
-    
