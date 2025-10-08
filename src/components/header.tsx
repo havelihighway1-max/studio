@@ -1,3 +1,4 @@
+
 "use client";
 
 import Link from "next/link";
@@ -15,7 +16,7 @@ export function Header({ onAddNewGuest }: HeaderProps) {
   const { user, isAdmin } = useAdmin();
   const auth = useAuth();
   const pathname = usePathname();
-  const isHomePage = pathname === '/';
+  const isDashboardPage = pathname === '/dashboard';
 
   const handleLogout = () => {
     auth.signOut();
@@ -25,11 +26,11 @@ export function Header({ onAddNewGuest }: HeaderProps) {
     <header className="sticky top-0 z-10 border-b bg-background/80 backdrop-blur-sm">
       <div className="container mx-auto grid h-16 grid-cols-3 items-center px-4 md:px-6">
         <div className="flex items-center gap-2 justify-start">
-          {!isHomePage ? (
+          {!isDashboardPage ? (
              <Button asChild variant="outline">
-              <Link href="/">
+              <Link href="/dashboard">
                 <ArrowLeft className="mr-2 h-4 w-4" />
-                Back to Home
+                Back to Dashboard
               </Link>
             </Button>
           ) : (

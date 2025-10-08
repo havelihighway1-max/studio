@@ -62,7 +62,7 @@ export default function LoginPage() {
         title: 'Login Successful',
         description: 'Redirecting to the dashboard...',
       });
-      router.push('/');
+      router.push('/dashboard');
     } catch (error: any) {
       console.error('Login Error:', error);
       toast({
@@ -77,7 +77,7 @@ export default function LoginPage() {
 
   // If user is already logged in, redirect to home
   if (!isUserLoading && user) {
-    router.replace('/');
+    router.replace('/dashboard');
     return null;
   }
   
