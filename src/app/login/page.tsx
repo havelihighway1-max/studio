@@ -1,7 +1,7 @@
 
 "use client";
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useForm, SubmitHandler } from 'react-hook-form';
 import { z } from 'zod';
@@ -13,6 +13,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { useAuth, useUser } from '@/firebase';
 import { signInWithEmailAndPassword } from 'firebase/auth';
 import { useToast } from '@/hooks/use-toast';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+import { WifiOff } from 'lucide-react';
 
 const loginSchema = z.object({
   email: z.string().email({ message: 'Invalid email address' }),
@@ -26,7 +28,14 @@ export default function LoginPage() {
   const auth = useAuth();
   const { user, isUserLoading } = useUser();
   const [isLoading, setIsLoading] = useState(false);
+  const [isOffline, setIsOffline] = useState(false);
   const { toast } = useToast();
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      setIsOffline(!navigator.onLine);
+    }
+  }, []);
 
   const {
     register,
@@ -37,6 +46,15 @@ export default function LoginPage() {
   });
 
   const onSubmit: SubmitHandler<LoginFormInputs> = async (data) => {
+    if (isOffline) {
+      toast({
+        variant: 'destructive',
+        title: 'Offline',
+        description: 'You cannot log in while offline. Please check your connection.',
+      });
+      return;
+    }
+
     setIsLoading(true);
     try {
       await signInWithEmailAndPassword(auth, data.email, data.password);
@@ -63,8 +81,8 @@ export default function LoginPage() {
     return null;
   }
   
-  // Show a loading state while checking for user
-  if (isUserLoading) {
+  // Show a loading state while checking for user, unless offline
+  if (isUserLoading && !isOffline) {
       return (
         <div className="flex min-h-screen items-center justify-center bg-background">
             <p>Loading...</p>
@@ -80,6 +98,15 @@ export default function LoginPage() {
           <CardDescription>Enter your credentials to access the dashboard.</CardDescription>
         </CardHeader>
         <CardContent>
+          {isOffline && (
+            <Alert variant="destructive" className="mb-4">
+              <WifiOff className="h-4 w-4" />
+              <AlertTitle>You are offline</AlertTitle>
+              <AlertDescription>
+                Admin login is not available without an internet connection.
+              </AlertDescription>
+            </Alert>
+          )}
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
             <div className="space-y-2">
               <Label htmlFor="email">Email</Label>
@@ -88,7 +115,7 @@ export default function LoginPage() {
                 type="email"
                 placeholder="admin@example.com"
                 {...register('email')}
-                disabled={isLoading}
+                disabled={isLoading || isOffline}
               />
               {errors.email && <p className="text-xs text-destructive">{errors.email.message}</p>}
             </div>
@@ -98,11 +125,11 @@ export default function LoginPage() {
                 id="password"
                 type="password"
                 {...register('password')}
-                disabled={isLoading}
+                disabled={isLoading || isOffline}
               />
               {errors.password && <p className="text-xs text-destructive">{errors.password.message}</p>}
             </div>
-            <Button type="submit" className="w-full" disabled={isLoading}>
+            <Button type="submit" className="w-full" disabled={isLoading || isOffline}>
               {isLoading ? 'Logging In...' : 'Log In'}
             </Button>
           </form>

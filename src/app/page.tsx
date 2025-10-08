@@ -66,6 +66,10 @@ export default function Home() {
   const backgroundImage = PlaceHolderImages.find(img => img.id === 'blurry-dishes');
 
   const handleWhatsAppBroadcast = () => {
+    if (typeof window !== 'undefined' && !navigator.onLine) {
+        alert("This feature requires an internet connection.");
+        return;
+    }
     const todaysGuests = guests.filter(g => isSameDay(g.visitDate, new Date()));
     const phoneNumbers = todaysGuests
       .map(guest => guest.phone)
