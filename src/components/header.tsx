@@ -49,12 +49,10 @@ export function Header({ onAddNewGuest }: HeaderProps) {
           
         </Link>
         <div className="flex items-center gap-2 justify-end">
-          {isAdmin && (
-            <Button onClick={onAddNewGuest}>
-              <PlusCircle className="mr-2 h-4 w-4" />
-              Add New Guest
-            </Button>
-          )}
+          <Button onClick={onAddNewGuest} className="animate-pulse">
+            <PlusCircle className="mr-2 h-4 w-4" />
+            Add New Guest
+          </Button>
           {user ? (
             <Button variant="ghost" onClick={handleLogout}>
               <LogOut className="mr-2 h-4 w-4" />
