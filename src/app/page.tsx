@@ -66,25 +66,20 @@ export default function Home() {
   const backgroundImage = PlaceHolderImages.find(img => img.id === 'blurry-dishes');
 
   const handleWhatsAppBroadcast = () => {
-    const phoneNumbers = guests
+    const todaysGuests = guests.filter(g => isSameDay(g.visitDate, new Date()));
+    const phoneNumbers = todaysGuests
       .map(guest => guest.phone)
       .filter(phone => !!phone)
-      .map(phone => phone.replace(/\D/g, '')) // Remove non-numeric characters
-      .join(',');
+      .map(phone => phone.replace(/\D/g, '')); // Remove non-numeric characters
 
-    if (phoneNumbers) {
-      // This will open WhatsApp with a pre-selected list of contacts.
-      // The user still has to type the message and send it.
-      // This functionality depends on the user having WhatsApp installed.
-      // Broadcasting to a list of numbers directly is not supported by standard `whatsapp://` URLs.
-      // We will open a chat with the first user and the user can then forward the message.
-      const firstPhone = phoneNumbers.split(',')[0];
-      const text = encodeURIComponent("Hello! Here is our latest update from Haveli Kebab & Grill.");
+    if (phoneNumbers.length > 0) {
+      // The `wa.me` URL scheme does not support sending to a list.
+      // The best we can do is pre-fill the text and let the user select the contacts.
+      const text = encodeURIComponent("Good night and thank you for dining with us at HAVELI KEBAB & GRILL! We hope you enjoyed your meal and we look forward to seeing you again soon.");
       const url = `https://wa.me/?text=${text}`;
       window.open(url, '_blank');
-
     } else {
-      alert("No guest phone numbers available for a broadcast.");
+      alert("No guests with phone numbers were entered today.");
     }
   };
 
@@ -213,3 +208,5 @@ export default function Home() {
     </div>
   );
 }
+
+    
