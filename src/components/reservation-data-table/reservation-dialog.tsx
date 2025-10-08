@@ -33,6 +33,7 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { cn } from "@/lib/utils";
 import { Calendar } from "@/components/ui/calendar";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Switch } from "../ui/switch";
 
 
 type ReservationFormValues = z.infer<typeof reservationSchema>;
@@ -59,6 +60,7 @@ export function ReservationDialog({ open, onOpenChange, reservation }: Reservati
       notes: reservation?.notes || "",
       advancePayment: reservation?.advancePayment || undefined,
       occasion: reservation?.occasion || undefined,
+      checkedIn: reservation?.checkedIn || false,
     },
   });
 
@@ -223,6 +225,25 @@ export function ReservationDialog({ open, onOpenChange, reservation }: Reservati
                   </FormItem>
                 )}
               />
+            </div>
+             <div className="flex items-center space-x-2">
+                <FormField
+                    control={form.control}
+                    name="checkedIn"
+                    render={({ field }) => (
+                        <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3 shadow-sm w-full">
+                            <div className="space-y-0.5">
+                                <FormLabel>Guest Checked In</FormLabel>
+                            </div>
+                            <FormControl>
+                                <Switch
+                                checked={field.value}
+                                onCheckedChange={field.onChange}
+                                />
+                            </FormControl>
+                        </FormItem>
+                    )}
+                />
             </div>
              {isEditMode && (
               <FormField

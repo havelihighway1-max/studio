@@ -23,6 +23,7 @@ export const reservationSchema = z.object({
   notes: z.string().optional(),
   advancePayment: z.coerce.number().optional(),
   occasion: z.enum(["birthday", "anniversary", "marriage", "other"]).optional(),
+  checkedIn: z.boolean().default(false),
 });
 
 export type Reservation = z.infer<typeof reservationSchema>;

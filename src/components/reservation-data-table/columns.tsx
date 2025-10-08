@@ -5,7 +5,7 @@ import { ColumnDef } from "@tanstack/react-table"
 import { Reservation } from "@/lib/types"
 import { Button } from "@/components/ui/button"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
-import { ArrowUpDown, MoreHorizontal, Pen, Trash2, CheckCircle, Ban, Clock } from "lucide-react"
+import { ArrowUpDown, MoreHorizontal, Pen, Trash2, CheckCircle, Ban, Clock, CircleUserRound } from "lucide-react"
 import { useGuestStore } from "@/hooks/use-guest-store"
 import { format } from "date-fns"
 import { Badge } from "@/components/ui/badge"
@@ -109,6 +109,14 @@ export const columns: ColumnDef<Reservation>[] = [
             status === "canceled" ? "destructive" :
             "secondary";
         return <Badge variant={variant} className="capitalize">{status}</Badge>
+    }
+  },
+  {
+    accessorKey: "checkedIn",
+    header: "Checked In",
+    cell: ({ row }) => {
+        const checkedIn = row.getValue("checkedIn") as boolean;
+        return <div className="flex justify-center">{checkedIn ? <CheckCircle className="h-5 w-5 text-green-500" /> : <CircleUserRound className="h-5 w-5 text-muted-foreground" />}</div>
     }
   },
   {

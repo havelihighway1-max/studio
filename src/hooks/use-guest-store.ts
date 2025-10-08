@@ -162,13 +162,13 @@ export const useGuestStore = create<AppState>()(
       reservations: [],
       addReservation: (reservation) =>
         set((state) => ({
-          reservations: [...state.reservations, { ...reservation, id: crypto.randomUUID(), status: 'upcoming' }].sort((a, b) => b.dateOfEvent.getTime() - a.dateOfEvent.getTime()),
+          reservations: [...state.reservations, { ...reservation, id: crypto.randomUUID(), checkedIn: false }].sort((a, b) => a.dateOfEvent.getTime() - b.dateOfEvent.getTime()),
         })),
       updateReservation: (id, updatedData) =>
         set((state) => ({
           reservations: state.reservations.map((reservation) =>
             reservation.id === id ? { ...reservation, ...updatedData } : reservation
-          ).sort((a, b) => b.dateOfEvent.getTime() - a.dateOfEvent.getTime()),
+          ).sort((a, b) => a.dateOfEvent.getTime() - b.dateOfEvent.getTime()),
         })),
       deleteReservation: (id) =>
         set((state) => ({
