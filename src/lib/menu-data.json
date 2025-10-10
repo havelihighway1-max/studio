@@ -17,7 +17,7 @@
           "price": 300
         },
         {
-          "name": "RUSSIAN SALAD",
+          "name": "RUSSIAN  SALAD ",
           "price": 799
         },
         {
@@ -355,7 +355,7 @@
           "price": 1199
         },
         {
-          "name": "MUSHROOM STEAK CHICKEN",
+          "name": "MUSHROOM STEAK CHICKEN ",
           "price": 2529
         },
         {
@@ -419,11 +419,7 @@
           "price": 999
         },
         {
-          "name": "HUNTER BEEF STEAK",
-          "price": 4349
-        },
-        {
-          "name": "SPICY ALFREDO",
+          "name": "SPICY ALFREDO ",
           "price": 1319
         }
       ]
@@ -538,7 +534,7 @@
       "category": "Category 2013",
       "items": [
         {
-          "name": "BEEF AFGHANI BOTI",
+          "name": "BEEF AFGHANI BOTI ",
           "price": 1299
         },
         {
@@ -551,7 +547,7 @@
       "category": "Category 2010",
       "items": [
         {
-          "name": "CHICKEN BIHARI BOTI",
+          "name": "CHICKEN BIHARI BOTI ",
           "price": 799
         },
         {
@@ -603,22 +599,6 @@
           "price": 899
         },
         {
-          "name": "DIL KHUSH KEBAB MUTTON",
-          "price": 1599
-        },
-        {
-          "name": "ADNA KEBAB MUTTON",
-          "price": 1599
-        },
-        {
-          "name": "KOOBIDEH KEBAB MUTTON",
-          "price": 1599
-        },
-        {
-          "name": "CHICKEN ALFREDO KEBAB",
-          "price": 1499
-        },
-        {
           "name": "BEEF GOLA KEBAB",
           "price": 999
         },
@@ -633,6 +613,22 @@
         {
           "name": "MAKHMALI KEBAB CHICKEN",
           "price": 1099
+        },
+        {
+          "name": "DIL KHUSH KEBAB MUTTON",
+          "price": 1599
+        },
+        {
+          "name": "ADNA KEBAB MUTTON",
+          "price": 1599
+        },
+        {
+          "name": "KOOBIDEH KEBAB MUTTON",
+          "price": 1599
+        },
+        {
+          "name": "CHICKEN ALFREDO KEBAB",
+          "price": 1499
         },
         {
           "name": "MALAI GOLA KEBAB",
@@ -852,7 +848,7 @@
           "price": 1819
         },
         {
-          "name": "HAVELI SPECIAL MUTTON BRAIN ( 2 PIECE )",
+          "name": "HAVELI SPECIAL MUTTON  BRAIN ( 2 PIECE )",
           "price": 1819
         }
       ]
@@ -939,14 +935,6 @@
           "price": 249
         },
         {
-          "name": "BLUE LAGOON",
-          "price": 325
-        },
-        {
-          "name": "PINA COLADA",
-          "price": 469
-        },
-        {
           "name": "VANILLA SHAKE",
           "price": 439
         },
@@ -1013,6 +1001,14 @@
         {
           "name": "Couple time",
           "price": 520
+        },
+        {
+          "name": "BLUE LAGOON",
+          "price": 325
+        },
+        {
+          "name": "PINA COLADA",
+          "price": 469
         }
       ]
     },
@@ -1090,7 +1086,7 @@
           "price": 3949
         },
         {
-          "name": "DAM PUKHT",
+          "name": "DAM PUKHT ",
           "price": 2900
         },
         {
@@ -1169,7 +1165,7 @@
           "price": 1450
         },
         {
-          "name": "CHULLU KEBAB (PER KG)",
+          "name": "CHULLU KEBAB  (PER KG)",
           "price": 1500
         },
         {
@@ -1195,6 +1191,10 @@
         {
           "name": "MANDI RICE",
           "price": 600
+        },
+        {
+          "name": "BEEF BIRYANI",
+          "price": 1700
         },
         {
           "name": "BAKRA MAKING",
@@ -1538,7 +1538,7 @@
           "price": 0
         },
         {
-          "name": "FRESH WATERMELON",
+          "name": "FRESH WATERMELON ",
           "price": 0
         },
         {
@@ -1584,6 +1584,22 @@
         {
           "name": "BALOCHI TIKKA",
           "price": 1400
+        },
+        {
+          "name": "1",
+          "price": 0
+        },
+        {
+          "name": "DECORATION",
+          "price": 0
+        },
+        {
+          "name": "sheesha serv charges",
+          "price": 0
+        },
+        {
+          "name": "BBR MAKE",
+          "price": 0
         }
       ]
     },
@@ -1713,11 +1729,11 @@
           "price": 2599
         },
         {
-          "name": "HAVELI SPECIAL MIX PIDE",
+          "name": "HAVELI SPECIAL MIX PIDE ",
           "price": 949
         },
         {
-          "name": "LAHMACHUN PIDE",
+          "name": "LAHMACHUN PIDE ",
           "price": 849
         },
         {
@@ -1733,7 +1749,7 @@
           "price": 949
         },
         {
-          "name": "KAFTA PIDE",
+          "name": "KAFTA PIDE ",
           "price": 849
         },
         {
@@ -1790,16 +1806,16 @@
           "price": 1199
         },
         {
+          "name": "KIWI ",
+          "price": 1500
+        },
+        {
           "name": "SPECIAL GLASS",
           "price": 2000
         },
         {
           "name": "glass service",
           "price": 1000
-        },
-        {
-          "name": "KIWI",
-          "price": 1500
         }
       ]
     },
