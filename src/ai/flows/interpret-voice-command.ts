@@ -66,7 +66,7 @@ const interpretVoiceCommandFlow = ai.defineFlow(
   async (input) => {
     // 1. Speech-to-Text
     const { text: transcription } = await ai.generate({
-      model: 'googleai/gemini-2.5-flash-image-preview', // Using a multimodal model for STT
+      model: 'googleai/gemini-pro', // Using a multimodal model for STT
       prompt: [{ media: { url: input.audioDataUri } }],
     });
 
