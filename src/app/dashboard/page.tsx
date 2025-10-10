@@ -19,7 +19,7 @@ import { AnniversaryDialog } from "@/components/anniversary-dialog";
 import { Guest, Reservation } from "@/lib/types";
 import { cn } from "@/lib/utils";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { useCollection, useFirestore, useMemoFirebase } from "@/firebase";
+import { useCollection, useFirestore, useMemoFirebase, useUser } from "@/firebase";
 import { collection, query } from "firebase/firestore";
 
 
@@ -28,9 +28,17 @@ export default function DashboardPage() {
   const [isOffline, setIsOffline] = useState(false);
   const { isGuestDialogOpen, closeGuestDialog, openGuestDialog, isInsightsDialogOpen, closeInsightsDialog } = useGuestStore();
   const firestore = useFirestore();
+  const { user, isUserLoading } = useUser();
 
-  const guestsQuery = useMemoFirebase(() => query(collection(firestore, 'guests')), [firestore]);
-  const reservationsQuery = useMemoFirebase(() => query(collection(firestore, 'reservations')), [firestore]);
+  const guestsQuery = useMemoFirebase(() => {
+    if (!user) return null;
+    return query(collection(firestore, 'guests'));
+  }, [firestore, user]);
+  
+  const reservationsQuery = useMemoFirebase(() => {
+    if (!user) return null;
+    return query(collection(firestore, 'reservations'));
+  }, [firestore, user]);
 
   const { data: guests, isLoading: guestsLoading } = useCollection<Guest>(guestsQuery);
   const { data: reservations, isLoading: reservationsLoading } = useCollection<Reservation>(reservationsQuery);
@@ -114,7 +122,7 @@ export default function DashboardPage() {
   };
 
 
-  if (!isClient || guestsLoading || reservationsLoading) {
+  if (!isClient || isUserLoading || guestsLoading || reservationsLoading) {
     // You can keep a skeleton loader here if you want
     return (
         <div className="flex min-h-screen items-center justify-center bg-background">
@@ -148,7 +156,7 @@ export default function DashboardPage() {
                 </Alert>
             )}
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-5">
-              <Card className="border-chart-1 bg-chart-1/80">
+              <Card className="border-chart-1 bg-chart-1">
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                   <CardTitle className="text-sm font-medium">
                     Total Guests
@@ -160,7 +168,7 @@ export default function DashboardPage() {
                   <div className="text-2xl font-bold">{totalGuests}</div>
                 </CardContent>
               </Card>
-              <Card className="border-chart-2 bg-chart-2/80">
+              <Card className="border-chart-2 bg-chart-2">
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                   <CardTitle className="text-sm font-medium">
                     New Today
@@ -172,7 +180,7 @@ export default function DashboardPage() {
                   <div className="text-2xl font-bold">+{newToday}</div>
                 </CardContent>
               </Card>
-              <Card className="border-chart-3 bg-chart-3/80">
+              <Card className="border-chart-3 bg-chart-3">
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                   <CardTitle className="text-sm font-medium">
                     New This Month
@@ -184,7 +192,7 @@ export default function DashboardPage() {
                   <div className="text-2xl font-bold">+{newThisMonth}</div>
                 </CardContent>
               </Card>
-              <Card className="border-chart-4 bg-chart-4/80">
+              <Card className="border-chart-4 bg-chart-4">
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                   <CardTitle className="text-sm font-medium">
                     Same Day Last Week
@@ -198,8 +206,8 @@ export default function DashboardPage() {
               </Card>
                <Card
                 className={cn(
-                  "border-chart-5 bg-chart-5/80",
-                  anniversaryEvents.length > 0 ? "cursor-pointer hover:bg-chart-5/60" : ""
+                  "border-chart-5 bg-chart-5",
+                  anniversaryEvents.length > 0 ? "cursor-pointer hover:bg-chart-5/90" : ""
                 )}
                 onClick={() => anniversaryEvents.length > 0 && setIsAnniversaryDialogOpen(true)}
               >

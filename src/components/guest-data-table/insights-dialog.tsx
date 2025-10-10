@@ -13,7 +13,7 @@ import { Button } from "@/components/ui/button";
 import { summarizeGuestFeedbackAction } from "@/app/actions";
 import { Sparkles } from "lucide-react";
 import { Skeleton } from "../ui/skeleton";
-import { useCollection, useFirestore, useMemoFirebase } from "@/firebase";
+import { useCollection, useFirestore, useMemoFirebase, useUser } from "@/firebase";
 import { Guest } from "@/lib/types";
 import { collection, query } from "firebase/firestore";
 
@@ -26,9 +26,14 @@ export function InsightsDialog({ open, onOpenChange }: InsightsDialogProps) {
   const [summary, setSummary] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
-
+  const { user } = useUser();
   const firestore = useFirestore();
-  const guestsQuery = useMemoFirebase(() => query(collection(firestore, 'guests')), [firestore]);
+
+  const guestsQuery = useMemoFirebase(() => {
+    if (!user) return null;
+    return query(collection(firestore, 'guests'));
+  }, [firestore, user]);
+
   const { data: guests, isLoading: guestsLoading } = useCollection<Guest>(guestsQuery);
 
   const getFeedback = () => {
@@ -53,10 +58,11 @@ export function InsightsDialog({ open, onOpenChange }: InsightsDialogProps) {
   };
 
   useEffect(() => {
-    if (open && !guestsLoading) {
+    if (open && !guestsLoading && user) {
       generateSummary();
     }
-  }, [open, guestsLoading]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [open, guestsLoading, user]);
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>

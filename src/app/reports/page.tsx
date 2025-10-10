@@ -21,13 +21,18 @@ import { columns } from "@/components/guest-data-table/columns";
 import { cn } from "@/lib/utils";
 import { Header } from "@/components/header";
 import { GuestDialog } from "@/components/guest-data-table/guest-dialog";
-import { useCollection, useFirestore, useMemoFirebase } from "@/firebase";
+import { useCollection, useFirestore, useMemoFirebase, useUser } from "@/firebase";
 
 export default function ReportsPage() {
   const { openGuestDialog, isGuestDialogOpen, closeGuestDialog } = useGuestStore();
   const firestore = useFirestore();
+  const { user } = useUser();
   
-  const guestsQuery = useMemoFirebase(() => query(collection(firestore, 'guests')), [firestore]);
+  const guestsQuery = useMemoFirebase(() => {
+    if (!user) return null;
+    return query(collection(firestore, 'guests'));
+  }, [firestore, user]);
+  
   const { data: allGuests, isLoading } = useCollection<Guest>(guestsQuery);
 
   const [date, setDate] = useState<DateRange | undefined>({

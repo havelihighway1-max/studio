@@ -10,7 +10,7 @@ import { columns } from "@/components/table-data-table/columns";
 import { useGuestStore } from "@/hooks/use-guest-store";
 import { tableSchema, Table } from "@/lib/types";
 import { useToast } from "@/hooks/use-toast";
-import { useCollection, useFirestore, useMemoFirebase } from "@/firebase";
+import { useCollection, useFirestore, useMemoFirebase, useUser } from "@/firebase";
 import { collection, query } from "firebase/firestore";
 
 export default function TablesPage() {
@@ -25,8 +25,13 @@ export default function TablesPage() {
   const firestore = useFirestore();
   const { toast } = useToast();
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const { user } = useUser();
 
-  const tablesQuery = useMemoFirebase(() => query(collection(firestore, 'tables')), [firestore]);
+  const tablesQuery = useMemoFirebase(() => {
+    if (!user) return null;
+    return query(collection(firestore, 'tables'));
+  }, [firestore, user]);
+
   const { data: tables, isLoading } = useCollection<Table>(tablesQuery);
 
   const safeTables = useMemo(() => tables || [], [tables]);
