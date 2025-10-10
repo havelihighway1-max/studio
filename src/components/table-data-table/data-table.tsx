@@ -32,6 +32,7 @@ interface DataTableProps<TData, TValue> {
   onAddTable: () => void;
   onImport: () => void;
   isLoading: boolean;
+  isDialogMode?: boolean;
 }
 
 export function DataTable<TData, TValue>({
@@ -40,6 +41,7 @@ export function DataTable<TData, TValue>({
   onAddTable,
   onImport,
   isLoading,
+  isDialogMode = false,
 }: DataTableProps<TData, TValue>) {
   const [sorting, setSorting] = React.useState<SortingState>([
     { id: 'name', desc: false }
@@ -70,24 +72,26 @@ export function DataTable<TData, TValue>({
 
   return (
     <div className="space-y-4">
-      <div className="flex items-center justify-between gap-4">
-        <Input
-          placeholder="Filter by table name..."
-          value={globalFilter ?? ""}
-          onChange={(event) => setGlobalFilter(event.target.value)}
-          className="max-w-sm"
-        />
-        <div className="flex items-center gap-2">
-            <Button onClick={onImport} variant="outline">
-                <Upload className="mr-2 h-4 w-4" />
-                Import from CSV
-            </Button>
-            <Button onClick={onAddTable}>
-                <PlusCircle className="mr-2 h-4 w-4" />
-                Add Table
-            </Button>
+      {!isDialogMode && (
+        <div className="flex items-center justify-between gap-4">
+            <Input
+            placeholder="Filter by table name..."
+            value={globalFilter ?? ""}
+            onChange={(event) => setGlobalFilter(event.target.value)}
+            className="max-w-sm"
+            />
+            <div className="flex items-center gap-2">
+                <Button onClick={onImport} variant="outline">
+                    <Upload className="mr-2 h-4 w-4" />
+                    Import from CSV
+                </Button>
+                <Button onClick={onAddTable}>
+                    <PlusCircle className="mr-2 h-4 w-4" />
+                    Add Table
+                </Button>
+            </div>
         </div>
-      </div>
+      )}
       <div className="rounded-lg border shadow-sm bg-card">
         <Table>
           <TableHeader>

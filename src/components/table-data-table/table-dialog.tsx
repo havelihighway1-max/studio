@@ -25,7 +25,22 @@ import {
 import { Table, tableSchema } from "@/lib/types";
 import { useGuestStore } from "@/hooks/use-guest-store";
 import { useToast } from "@/hooks/use-toast";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
+import { DataTable } from "./data-table";
+import { columns } from "./columns";
+import { Trash2 } from "lucide-react";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog"
+
 
 type TableFormValues = z.infer<typeof tableSchema>;
 
@@ -33,18 +48,21 @@ interface TableDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   table?: Partial<Table> | null;
+  allTables: Table[];
 }
 
-export function TableDialog({ open, onOpenChange, table }: TableDialogProps) {
-  const { addTable, updateTable } = useGuestStore();
+export function TableDialog({ open, onOpenChange, table, allTables }: TableDialogProps) {
+  const { addTable, updateTable, deleteTable } = useGuestStore();
   const { toast } = useToast();
   const isEditMode = !!table?.id;
+  const [isLoading, setIsLoading] = useState(false);
 
   const form = useForm<Omit<TableFormValues, 'id'>>({
     resolver: zodResolver(tableSchema.omit({ id: true })),
     defaultValues: {
       name: table?.name || "",
       capacity: table?.capacity || 1,
+      status: table?.status || "available",
     },
   });
 
@@ -52,6 +70,7 @@ export function TableDialog({ open, onOpenChange, table }: TableDialogProps) {
     form.reset({
       name: table?.name || "",
       capacity: table?.capacity || 1,
+      status: table?.status || "available",
     });
   }, [table, form]);
 
@@ -73,6 +92,24 @@ export function TableDialog({ open, onOpenChange, table }: TableDialogProps) {
     onOpenChange(false);
     form.reset();
   }
+  
+  const handleDeleteAll = async () => {
+    setIsLoading(true);
+    try {
+        await Promise.all(allTables.map(t => deleteTable(t.id)));
+        toast({
+            title: "All tables deleted",
+        });
+    } catch (error) {
+         toast({
+            variant: "destructive",
+            title: "Failed to delete tables",
+        });
+    } finally {
+        setIsLoading(false);
+    }
+  }
+
 
   const handleOpenChange = (isOpen: boolean) => {
     if (!isOpen) {
@@ -83,53 +120,91 @@ export function TableDialog({ open, onOpenChange, table }: TableDialogProps) {
 
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
-      <DialogContent className="sm:max-w-[425px]">
+      <DialogContent className="sm:max-w-4xl">
         <DialogHeader>
           <DialogTitle className="font-headline text-2xl">
-            {isEditMode ? "Edit Table" : "Add New Table"}
+            {isEditMode ? "Edit Table" : "Manage Tables"}
           </DialogTitle>
           <DialogDescription>
-            {isEditMode
-              ? "Update the details for this table."
-              : "Fill in the details below to add a new table."}
+             Add, edit, or remove tables from your restaurant layout.
           </DialogDescription>
         </DialogHeader>
-        <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6 py-4">
-            <FormField
-              control={form.control}
-              name="name"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Table Name / Number</FormLabel>
-                  <FormControl>
-                    <Input placeholder="e.g., T1 or 'Window Booth'" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="capacity"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Capacity</FormLabel>
-                  <FormControl>
-                    <Input type="number" min="1" {...field} onChange={e => field.onChange(parseInt(e.target.value, 10))} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <DialogFooter>
-              <Button type="button" variant="outline" onClick={() => handleOpenChange(false)}>
-                Cancel
-              </Button>
-              <Button type="submit">{isEditMode ? "Save Changes" : "Add Table"}</Button>
-            </DialogFooter>
-          </form>
-        </Form>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <div className="md:col-span-1">
+                 <h3 className="text-lg font-medium mb-4 border-b pb-2">{isEditMode ? 'Update Table' : 'Add a New Table'}</h3>
+                 <Form {...form}>
+                    <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+                        <FormField
+                        control={form.control}
+                        name="name"
+                        render={({ field }) => (
+                            <FormItem>
+                            <FormLabel>Table Name / Number</FormLabel>
+                            <FormControl>
+                                <Input placeholder="e.g., T1 or 'Window Booth'" {...field} />
+                            </FormControl>
+                            <FormMessage />
+                            </FormItem>
+                        )}
+                        />
+                        <FormField
+                        control={form.control}
+                        name="capacity"
+                        render={({ field }) => (
+                            <FormItem>
+                            <FormLabel>Capacity</FormLabel>
+                            <FormControl>
+                                <Input type="number" min="1" {...field} onChange={e => field.onChange(parseInt(e.target.value, 10))} />
+                            </FormControl>
+                            <FormMessage />
+                            </FormItem>
+                        )}
+                        />
+                        <DialogFooter className="!justify-start">
+                            <Button type="submit">{isEditMode ? "Save Changes" : "Add Table"}</Button>
+                             {isEditMode && <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>Cancel</Button>}
+                        </DialogFooter>
+                    </form>
+                </Form>
+            </div>
+            <div className="md:col-span-2">
+                 <div className="flex justify-between items-center mb-4 border-b pb-2">
+                    <h3 className="text-lg font-medium">All Tables</h3>
+                    <AlertDialog>
+                        <AlertDialogTrigger asChild>
+                            <Button variant="destructive" size="sm" disabled={isLoading || allTables.length === 0}>
+                                <Trash2 className="mr-2 h-4 w-4" />
+                                Delete All
+                            </Button>
+                        </AlertDialogTrigger>
+                        <AlertDialogContent>
+                            <AlertDialogHeader>
+                            <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+                            <AlertDialogDescription>
+                                This action cannot be undone. This will permanently delete all
+                                {allTables.length} tables from your restaurant.
+                            </AlertDialogDescription>
+                            </AlertDialogHeader>
+                            <AlertDialogFooter>
+                            <AlertDialogCancel>Cancel</AlertDialogCancel>
+                            <AlertDialogAction onClick={handleDeleteAll}>Continue</AlertDialogAction>
+                            </AlertDialogFooter>
+                        </AlertDialogContent>
+                    </AlertDialog>
+
+                 </div>
+                <div className="max-h-[50vh] overflow-auto">
+                    <DataTable 
+                        columns={columns} 
+                        data={allTables} 
+                        onAddTable={() => {}}
+                        onImport={() => {}}
+                        isLoading={false}
+                        isDialogMode={true}
+                    />
+                </div>
+            </div>
+        </div>
       </DialogContent>
     </Dialog>
   );

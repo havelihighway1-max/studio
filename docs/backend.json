@@ -42,9 +42,10 @@
       "properties": {
         "id": { "type": "string", "description": "Unique identifier for the table." },
         "name": { "type": "string", "description": "The name or number of the table (e.g., 'T1', 'Patio 2')." },
-        "capacity": { "type": "number", "description": "The seating capacity of the table." }
+        "capacity": { "type": "number", "description": "The seating capacity of the table." },
+        "status": { "type": "string", "enum": ["available", "occupied", "reserved"], "description": "The current status of the table." }
       },
-      "required": ["id", "name", "capacity"]
+      "required": ["id", "name", "capacity", "status"]
     },
     "WaitingGuest": {
         "title": "WaitingGuest",

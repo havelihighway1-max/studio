@@ -82,7 +82,7 @@ export function GuestDialog({ open, onOpenChange, guest }: GuestDialogProps) {
       feedback: guest?.feedback || "",
     });
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [guest, form]);
+  }, [guest, form, open]);
 
   function onSubmit(data: Omit<GuestFormValues, 'id'>) {
     if (isEditMode && guest?.id) {

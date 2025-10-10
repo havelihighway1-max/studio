@@ -46,7 +46,7 @@ interface AppState {
   addTable: (table: Omit<Table, 'id'>) => void;
   updateTable: (id: string, table: Partial<Omit<Table, 'id'>>) => void;
   deleteTable: (id: string) => void;
-  setTables: (tables: Omit<Table, 'id'>[]) => Promise<void>;
+  setTables: (tables: Omit<Table, 'id' | 'status'>[]) => Promise<void>;
 
   addWaitingGuest: (guest: Omit<WaitingGuest, 'id' | 'createdAt' | 'status' | 'tokenNumber'>) => void;
   updateWaitingGuest: (id: string, data: Partial<Omit<WaitingGuest, 'id'>>) => void;
@@ -111,7 +111,7 @@ export const useGuestStore = create<AppState>((set, get) => ({
   },
   addTable: (table) => {
     const firestore = getDb();
-    const tableWithId = { ...table, id: crypto.randomUUID() };
+    const tableWithId = { ...table, id: crypto.randomUUID(), status: 'available' as const };
     const docRef = doc(firestore, "tables", tableWithId.id);
     setDocumentNonBlocking(docRef, tableWithId, {});
   },
@@ -129,7 +129,7 @@ export const useGuestStore = create<AppState>((set, get) => ({
       const firestore = getDb();
       const batch = writeBatch(firestore);
       tables.forEach(table => {
-          const tableWithId = { ...table, id: crypto.randomUUID() };
+          const tableWithId = { ...table, id: crypto.randomUUID(), status: 'available' as const };
           const docRef = doc(firestore, "tables", tableWithId.id);
           batch.set(docRef, tableWithId);
       });
