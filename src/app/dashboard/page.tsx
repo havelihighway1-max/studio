@@ -12,16 +12,18 @@ import {
   isThisMonth,
 } from "date-fns";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Users, Calendar, UserPlus, CalendarCheck, MessageSquare, History } from "lucide-react";
+import { Users, Calendar, UserPlus, CalendarCheck, MessageSquare, History, WifiOff } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { PlaceHolderImages } from "@/lib/placeholder-images";
 import { AnniversaryDialog } from "@/components/anniversary-dialog";
 import { Guest, Reservation } from "@/lib/types";
 import { cn } from "@/lib/utils";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 
 
 export default function DashboardPage() {
   const [isClient, setIsClient] = useState(false);
+  const [isOffline, setIsOffline] = useState(false);
   const { guests, reservations, isGuestDialogOpen, closeGuestDialog, openGuestDialog, isInsightsDialogOpen, closeInsightsDialog } = useGuestStore();
 
   const [isAnniversaryDialogOpen, setIsAnniversaryDialogOpen] = useState(false);
@@ -31,6 +33,17 @@ export default function DashboardPage() {
 
   useEffect(() => {
     setIsClient(true);
+    if (typeof window !== 'undefined') {
+        setIsOffline(!navigator.onLine);
+        const handleOnline = () => setIsOffline(false);
+        const handleOffline = () => setIsOffline(true);
+        window.addEventListener('online', handleOnline);
+        window.addEventListener('offline', handleOffline);
+        return () => {
+            window.removeEventListener('online', handleOnline);
+            window.removeEventListener('offline', handleOffline);
+        };
+    }
   }, []);
 
   useEffect(() => {
@@ -68,7 +81,7 @@ export default function DashboardPage() {
   const sameDayLastWeekCount = guests.filter((g) => isSameDay(g.visitDate, lastWeekSameDay)).reduce((sum, guest) => sum + (Number(guest.numberOfGuests) || 0), 0);
 
   const handleWhatsAppBroadcast = () => {
-    if (typeof window !== 'undefined' && !navigator.onLine) {
+    if (isOffline) {
         alert("This feature requires an internet connection.");
         return;
     }
@@ -110,6 +123,15 @@ export default function DashboardPage() {
        <div className="relative z-10 flex min-h-screen w-full flex-col">
           <Header onAddNewGuest={() => openGuestDialog()} />
           <main className="flex-1 p-4 md:p-6 lg:p-8">
+            {isOffline && (
+                <Alert variant="destructive" className="mb-4">
+                  <WifiOff className="h-4 w-4" />
+                  <AlertTitle>You are offline</AlertTitle>
+                  <AlertDescription>
+                    Some features may be unavailable. Your data is being saved locally.
+                  </AlertDescription>
+                </Alert>
+            )}
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-5">
               <Card className="bg-chart-1 border-chart-1">
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
@@ -184,7 +206,7 @@ export default function DashboardPage() {
             
           </main>
           <div className="fixed bottom-4 right-4 z-20">
-            <Button onClick={handleWhatsAppBroadcast} size="lg">
+            <Button onClick={handleWhatsAppBroadcast} size="lg" disabled={isOffline}>
               <MessageSquare className="mr-2 h-5 w-5" />
               WhatsApp Broadcast
             </Button>
