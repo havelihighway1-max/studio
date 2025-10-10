@@ -25,7 +25,6 @@ import {
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { PlusCircle } from "lucide-react"
-import { useAdmin } from "@/hooks/use-admin"
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[]
@@ -45,7 +44,6 @@ export function DataTable<TData, TValue>({
   ])
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([])
   const [globalFilter, setGlobalFilter] = React.useState('')
-  const { isAdmin } = useAdmin();
   
   const table = useReactTable({
     data,
@@ -77,12 +75,10 @@ export function DataTable<TData, TValue>({
           onChange={(event) => setGlobalFilter(event.target.value)}
           className="max-w-sm"
         />
-        {isAdmin && (
-          <Button onClick={() => onAddReservation()}>
-              <PlusCircle className="mr-2 h-4 w-4" />
-              Add Reservation
-          </Button>
-        )}
+        <Button onClick={() => onAddReservation()}>
+            <PlusCircle className="mr-2 h-4 w-4" />
+            Add Reservation
+        </Button>
       </div>
       <div className="rounded-lg border shadow-sm bg-card">
         <Table>

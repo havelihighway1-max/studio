@@ -1,17 +1,16 @@
+
 "use client"
 
 import { ColumnDef } from "@tanstack/react-table"
 import { Table } from "@/lib/types"
 import { Button } from "@/components/ui/button"
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import { ArrowUpDown, MoreHorizontal, Pen, Trash2 } from "lucide-react"
 import { useGuestStore } from "@/hooks/use-guest-store"
-import { useAdmin } from "@/hooks/use-admin"
 
 const DataTableRowActions = ({ row }: { row: { original: Table } }) => {
   const table = row.original
   const { openTableDialog, deleteTable } = useGuestStore();
-  const { isAdmin } = useAdmin();
 
   return (
     <DropdownMenu>
@@ -25,19 +24,15 @@ const DataTableRowActions = ({ row }: { row: { original: Table } }) => {
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-[160px]">
-        {isAdmin && (
-          <>
-            <DropdownMenuItem onSelect={() => openTableDialog(table)}>
-              <Pen className="mr-2 h-4 w-4" />
-              Edit
-            </DropdownMenuItem>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem onSelect={() => deleteTable(table.id)} className="text-destructive focus:text-destructive focus:bg-destructive/10">
-              <Trash2 className="mr-2 h-4 w-4" />
-              Delete
-            </DropdownMenuItem>
-          </>
-        )}
+        <DropdownMenuItem onSelect={() => openTableDialog(table)}>
+          <Pen className="mr-2 h-4 w-4" />
+          Edit
+        </DropdownMenuItem>
+        <DropdownMenuSeparator />
+        <DropdownMenuItem onSelect={() => deleteTable(table.id)} className="text-destructive focus:text-destructive focus:bg-destructive/10">
+          <Trash2 className="mr-2 h-4 w-4" />
+          Delete
+        </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
   )

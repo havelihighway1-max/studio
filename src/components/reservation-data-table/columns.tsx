@@ -9,13 +9,11 @@ import { ArrowUpDown, MoreHorizontal, Pen, Trash2, CheckCircle, Ban, Clock, Circ
 import { useGuestStore } from "@/hooks/use-guest-store"
 import { format } from "date-fns"
 import { Badge } from "@/components/ui/badge"
-import { useAdmin } from "@/hooks/use-admin"
 import { Timestamp } from "firebase/firestore"
 
 const DataTableRowActions = ({ row }: { row: { original: Reservation } }) => {
   const reservation = row.original
   const { openReservationDialog, deleteReservation, updateReservation } = useGuestStore();
-  const { isAdmin } = useAdmin();
 
   return (
     <DropdownMenu>
@@ -29,32 +27,28 @@ const DataTableRowActions = ({ row }: { row: { original: Reservation } }) => {
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-[160px]">
-        {isAdmin && (
-          <>
-            <DropdownMenuItem onSelect={() => openReservationDialog(reservation)}>
-              <Pen className="mr-2 h-4 w-4" />
-              Edit
-            </DropdownMenuItem>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem onSelect={() => updateReservation(reservation.id, { status: "seated" })}>
-              <CheckCircle className="mr-2 h-4 w-4 text-green-500" />
-              Mark as Seated
-            </DropdownMenuItem>
-            <DropdownMenuItem onSelect={() => updateReservation(reservation.id, { status: "canceled" })}>
-              <Ban className="mr-2 h-4 w-4 text-red-500" />
-              Mark as Canceled
-            </DropdownMenuItem>
-            <DropdownMenuItem onSelect={() => updateReservation(reservation.id, { status: "upcoming" })}>
-              <Clock className="mr-2 h-4 w-4 text-blue-500" />
-              Mark as Upcoming
-            </DropdownMenuItem>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem onSelect={() => deleteReservation(reservation.id)} className="text-destructive focus:text-destructive focus:bg-destructive/10">
-              <Trash2 className="mr-2 h-4 w-4" />
-              Delete
-            </DropdownMenuItem>
-          </>
-        )}
+        <DropdownMenuItem onSelect={() => openReservationDialog(reservation)}>
+          <Pen className="mr-2 h-4 w-4" />
+          Edit
+        </DropdownMenuItem>
+        <DropdownMenuSeparator />
+        <DropdownMenuItem onSelect={() => updateReservation(reservation.id, { status: "seated" })}>
+          <CheckCircle className="mr-2 h-4 w-4 text-green-500" />
+          Mark as Seated
+        </DropdownMenuItem>
+        <DropdownMenuItem onSelect={() => updateReservation(reservation.id, { status: "canceled" })}>
+          <Ban className="mr-2 h-4 w-4 text-red-500" />
+          Mark as Canceled
+        </DropdownMenuItem>
+        <DropdownMenuItem onSelect={() => updateReservation(reservation.id, { status: "upcoming" })}>
+          <Clock className="mr-2 h-4 w-4 text-blue-500" />
+          Mark as Upcoming
+        </DropdownMenuItem>
+        <DropdownMenuSeparator />
+        <DropdownMenuItem onSelect={() => deleteReservation(reservation.id)} className="text-destructive focus:text-destructive focus:bg-destructive/10">
+          <Trash2 className="mr-2 h-4 w-4" />
+          Delete
+        </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
   )

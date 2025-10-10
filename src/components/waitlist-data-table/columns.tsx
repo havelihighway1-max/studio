@@ -9,13 +9,11 @@ import { ArrowUpDown, MoreHorizontal, Pen, Trash2, CheckCircle, Ban, Clock, Prin
 import { useGuestStore } from "@/hooks/use-guest-store"
 import { format } from "date-fns"
 import { Badge } from "@/components/ui/badge"
-import { useAdmin } from "@/hooks/use-admin"
 import { Timestamp } from "firebase/firestore"
 
 const DataTableRowActions = ({ row }: { row: { original: WaitingGuest } }) => {
   const guest = row.original
   const { openWaitingGuestDialog, deleteWaitingGuest, updateWaitingGuest } = useGuestStore();
-  const { isAdmin } = useAdmin();
 
   const handlePrint = () => {
     const url = `/waitlist/token/${guest.id}`;
@@ -34,33 +32,29 @@ const DataTableRowActions = ({ row }: { row: { original: WaitingGuest } }) => {
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-[160px]">
-        {isAdmin && (
-           <>
-            <DropdownMenuItem onSelect={() => openWaitingGuestDialog(guest)}>
-              <Pen className="mr-2 h-4 w-4" />
-              Edit
-            </DropdownMenuItem>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem onSelect={() => updateWaitingGuest(guest.id, { status: "called" })}>
-              <Clock className="mr-2 h-4 w-4 text-blue-500" />
-              Mark as Called
-            </DropdownMenuItem>
-            <DropdownMenuItem onSelect={() => updateWaitingGuest(guest.id, { status: "seated" })}>
-              <CheckCircle className="mr-2 h-4 w-4 text-green-500" />
-              Mark as Seated
-            </DropdownMenuItem>
-            <DropdownMenuItem onSelect={() => updateWaitingGuest(guest.id, { status: "waiting" })}>
-              <Ban className="mr-2 h-4 w-4 text-orange-500" />
-              Mark as Waiting
-            </DropdownMenuItem>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem onSelect={() => deleteWaitingGuest(guest.id)} className="text-destructive focus:text-destructive focus:bg-destructive/10">
-              <Trash2 className="mr-2 h-4 w-4" />
-              Remove
-            </DropdownMenuItem>
-            <DropdownMenuSeparator />
-           </>
-        )}
+        <DropdownMenuItem onSelect={() => openWaitingGuestDialog(guest)}>
+          <Pen className="mr-2 h-4 w-4" />
+          Edit
+        </DropdownMenuItem>
+        <DropdownMenuSeparator />
+        <DropdownMenuItem onSelect={() => updateWaitingGuest(guest.id, { status: "called" })}>
+          <Clock className="mr-2 h-4 w-4 text-blue-500" />
+          Mark as Called
+        </DropdownMenuItem>
+        <DropdownMenuItem onSelect={() => updateWaitingGuest(guest.id, { status: "seated" })}>
+          <CheckCircle className="mr-2 h-4 w-4 text-green-500" />
+          Mark as Seated
+        </DropdownMenuItem>
+        <DropdownMenuItem onSelect={() => updateWaitingGuest(guest.id, { status: "waiting" })}>
+          <Ban className="mr-2 h-4 w-4 text-orange-500" />
+          Mark as Waiting
+        </DropdownMenuItem>
+        <DropdownMenuSeparator />
+        <DropdownMenuItem onSelect={() => deleteWaitingGuest(guest.id)} className="text-destructive focus:text-destructive focus:bg-destructive/10">
+          <Trash2 className="mr-2 h-4 w-4" />
+          Remove
+        </DropdownMenuItem>
+        <DropdownMenuSeparator />
         <DropdownMenuItem onSelect={handlePrint}>
             <Printer className="mr-2 h-4 w-4" />
             Print Token

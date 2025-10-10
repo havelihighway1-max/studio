@@ -3,10 +3,9 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { PlusCircle, BarChart2, CalendarClock, Table, UserCheck, LogOut, LogIn, ArrowLeft } from "lucide-react";
+import { PlusCircle, BarChart2, CalendarClock, Table, UserCheck, ArrowLeft } from "lucide-react";
 import { Button } from "./ui/button";
-import { useAdmin } from "@/hooks/use-admin";
-import { useAuth } from "@/firebase";
+import { useUser } from "@/firebase";
 import { VoiceCommandButton } from "./voice-command-button";
 
 interface HeaderProps {
@@ -14,14 +13,9 @@ interface HeaderProps {
 }
 
 export function Header({ onAddNewGuest }: HeaderProps) {
-  const { user, isAdmin, isLoading } = useAdmin();
-  const auth = useAuth();
+  const { user, isLoading } = useUser();
   const pathname = usePathname();
   const isDashboardPage = pathname === '/dashboard';
-
-  const handleLogout = () => {
-    auth.signOut();
-  }
 
   const handleAddNewGuest = () => {
     onAddNewGuest();
@@ -76,19 +70,6 @@ export function Header({ onAddNewGuest }: HeaderProps) {
             <PlusCircle className="mr-2 h-4 w-4" />
             Add New Guest
           </Button>
-          {user ? (
-            <Button variant="ghost" className="hover:bg-primary/80" onClick={handleLogout} disabled={isLoading}>
-              <LogOut className="mr-2 h-4 w-4" />
-              Logout
-            </Button>
-          ) : (
-            <Button asChild variant="ghost" className="hover:bg-primary/80" disabled={isLoading}>
-              <Link href="/login">
-                <LogIn className="mr-2 h-4 w-4" />
-                Admin Login
-              </Link>
-            </Button>
-          )}
         </div>
       </div>
     </header>
