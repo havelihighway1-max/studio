@@ -14,6 +14,7 @@ import { Guest, Reservation } from "@/lib/types";
 import { format } from "date-fns";
 import { ScrollArea } from "./ui/scroll-area";
 import { Badge } from "./ui/badge";
+import { Timestamp } from "firebase/firestore";
 
 interface AnniversaryDialogProps {
   open: boolean;
@@ -24,6 +25,14 @@ interface AnniversaryDialogProps {
 export function AnniversaryDialog({ open, onOpenChange, events }: AnniversaryDialogProps) {
   
   const isGuest = (event: Guest | Reservation): event is Guest => 'visitDate' in event;
+
+  const getEventDate = (event: Guest | Reservation) => {
+    const dateField = isGuest(event) ? event.visitDate : event.dateOfEvent;
+    if (dateField instanceof Timestamp) {
+      return dateField.toDate();
+    }
+    return new Date(dateField);
+  }
   
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -41,7 +50,7 @@ export function AnniversaryDialog({ open, onOpenChange, events }: AnniversaryDia
           <div className="space-y-4 py-4">
             {events.length > 0 ? (
               events.map((event) => {
-                const eventDate = isGuest(event) ? event.visitDate : event.dateOfEvent;
+                const eventDate = getEventDate(event);
                 const reservation = !isGuest(event) ? (event as Reservation) : null;
                 return (
                   <div key={event.id} className="p-4 rounded-lg border bg-card/50 flex items-start gap-4">

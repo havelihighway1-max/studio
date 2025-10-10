@@ -1,6 +1,7 @@
+
 "use client";
 
-import { useRef } from "react";
+import { useRef, useMemo } from "react";
 import Papa from "papaparse";
 import { Header } from "@/components/header";
 import { TableDialog } from "@/components/table-data-table/table-dialog";
@@ -9,10 +10,11 @@ import { columns } from "@/components/table-data-table/columns";
 import { useGuestStore } from "@/hooks/use-guest-store";
 import { tableSchema, Table } from "@/lib/types";
 import { useToast } from "@/hooks/use-toast";
+import { useCollection, useFirestore, useMemoFirebase } from "@/firebase";
+import { collection, query } from "firebase/firestore";
 
 export default function TablesPage() {
   const { 
-    tables, 
     setTables,
     openTableDialog, 
     isTableDialogOpen, 
@@ -20,8 +22,15 @@ export default function TablesPage() {
     editingTable,
     openGuestDialog
   } = useGuestStore();
+  const firestore = useFirestore();
   const { toast } = useToast();
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const tablesQuery = useMemoFirebase(() => query(collection(firestore, 'tables')), [firestore]);
+  const { data: tables, isLoading } = useCollection<Table>(tablesQuery);
+
+  const safeTables = useMemo(() => tables || [], [tables]);
+
 
   const handleImportClick = () => {
     fileInputRef.current?.click();
@@ -41,7 +50,7 @@ export default function TablesPage() {
     Papa.parse(file, {
       header: true,
       skipEmptyLines: true,
-      complete: (results) => {
+      complete: async (results) => {
         try {
           const parsedData = results.data.map(row => {
             const parsedRow = tableSchema.omit({ id: true }).parse({
@@ -51,9 +60,8 @@ export default function TablesPage() {
             });
             return parsedRow;
           });
-
-          // Assuming setTables can handle an array of tables without IDs
-          setTables(parsedData as Omit<Table, 'id'>[]);
+          
+          await setTables(parsedData as Omit<Table, 'id'>[]);
 
           toast({
             title: "Import Successful",
@@ -104,9 +112,10 @@ export default function TablesPage() {
 
         <DataTable 
           columns={columns} 
-          data={tables} 
+          data={safeTables} 
           onAddTable={openTableDialog}
           onImport={handleImportClick}
+          isLoading={isLoading}
         />
       </main>
       <TableDialog

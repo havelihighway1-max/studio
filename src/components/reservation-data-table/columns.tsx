@@ -10,6 +10,7 @@ import { useGuestStore } from "@/hooks/use-guest-store"
 import { format } from "date-fns"
 import { Badge } from "@/components/ui/badge"
 import { useAdmin } from "@/hooks/use-admin"
+import { Timestamp } from "firebase/firestore"
 
 const DataTableRowActions = ({ row }: { row: { original: Reservation } }) => {
   const reservation = row.original
@@ -87,8 +88,8 @@ export const columns: ColumnDef<Reservation>[] = [
       </Button>
     ),
     cell: ({ row }) => {
-      const date = row.getValue("dateOfEvent") as Date
-      return <div className="text-muted-foreground">{format(date, "PPP p")}</div> // e.g., Jun 21, 2024 7:30 PM
+      const date = row.getValue("dateOfEvent") as Timestamp
+      return <div className="text-muted-foreground">{format(date.toDate(), "PPP p")}</div> // e.g., Jun 21, 2024 7:30 PM
     },
   },
    {

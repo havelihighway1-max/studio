@@ -6,6 +6,7 @@ import { useForm } from "react-hook-form";
 import type { z } from "zod";
 import { format } from "date-fns";
 import { CalendarIcon } from "lucide-react";
+import { Timestamp } from "firebase/firestore";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -49,13 +50,23 @@ export function ReservationDialog({ open, onOpenChange, reservation }: Reservati
   const { toast } = useToast();
   const isEditMode = !!reservation;
 
+  const getDateOfEvent = () => {
+    if(reservation?.dateOfEvent) {
+      if(reservation.dateOfEvent instanceof Timestamp) {
+        return reservation.dateOfEvent.toDate()
+      }
+      return new Date(reservation.dateOfEvent)
+    }
+    return new Date();
+  }
+
   const form = useForm<Omit<ReservationFormValues, 'id'>>({
     resolver: zodResolver(reservationSchema.omit({ id: true })),
     defaultValues: {
       name: reservation?.name || "",
       phone: reservation?.phone || "",
       numberOfGuests: reservation?.numberOfGuests || 1,
-      dateOfEvent: reservation?.dateOfEvent || new Date(),
+      dateOfEvent: getDateOfEvent(),
       status: reservation?.status || "upcoming",
       notes: reservation?.notes || "",
       advancePayment: reservation?.advancePayment || undefined,

@@ -1,3 +1,4 @@
+
 "use client"
 
 import { ColumnDef } from "@tanstack/react-table"
@@ -9,6 +10,7 @@ import { useGuestStore } from "@/hooks/use-guest-store"
 import { format } from "date-fns"
 import { MessageSquare } from "lucide-react";
 import { useAdmin } from "@/hooks/use-admin"
+import { Timestamp } from "firebase/firestore"
 
 
 const DataTableRowActions = ({ row }: { row: { original: Guest } }) => {
@@ -53,7 +55,7 @@ const DataTableRowActions = ({ row }: { row: { original: Guest } }) => {
             <DropdownMenuSeparator />
           </>
         )}
-        <DropdownMenuItem onSelect={handleWhatsAppMessage}>
+        <DropdownMenuItem onSelect={handleWhatsAppMessage} disabled={!guest.phone}>
             <MessageSquare className="mr-2 h-4 w-4" />
             WhatsApp
         </DropdownMenuItem>
@@ -120,8 +122,8 @@ export const columns: ColumnDef<Guest>[] = [
       )
     },
     cell: ({ row }) => {
-      const date = row.getValue("visitDate") as Date
-      return <div className="text-muted-foreground">{format(date, "PPP")}</div>
+      const date = row.getValue("visitDate") as Timestamp
+      return <div className="text-muted-foreground">{format(date.toDate(), "PPP")}</div>
     },
   },
   {

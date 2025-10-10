@@ -1,7 +1,7 @@
 
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Image from "next/image";
 import { Header } from "@/components/header";
 import { useGuestStore } from "@/hooks/use-guest-store";
@@ -19,12 +19,22 @@ import { AnniversaryDialog } from "@/components/anniversary-dialog";
 import { Guest, Reservation } from "@/lib/types";
 import { cn } from "@/lib/utils";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { useCollection, useFirestore, useMemoFirebase } from "@/firebase";
+import { collection, query } from "firebase/firestore";
 
 
 export default function DashboardPage() {
   const [isClient, setIsClient] = useState(false);
   const [isOffline, setIsOffline] = useState(false);
-  const { guests, reservations, isGuestDialogOpen, closeGuestDialog, openGuestDialog, isInsightsDialogOpen, closeInsightsDialog } = useGuestStore();
+  const { isGuestDialogOpen, closeGuestDialog, openGuestDialog, isInsightsDialogOpen, closeInsightsDialog } = useGuestStore();
+  const firestore = useFirestore();
+
+  const guestsQuery = useMemoFirebase(() => query(collection(firestore, 'guests')), [firestore]);
+  const reservationsQuery = useMemoFirebase(() => query(collection(firestore, 'reservations')), [firestore]);
+
+  const { data: guests, isLoading: guestsLoading } = useCollection<Guest>(guestsQuery);
+  const { data: reservations, isLoading: reservationsLoading } = useCollection<Reservation>(reservationsQuery);
+
 
   const [isAnniversaryDialogOpen, setIsAnniversaryDialogOpen] = useState(false);
   const [anniversaryEvents, setAnniversaryEvents] = useState<(Guest | Reservation)[]>([]);
@@ -47,7 +57,7 @@ export default function DashboardPage() {
   }, []);
 
   useEffect(() => {
-    if (isClient) {
+    if (isClient && guests && reservations) {
       const today = new Date();
       const currentMonth = today.getMonth();
       const currentDay = today.getDate();
@@ -70,22 +80,23 @@ export default function DashboardPage() {
     }
   }, [isClient, guests, reservations]);
 
-
-  const totalGuests = guests.reduce((sum, guest) => sum + (Number(guest.numberOfGuests) || 0), 0);
-  const newToday = guests.filter((g) => isSameDay(g.visitDate, new Date())).reduce((sum, guest) => sum + (Number(guest.numberOfGuests) || 0), 0);
-  const newThisMonth = guests.filter((g) => isThisMonth(g.visitDate)).reduce((sum, guest) => sum + (Number(guest.numberOfGuests) || 0), 0);
+  const safeGuests = useMemo(() => guests || [], [guests]);
+  
+  const totalGuests = safeGuests.reduce((sum, guest) => sum + (Number(guest.numberOfGuests) || 0), 0);
+  const newToday = safeGuests.filter((g) => isSameDay(new Date(g.visitDate), new Date())).reduce((sum, guest) => sum + (Number(guest.numberOfGuests) || 0), 0);
+  const newThisMonth = safeGuests.filter((g) => isThisMonth(new Date(g.visitDate))).reduce((sum, guest) => sum + (Number(guest.numberOfGuests) || 0), 0);
   
   const today = new Date();
   const lastWeekSameDay = new Date(today);
   lastWeekSameDay.setDate(today.getDate() - 7);
-  const sameDayLastWeekCount = guests.filter((g) => isSameDay(g.visitDate, lastWeekSameDay)).reduce((sum, guest) => sum + (Number(guest.numberOfGuests) || 0), 0);
+  const sameDayLastWeekCount = safeGuests.filter((g) => isSameDay(new Date(g.visitDate), lastWeekSameDay)).reduce((sum, guest) => sum + (Number(guest.numberOfGuests) || 0), 0);
 
   const handleWhatsAppBroadcast = () => {
     if (isOffline) {
         alert("This feature requires an internet connection.");
         return;
     }
-    const todaysGuests = guests.filter(g => isSameDay(g.visitDate, new Date()));
+    const todaysGuests = safeGuests.filter(g => isSameDay(new Date(g.visitDate), new Date()));
     const phoneNumbers = todaysGuests
       .map(guest => guest.phone)
       .filter(phone => !!phone)
@@ -103,9 +114,13 @@ export default function DashboardPage() {
   };
 
 
-  if (!isClient) {
+  if (!isClient || guestsLoading || reservationsLoading) {
     // You can keep a skeleton loader here if you want
-    return null;
+    return (
+        <div className="flex min-h-screen items-center justify-center bg-background">
+            <p>Loading Dashboard...</p>
+        </div>
+    )
   }
 
   return (
@@ -128,12 +143,12 @@ export default function DashboardPage() {
                   <WifiOff className="h-4 w-4" />
                   <AlertTitle>You are offline</AlertTitle>
                   <AlertDescription>
-                    Some features may be unavailable. Your data is being saved locally.
+                    Some features may be unavailable. Your data is being saved locally and will sync when you're back online.
                   </AlertDescription>
                 </Alert>
             )}
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-5">
-              <Card className="bg-chart-1 border-chart-1">
+              <Card className="border-chart-1 bg-chart-1/80">
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                   <CardTitle className="text-sm font-medium">
                     Total Guests
@@ -145,7 +160,7 @@ export default function DashboardPage() {
                   <div className="text-2xl font-bold">{totalGuests}</div>
                 </CardContent>
               </Card>
-              <Card className="bg-chart-2 border-chart-2">
+              <Card className="border-chart-2 bg-chart-2/80">
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                   <CardTitle className="text-sm font-medium">
                     New Today
@@ -157,7 +172,7 @@ export default function DashboardPage() {
                   <div className="text-2xl font-bold">+{newToday}</div>
                 </CardContent>
               </Card>
-              <Card className="bg-chart-3 border-chart-3">
+              <Card className="border-chart-3 bg-chart-3/80">
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                   <CardTitle className="text-sm font-medium">
                     New This Month
@@ -169,7 +184,7 @@ export default function DashboardPage() {
                   <div className="text-2xl font-bold">+{newThisMonth}</div>
                 </CardContent>
               </Card>
-              <Card className="bg-chart-4 border-chart-4">
+              <Card className="border-chart-4 bg-chart-4/80">
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                   <CardTitle className="text-sm font-medium">
                     Same Day Last Week
@@ -183,8 +198,8 @@ export default function DashboardPage() {
               </Card>
                <Card
                 className={cn(
-                  "bg-chart-5 border-chart-5",
-                  anniversaryEvents.length > 0 ? "cursor-pointer hover:bg-chart-5/80" : ""
+                  "border-chart-5 bg-chart-5/80",
+                  anniversaryEvents.length > 0 ? "cursor-pointer hover:bg-chart-5/60" : ""
                 )}
                 onClick={() => anniversaryEvents.length > 0 && setIsAnniversaryDialogOpen(true)}
               >

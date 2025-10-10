@@ -1,27 +1,30 @@
 
 'use client';
 
-import { useEffect, useState } from 'react';
-import { useGuestStore } from '@/hooks/use-guest-store';
+import { useEffect, useState, useMemo } from 'react';
 import { WaitingGuest } from '@/lib/types';
 import { Button } from '@/components/ui/button';
 import { Printer } from 'lucide-react';
+import { useDoc, useFirestore, useMemoFirebase } from '@/firebase';
+import { doc } from 'firebase/firestore';
 
 export default function TokenPrintPage({ params }: { params: { id: string } }) {
-  const [guest, setGuest] = useState<WaitingGuest | null>(null);
-  const getWaitingGuestById = (id: string) => useGuestStore.getState().waitingGuests.find(g => g.id === id);
+  const firestore = useFirestore();
+  const guestDocRef = useMemoFirebase(() => doc(firestore, 'waitingGuests', params.id), [firestore, params.id]);
+  const { data: guest, isLoading } = useDoc<WaitingGuest>(guestDocRef);
 
-  useEffect(() => {
-    const foundGuest = getWaitingGuestById(params.id);
-    if (foundGuest) {
-      setGuest(foundGuest);
-    }
-  }, [params.id]);
-
-  if (!guest) {
+  if (isLoading) {
     return (
       <div className="flex items-center justify-center h-screen bg-gray-100">
         <p className="text-2xl text-gray-600">Loading guest details...</p>
+      </div>
+    );
+  }
+
+  if (!guest) {
+     return (
+      <div className="flex items-center justify-center h-screen bg-gray-100">
+        <p className="text-2xl text-gray-600">Guest not found.</p>
       </div>
     );
   }

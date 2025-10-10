@@ -1,3 +1,4 @@
+
 "use client"
 
 import * as React from "react"
@@ -31,6 +32,7 @@ interface DataTableProps<TData, TValue> {
   data: TData[]
   onAddTable: () => void;
   onImport: () => void;
+  isLoading: boolean;
 }
 
 export function DataTable<TData, TValue>({
@@ -38,6 +40,7 @@ export function DataTable<TData, TValue>({
   data,
   onAddTable,
   onImport,
+  isLoading,
 }: DataTableProps<TData, TValue>) {
   const [sorting, setSorting] = React.useState<SortingState>([
     { id: 'name', desc: false }
@@ -110,7 +113,15 @@ export function DataTable<TData, TValue>({
             ))}
           </TableHeader>
           <TableBody>
-            {table.getRowModel().rows?.length ? (
+            {isLoading ? (
+                 <TableRow>
+                    <TableCell colSpan={columns.length} className="h-24 text-center">
+                        <div className="flex justify-center items-center">
+                           <p>Loading tables...</p>
+                        </div>
+                    </TableCell>
+                </TableRow>
+            ) : table.getRowModel().rows?.length ? (
               table.getRowModel().rows.map((row) => (
                 <TableRow
                   key={row.id}

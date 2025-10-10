@@ -31,12 +31,14 @@ interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[]
   data: TData[]
   onAddReservation: () => void;
+  isLoading: boolean;
 }
 
 export function DataTable<TData, TValue>({
   columns,
   data,
-  onAddReservation
+  onAddReservation,
+  isLoading,
 }: DataTableProps<TData, TValue>) {
   const [sorting, setSorting] = React.useState<SortingState>([
     { id: 'dateOfEvent', desc: false }
@@ -103,7 +105,15 @@ export function DataTable<TData, TValue>({
             ))}
           </TableHeader>
           <TableBody>
-            {table.getRowModel().rows?.length ? (
+            {isLoading ? (
+                 <TableRow>
+                    <TableCell colSpan={columns.length} className="h-24 text-center">
+                        <div className="flex justify-center items-center">
+                           <p>Loading reservations...</p>
+                        </div>
+                    </TableCell>
+                </TableRow>
+            ) : table.getRowModel().rows?.length ? (
               table.getRowModel().rows.map((row) => (
                 <TableRow
                   key={row.id}

@@ -1,3 +1,4 @@
+
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -5,6 +6,7 @@ import { useForm } from "react-hook-form";
 import type { z } from "zod";
 import { format } from "date-fns";
 import { CalendarIcon } from "lucide-react";
+import { Timestamp } from "firebase/firestore";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -45,6 +47,16 @@ export function GuestDialog({ open, onOpenChange, guest }: GuestDialogProps) {
   const { toast } = useToast();
   const isEditMode = !!guest;
 
+  const getVisitDate = () => {
+    if(guest?.visitDate) {
+      if(guest.visitDate instanceof Timestamp) {
+        return guest.visitDate.toDate()
+      }
+      return new Date(guest.visitDate)
+    }
+    return new Date();
+  }
+
   const form = useForm<Omit<GuestFormValues, 'id'>>({
     resolver: zodResolver(guestSchema.omit({ id: true })),
     defaultValues: {
@@ -52,7 +64,7 @@ export function GuestDialog({ open, onOpenChange, guest }: GuestDialogProps) {
       phone: guest?.phone || "",
       numberOfGuests: guest?.numberOfGuests || 1,
       tables: guest?.tables || "",
-      visitDate: guest?.visitDate || new Date(),
+      visitDate: getVisitDate(),
       preferences: guest?.preferences || "",
       feedback: guest?.feedback || "",
     },

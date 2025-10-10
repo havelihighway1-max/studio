@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useEffect, useState } from "react";
@@ -9,10 +10,12 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { useGuestStore } from "@/hooks/use-guest-store";
 import { summarizeGuestFeedbackAction } from "@/app/actions";
 import { Sparkles } from "lucide-react";
 import { Skeleton } from "../ui/skeleton";
+import { useCollection, useFirestore, useMemoFirebase } from "@/firebase";
+import { Guest } from "@/lib/types";
+import { collection, query } from "firebase/firestore";
 
 interface InsightsDialogProps {
   open: boolean;
@@ -23,7 +26,17 @@ export function InsightsDialog({ open, onOpenChange }: InsightsDialogProps) {
   const [summary, setSummary] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
-  const getFeedback = useGuestStore((state) => state.getFeedback);
+
+  const firestore = useFirestore();
+  const guestsQuery = useMemoFirebase(() => query(collection(firestore, 'guests')), [firestore]);
+  const { data: guests, isLoading: guestsLoading } = useCollection<Guest>(guestsQuery);
+
+  const getFeedback = () => {
+    if (!guests) return [];
+    return guests
+      .map((guest) => guest.feedback)
+      .filter((feedback): feedback is string => !!feedback && feedback.trim() !== '');
+  };
 
   const generateSummary = async () => {
     setIsLoading(true);
@@ -40,10 +53,10 @@ export function InsightsDialog({ open, onOpenChange }: InsightsDialogProps) {
   };
 
   useEffect(() => {
-    if (open) {
+    if (open && !guestsLoading) {
       generateSummary();
     }
-  }, [open]);
+  }, [open, guestsLoading]);
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -58,7 +71,7 @@ export function InsightsDialog({ open, onOpenChange }: InsightsDialogProps) {
           </DialogDescription>
         </DialogHeader>
         <div className="py-4 min-h-[120px]">
-          {isLoading ? (
+          {isLoading || guestsLoading ? (
             <div className="space-y-2">
               <Skeleton className="h-4 w-full" />
               <Skeleton className="h-4 w-full" />
@@ -71,8 +84,8 @@ export function InsightsDialog({ open, onOpenChange }: InsightsDialogProps) {
           )}
         </div>
         <div className="flex justify-end">
-            <Button onClick={generateSummary} disabled={isLoading}>
-                {isLoading ? "Generating..." : "Regenerate"}
+            <Button onClick={generateSummary} disabled={isLoading || guestsLoading}>
+                {isLoading || guestsLoading ? "Generating..." : "Regenerate"}
             </Button>
         </div>
       </DialogContent>

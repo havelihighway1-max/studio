@@ -1,3 +1,4 @@
+
 "use client"
 
 import * as React from "react"
@@ -26,15 +27,18 @@ import { Input } from "@/components/ui/input"
 import { useGuestStore } from "@/hooks/use-guest-store"
 import { PlusCircle, Sparkles } from "lucide-react"
 import { useAdmin } from "@/hooks/use-admin"
+import { Skeleton } from "../ui/skeleton"
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[]
   data: TData[]
+  isLoading: boolean
 }
 
 export function DataTable<TData, TValue>({
   columns,
   data,
+  isLoading,
 }: DataTableProps<TData, TValue>) {
   const [sorting, setSorting] = React.useState<SortingState>([
     { id: 'visitDate', desc: true }
@@ -109,7 +113,15 @@ export function DataTable<TData, TValue>({
             ))}
           </TableHeader>
           <TableBody>
-            {table.getRowModel().rows?.length ? (
+            {isLoading ? (
+                <TableRow>
+                    <TableCell colSpan={columns.length} className="h-24 text-center">
+                        <div className="flex justify-center items-center">
+                           <p>Loading guests...</p>
+                        </div>
+                    </TableCell>
+                </TableRow>
+            ) : table.getRowModel().rows?.length ? (
               table.getRowModel().rows.map((row) => (
                 <TableRow
                   key={row.id}

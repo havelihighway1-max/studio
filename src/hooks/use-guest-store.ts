@@ -2,246 +2,165 @@
 "use client";
 
 import { create } from 'zustand';
-import { persist, createJSONStorage, type PersistStorage } from 'zustand/middleware';
-import type { Guest, Reservation, Table, WaitingGuest } from '@/lib/types';
+import { Guest, Reservation, Table, WaitingGuest } from '@/lib/types';
+import {
+  addDocumentNonBlocking,
+  deleteDocumentNonBlocking,
+  setDocumentNonBlocking,
+} from '@/firebase/non-blocking-updates';
+import { collection, doc, writeBatch, getFirestore, getDocs, query, orderBy } from 'firebase/firestore';
+import { getFirebase } from '@/firebase/provider'; // Assuming getFirebase is exported
+import { useFirestore } from '@/firebase'; // Assuming a useFirestore hook
 
 interface AppState {
-  guests: Guest[];
+  // Local state properties
+  editingGuest: Guest | null;
+  isGuestDialogOpen: boolean;
+  editingReservation: Reservation | null;
+  isReservationDialogOpen: boolean;
+  editingTable: Table | null;
+  isTableDialogOpen: boolean;
+  editingWaitingGuest: WaitingGuest | null;
+  isWaitingGuestDialogOpen: boolean;
+
+  // UI control functions
+  openGuestDialog: (guest?: Guest | null) => void;
+  closeGuestDialog: () => void;
+  openReservationDialog: (reservation?: Reservation | null) => void;
+  closeReservationDialog: () => void;
+  openTableDialog: (table?: Table | null) => void;
+  closeTableDialog: () => void;
+  openWaitingGuestDialog: (guest?: WaitingGuest | null) => void;
+  closeWaitingGuestDialog: () => void;
+  openInsightsDialog: () => void;
+  closeInsightsDialog: () => void;
+  isInsightsDialogOpen: boolean;
+  
+  // Firestore actions
   addGuest: (guest: Omit<Guest, 'id'>) => void;
   updateGuest: (id: string, guest: Partial<Omit<Guest, 'id'>>) => void;
   deleteGuest: (id: string) => void;
-  getFeedback: () => string[];
   
-  editingGuest: Guest | null;
-  isGuestDialogOpen: boolean;
-  openGuestDialog: (guest?: Guest | null) => void;
-  closeGuestDialog: () => void;
-
-  isInsightsDialogOpen: boolean;
-  openInsightsDialog: () => void;
-  closeInsightsDialog: () => void;
-
-  reservations: Reservation[];
   addReservation: (reservation: Omit<Reservation, 'id'>) => void;
   updateReservation: (id: string, reservation: Partial<Omit<Reservation, 'id'>>) => void;
   deleteReservation: (id: string) => void;
   
-  editingReservation: Reservation | null;
-  isReservationDialogOpen: boolean;
-  openReservationDialog: (reservation?: Reservation | null) => void;
-  closeReservationDialog: () => void;
-
-  tables: Table[];
   addTable: (table: Omit<Table, 'id'>) => void;
   updateTable: (id: string, table: Partial<Omit<Table, 'id'>>) => void;
   deleteTable: (id: string) => void;
-  setTables: (tables: Omit<Table, 'id'>[]) => void;
+  setTables: (tables: Omit<Table, 'id'>[]) => Promise<void>;
 
-  editingTable: Table | null;
-  isTableDialogOpen: boolean;
-  openTableDialog: (table?: Table | null) => void;
-  closeTableDialog: () => void;
-
-  waitingGuests: WaitingGuest[];
-  addWaitingGuest: (guest: Omit<WaitingGuest, 'id' | 'tokenNumber' | 'createdAt' | 'status'>) => void;
+  addWaitingGuest: (guest: Omit<WaitingGuest, 'id' | 'createdAt' | 'status' | 'tokenNumber'>) => void;
   updateWaitingGuest: (id: string, data: Partial<Omit<WaitingGuest, 'id'>>) => void;
   deleteWaitingGuest: (id: string) => void;
-  getNextTokenNumber: () => number;
-
-  editingWaitingGuest: WaitingGuest | null;
-  isWaitingGuestDialogOpen: boolean;
-  openWaitingGuestDialog: (guest?: WaitingGuest | null) => void;
-  closeWaitingGuestDialog: () => void;
 }
 
-// Custom storage implementation to handle Date objects
-const storage: PersistStorage<AppState> = {
-  getItem: (name) => {
-    const str = localStorage.getItem(name);
-    if (!str) return null;
+export const useGuestStore = create<AppState>((set, get) => ({
+  editingGuest: null,
+  isGuestDialogOpen: false,
+  editingReservation: null,
+  isReservationDialogOpen: false,
+  editingTable: null,
+  isTableDialogOpen: false,
+  editingWaitingGuest: null,
+  isWaitingGuestDialogOpen: false,
+  isInsightsDialogOpen: false,
 
-    const parsed = JSON.parse(str);
-
-    if (parsed.state) {
-      if (Array.isArray(parsed.state.guests)) {
-        parsed.state.guests = parsed.state.guests.map((g: any) => ({
-          ...g,
-          visitDate: new Date(g.visitDate),
-        }));
-      }
-      if (Array.isArray(parsed.state.reservations)) {
-        parsed.state.reservations = parsed.state.reservations.map((r: any) => ({
-          ...r,
-          dateOfEvent: new Date(r.dateOfEvent),
-        }));
-      }
-      if (Array.isArray(parsed.state.waitingGuests)) {
-        parsed.state.waitingGuests = parsed.state.waitingGuests.map((w: any) => ({
-          ...w,
-          createdAt: new Date(w.createdAt),
-        }));
-      }
-    }
-
-    return parsed;
+  openGuestDialog: (guest = null) => set({ editingGuest: guest, isGuestDialogOpen: true }),
+  closeGuestDialog: () => set({ isGuestDialogOpen: false, editingGuest: null }),
+  openReservationDialog: (reservation = null) => set({ editingReservation: reservation, isReservationDialogOpen: true }),
+  closeReservationDialog: () => set({ isReservationDialogOpen: false, editingReservation: null }),
+  openTableDialog: (table = null) => set({ editingTable: table, isTableDialogOpen: true }),
+  closeTableDialog: () => set({ isTableDialogOpen: false, editingTable: null }),
+  openWaitingGuestDialog: (guest = null) => set({ editingWaitingGuest: guest, isWaitingGuestDialogOpen: true }),
+  closeWaitingGuestDialog: () => set({ isWaitingGuestDialogOpen: false, editingWaitingGuest: null }),
+  openInsightsDialog: () => set({ isInsightsDialogOpen: true }),
+  closeInsightsDialog: () => set({ isInsightsDialogOpen: false }),
+  
+  addGuest: (guest) => {
+    const { firestore } = getFirebase();
+    const guestWithId = { ...guest, id: crypto.randomUUID() };
+    const docRef = doc(firestore, "guests", guestWithId.id);
+    setDocumentNonBlocking(docRef, guestWithId, {});
   },
-  setItem: (name, newValue) => {
-    // Prevent storing React event objects
-    const stateToStore = { ...newValue.state };
-    const newEditingGuest = stateToStore.editingGuest ? { ...stateToStore.editingGuest } : null;
-    const newEditingReservation = stateToStore.editingReservation ? { ...stateToStore.editingReservation } : null;
-    const newEditingTable = stateToStore.editingTable ? { ...stateToStore.editingTable } : null;
-    const newEditingWaitingGuest = stateToStore.editingWaitingGuest ? { ...stateToStore.editingWaitingGuest } : null;
+  updateGuest: (id, updatedData) => {
+    const { firestore } = getFirebase();
+    const docRef = doc(firestore, "guests", id);
+    setDocumentNonBlocking(docRef, updatedData, { merge: true });
+  },
+  deleteGuest: (id) => {
+    const { firestore } = getFirebase();
+    const docRef = doc(firestore, "guests", id);
+    deleteDocumentNonBlocking(docRef);
+  },
+  addReservation: (reservation) => {
+    const { firestore } = getFirebase();
+    const reservationWithId = { ...reservation, id: crypto.randomUUID() };
+    const docRef = doc(firestore, "reservations", reservationWithId.id);
+    setDocumentNonBlocking(docRef, reservationWithId, {});
+  },
+  updateReservation: (id, updatedData) => {
+    const { firestore } = getFirebase();
+    const docRef = doc(firestore, "reservations", id);
+    setDocumentNonBlocking(docRef, updatedData, { merge: true });
+  },
+  deleteReservation: (id) => {
+    const { firestore } = getFirebase();
+    const docRef = doc(firestore, "reservations", id);
+    deleteDocumentNonBlocking(docRef);
+  },
+  addTable: (table) => {
+    const { firestore } = getFirebase();
+    const tableWithId = { ...table, id: crypto.randomUUID() };
+    const docRef = doc(firestore, "tables", tableWithId.id);
+    setDocumentNonBlocking(docRef, tableWithId, {});
+  },
+  updateTable: (id, updatedData) => {
+    const { firestore } = getFirebase();
+    const docRef = doc(firestore, "tables", id);
+    setDocumentNonBlocking(docRef, updatedData, { merge: true });
+  },
+  deleteTable: (id) => {
+    const { firestore } = getFirebase();
+    const docRef = doc(firestore, "tables", id);
+    deleteDocumentNonBlocking(docRef);
+  },
+  setTables: async (tables) => {
+      const { firestore } = getFirebase();
+      const batch = writeBatch(firestore);
+      tables.forEach(table => {
+          const tableWithId = { ...table, id: crypto.randomUUID() };
+          const docRef = doc(firestore, "tables", tableWithId.id);
+          batch.set(docRef, tableWithId);
+      });
+      await batch.commit();
+  },
+  addWaitingGuest: async (guest) => {
+    const { firestore } = getFirebase();
+    const waitingGuestsCollection = collection(firestore, 'waitingGuests');
+    const q = query(waitingGuestsCollection, orderBy('tokenNumber', 'desc'));
+    const querySnapshot = await getDocs(q);
+    const lastGuest = querySnapshot.docs[0]?.data() as WaitingGuest;
+    const nextToken = (lastGuest?.tokenNumber || 0) + 1;
 
-    if (newEditingGuest) {
-      // @ts-ignore
-      delete newEditingGuest.nativeEvent;
-    }
-    if (newEditingReservation) {
-       // @ts-ignore
-      delete newEditingReservation.nativeEvent;
-    }
-    if (newEditingTable) {
-       // @ts-ignore
-      delete newEditingTable.nativeEvent;
-    }
-    if (newEditingWaitingGuest) {
-       // @ts-ignore
-      delete newEditingWaitingGuest.nativeEvent;
-    }
-
-    const cleanedState = {
-      ...stateToStore,
-      editingGuest: newEditingGuest,
-      editingReservation: newEditingReservation,
-      editingTable: newEditingTable,
-      editingWaitingGuest: newEditingWaitingGuest,
+    const newGuest = {
+        ...guest,
+        id: crypto.randomUUID(),
+        tokenNumber: nextToken,
+        createdAt: new Date(),
+        status: 'waiting' as const,
     };
-    
-    localStorage.setItem(name, JSON.stringify({ ...newValue, state: cleanedState }));
+    const docRef = doc(firestore, "waitingGuests", newGuest.id);
+    setDocumentNonBlocking(docRef, newGuest, {});
   },
-  removeItem: (name) => localStorage.removeItem(name),
-}
-
-
-export const useGuestStore = create<AppState>()(
-  persist(
-    (set, get) => ({
-      // Guest management
-      guests: [],
-      addGuest: (guest) =>
-        set((state) => ({
-          guests: [...state.guests, { ...guest, id: crypto.randomUUID() }].sort((a, b) => b.visitDate.getTime() - a.visitDate.getTime()),
-        })),
-      updateGuest: (id, updatedData) =>
-        set((state) => ({
-          guests: state.guests.map((guest) =>
-            guest.id === id ? { ...guest, ...updatedData } : guest
-          ).sort((a, b) => b.visitDate.getTime() - a.visitDate.getTime()),
-        })),
-      deleteGuest: (id) =>
-        set((state) => ({
-          guests: state.guests.filter((guest) => guest.id !== id),
-        })),
-      getFeedback: () => {
-        return get().guests
-          .map((guest) => guest.feedback)
-          .filter((feedback): feedback is string => !!feedback && feedback.trim() !== '');
-      },
-      editingGuest: null,
-      isGuestDialogOpen: false,
-      openGuestDialog: (guest = null) => set({ editingGuest: guest, isGuestDialogOpen: true }),
-      closeGuestDialog: () => set({ isGuestDialogOpen: false, editingGuest: null }),
-      
-      // Insights dialog
-      isInsightsDialogOpen: false,
-      openInsightsDialog: () => set({ isInsightsDialogOpen: true }),
-      closeInsightsDialog: () => set({ isInsightsDialogOpen: false }),
-
-      // Reservation management
-      reservations: [],
-      addReservation: (reservation) =>
-        set((state) => ({
-          reservations: [...state.reservations, { ...reservation, id: crypto.randomUUID(), checkedIn: false }].sort((a, b) => a.dateOfEvent.getTime() - b.dateOfEvent.getTime()),
-        })),
-      updateReservation: (id, updatedData) =>
-        set((state) => ({
-          reservations: state.reservations.map((reservation) =>
-            reservation.id === id ? { ...reservation, ...updatedData } : reservation
-          ).sort((a, b) => a.dateOfEvent.getTime() - b.dateOfEvent.getTime()),
-        })),
-      deleteReservation: (id) =>
-        set((state) => ({
-          reservations: state.reservations.filter((reservation) => reservation.id !== id),
-        })),
-      editingReservation: null,
-      isReservationDialogOpen: false,
-      openReservationDialog: (reservation = null) => set({ editingReservation: reservation, isReservationDialogOpen: true }),
-      closeReservationDialog: () => set({ isReservationDialogOpen: false, editingReservation: null }),
-
-      // Table management
-      tables: [],
-      addTable: (table) =>
-        set((state) => ({
-          tables: [...state.tables, { ...table, id: crypto.randomUUID() }].sort((a, b) => a.name.localeCompare(b.name)),
-        })),
-      updateTable: (id, updatedData) =>
-        set((state) => ({
-          tables: state.tables.map((table) =>
-            table.id === id ? { ...table, ...updatedData } : table
-          ).sort((a, b) => a.name.localeCompare(b.name)),
-        })),
-      deleteTable: (id) =>
-        set((state) => ({
-          tables: state.tables.filter((table) => table.id !== id),
-        })),
-      setTables: (tables) => set({ tables: tables.map(t => ({...t, id: crypto.randomUUID()})).sort((a, b) => a.name.localeCompare(b.name)) }),
-      editingTable: null,
-      isTableDialogOpen: false,
-      openTableDialog: (table = null) => set({ editingTable: table, isTableDialogOpen: true }),
-      closeTableDialog: () => set({ isTableDialogOpen: false, editingTable: null }),
-
-      // Waiting list management
-      waitingGuests: [],
-      addWaitingGuest: (guest) => {
-        const newGuest = {
-          ...guest,
-          id: crypto.randomUUID(),
-          tokenNumber: get().getNextTokenNumber(),
-          createdAt: new Date(),
-          status: 'waiting' as const,
-        };
-        set((state) => ({
-          waitingGuests: [...state.waitingGuests, newGuest],
-        }));
-      },
-      updateWaitingGuest: (id, data) =>
-        set((state) => ({
-          waitingGuests: state.waitingGuests.map((guest) =>
-            guest.id === id ? { ...guest, ...data } : guest
-          ),
-        })),
-      deleteWaitingGuest: (id) =>
-        set((state) => ({
-          waitingGuests: state.waitingGuests.filter((guest) => guest.id !== id),
-        })),
-      getNextTokenNumber: () => {
-        const waitingGuests = get().waitingGuests;
-        if (waitingGuests.length === 0) {
-          return 1;
-        }
-        const maxToken = Math.max(...waitingGuests.map(g => g.tokenNumber));
-        return maxToken + 1;
-      },
-      editingWaitingGuest: null,
-      isWaitingGuestDialogOpen: false,
-      openWaitingGuestDialog: (guest = null) => set({ editingWaitingGuest: guest, isWaitingGuestDialogOpen: true }),
-      closeWaitingGuestDialog: () => set({ isWaitingGuestDialogOpen: false, editingWaitingGuest: null }),
-
-    }),
-    {
-      name: 'embertable-storage',
-      storage,
-    }
-  )
-);
+  updateWaitingGuest: (id, data) => {
+    const { firestore } = getFirebase();
+    const docRef = doc(firestore, "waitingGuests", id);
+    setDocumentNonBlocking(docRef, data, { merge: true });
+  },
+  deleteWaitingGuest: (id) => {
+    const { firestore } = getFirebase();
+    const docRef = doc(firestore, "waitingGuests", id);
+    deleteDocumentNonBlocking(docRef);
+  },
+}));

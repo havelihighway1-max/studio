@@ -1,9 +1,11 @@
+
 "use client";
 
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { DateRange } from "react-day-picker";
 import { addDays, format, isWithinInterval } from "date-fns";
 import { Calendar as CalendarIcon } from "lucide-react";
+import { collection, query } from 'firebase/firestore';
 
 import { useGuestStore } from "@/hooks/use-guest-store";
 import { Guest } from "@/lib/types";
@@ -19,20 +21,27 @@ import { columns } from "@/components/guest-data-table/columns";
 import { cn } from "@/lib/utils";
 import { Header } from "@/components/header";
 import { GuestDialog } from "@/components/guest-data-table/guest-dialog";
+import { useCollection, useFirestore, useMemoFirebase } from "@/firebase";
 
 export default function ReportsPage() {
-  const allGuests = useGuestStore((state) => state.guests);
   const { openGuestDialog, isGuestDialogOpen, closeGuestDialog } = useGuestStore();
+  const firestore = useFirestore();
+  
+  const guestsQuery = useMemoFirebase(() => query(collection(firestore, 'guests')), [firestore]);
+  const { data: allGuests, isLoading } = useCollection<Guest>(guestsQuery);
 
   const [date, setDate] = useState<DateRange | undefined>({
     from: addDays(new Date(), -30),
     to: new Date(),
   });
 
-  const filteredGuests = allGuests.filter((guest) => {
+  const safeGuests = useMemo(() => allGuests || [], [allGuests]);
+
+  const filteredGuests = safeGuests.filter((guest) => {
     if (!date?.from) return true; // If no start date, show all
     const toDate = date.to || date.from;
-    return isWithinInterval(guest.visitDate, { start: date.from, end: toDate });
+    const visitDate = new Date(guest.visitDate); // Convert Firestore timestamp
+    return isWithinInterval(visitDate, { start: date.from, end: toDate });
   });
 
   return (
@@ -84,11 +93,11 @@ export default function ReportsPage() {
             </PopoverContent>
           </Popover>
           <p className="text-muted-foreground">
-            Showing <strong>{filteredGuests.length}</strong> of <strong>{allGuests.length}</strong> guests.
+            Showing <strong>{filteredGuests.length}</strong> of <strong>{safeGuests.length}</strong> guests.
           </p>
         </div>
 
-        <DataTable columns={columns} data={filteredGuests} />
+        <DataTable columns={columns} data={filteredGuests} isLoading={isLoading} />
       </main>
       <GuestDialog
         key={useGuestStore.getState().editingGuest?.id || 'new-report'}
