@@ -23,11 +23,11 @@ export function Header({ onAddNewGuest }: HeaderProps) {
   }
 
   return (
-    <header className="sticky top-0 z-10 border-b bg-card">
+    <header className="sticky top-0 z-10 border-b bg-primary text-primary-foreground">
       <div className="container mx-auto grid h-16 grid-cols-3 items-center px-4 md:px-6">
         <div className="flex items-center gap-2 justify-start">
           {!isDashboardPage ? (
-             <Button asChild variant="outline" className="bg-background/70">
+             <Button asChild variant="outline" className="bg-primary hover:bg-primary/90 border-primary-foreground/50 text-primary-foreground">
               <Link href="/dashboard">
                 <ArrowLeft className="mr-2 h-4 w-4" />
                 Back to Dashboard
@@ -35,25 +35,25 @@ export function Header({ onAddNewGuest }: HeaderProps) {
             </Button>
           ) : (
             <>
-              <Button asChild variant="outline" className="bg-background/70">
+              <Button asChild variant="outline" className="bg-primary hover:bg-primary/90 border-primary-foreground/50 text-primary-foreground">
                 <Link href="/reports">
                   <BarChart2 className="mr-2 h-4 w-4" />
                   Reports
                 </Link>
               </Button>
-              <Button asChild variant="outline" className="bg-background/70">
+              <Button asChild variant="outline" className="bg-primary hover:bg-primary/90 border-primary-foreground/50 text-primary-foreground">
                 <Link href="/reservations">
                   <CalendarClock className="mr-2 h-4 w-4" />
                   Reservations
                 </Link>
               </Button>
-              <Button asChild variant="outline" className="bg-background/70">
+              <Button asChild variant="outline" className="bg-primary hover:bg-primary/90 border-primary-foreground/50 text-primary-foreground">
                 <Link href="/tables">
                   <Table className="mr-2 h-4 w-4" />
                   Tables
                 </Link>
               </Button>
-              <Button asChild variant="outline" className="bg-background/70">
+              <Button asChild variant="outline" className="bg-primary hover:bg-primary/90 border-primary-foreground/50 text-primary-foreground">
                 <Link href="/waitlist">
                   <UserCheck className="mr-2 h-4 w-4" />
                   Waitlist
@@ -66,17 +66,17 @@ export function Header({ onAddNewGuest }: HeaderProps) {
           
         </Link>
         <div className="flex items-center gap-2 justify-end">
-          <Button onClick={onAddNewGuest} className="animate-pulse">
+          <Button onClick={onAddNewGuest} variant="secondary" className="animate-pulse">
             <PlusCircle className="mr-2 h-4 w-4" />
             Add New Guest
           </Button>
           {user ? (
-            <Button variant="ghost" onClick={handleLogout}>
+            <Button variant="ghost" className="hover:bg-primary/80" onClick={handleLogout}>
               <LogOut className="mr-2 h-4 w-4" />
               Logout
             </Button>
           ) : (
-            <Button asChild variant="ghost">
+            <Button asChild variant="ghost" className="hover:bg-primary/80">
               <Link href="/login">
                 <LogIn className="mr-2 h-4 w-4" />
                 Admin Login
