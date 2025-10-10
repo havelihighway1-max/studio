@@ -79,7 +79,7 @@ export default function MenuPage() {
                           <h3 className="font-semibold">{item.name}</h3>
                           {item.description && <p className="text-sm text-muted-foreground">{item.description}</p>}
                         </div>
-                        <div className="font-semibold tabular-nums">${item.price.toFixed(2)}</div>
+                        <div className="font-semibold tabular-nums">{item.price.toFixed(2)}</div>
                       </div>
                     ))}
                   </CardContent>
