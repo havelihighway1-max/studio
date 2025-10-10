@@ -12,23 +12,23 @@ import { collection, doc, writeBatch, getFirestore, getDocs, query, orderBy } fr
 
 interface AppState {
   // Local state properties
-  editingGuest: Guest | null;
+  editingGuest: Partial<Guest> | null;
   isGuestDialogOpen: boolean;
-  editingReservation: Reservation | null;
+  editingReservation: Partial<Reservation> | null;
   isReservationDialogOpen: boolean;
-  editingTable: Table | null;
+  editingTable: Partial<Table> | null;
   isTableDialogOpen: boolean;
-  editingWaitingGuest: WaitingGuest | null;
+  editingWaitingGuest: Partial<WaitingGuest> | null;
   isWaitingGuestDialogOpen: boolean;
 
   // UI control functions
-  openGuestDialog: (guest?: Guest | null) => void;
+  openGuestDialog: (guest?: Partial<Guest> | null) => void;
   closeGuestDialog: () => void;
-  openReservationDialog: (reservation?: Reservation | null) => void;
+  openReservationDialog: (reservation?: Partial<Reservation> | null) => void;
   closeReservationDialog: () => void;
-  openTableDialog: (table?: Table | null) => void;
+  openTableDialog: (table?: Partial<Table> | null) => void;
   closeTableDialog: () => void;
-  openWaitingGuestDialog: (guest?: WaitingGuest | null) => void;
+  openWaitingGuestDialog: (guest?: Partial<WaitingGuest> | null) => void;
   closeWaitingGuestDialog: () => void;
   openInsightsDialog: () => void;
   closeInsightsDialog: () => void;

@@ -33,19 +33,20 @@ import { Textarea } from "@/components/ui/textarea";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { cn } from "@/lib/utils";
 import { Calendar } from "@/components/ui/calendar";
+import { useEffect } from "react";
 
 type GuestFormValues = z.infer<typeof guestSchema>;
 
 interface GuestDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  guest?: Guest | null;
+  guest?: Partial<Guest> | null;
 }
 
 export function GuestDialog({ open, onOpenChange, guest }: GuestDialogProps) {
   const { addGuest, updateGuest } = useGuestStore();
   const { toast } = useToast();
-  const isEditMode = !!guest;
+  const isEditMode = !!guest?.id;
 
   const getVisitDate = () => {
     if(guest?.visitDate) {
@@ -70,8 +71,21 @@ export function GuestDialog({ open, onOpenChange, guest }: GuestDialogProps) {
     },
   });
 
+  useEffect(() => {
+    form.reset({
+      name: guest?.name || "",
+      phone: guest?.phone || "",
+      numberOfGuests: guest?.numberOfGuests || 1,
+      tables: guest?.tables || "",
+      visitDate: getVisitDate(),
+      preferences: guest?.preferences || "",
+      feedback: guest?.feedback || "",
+    });
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [guest, form]);
+
   function onSubmit(data: Omit<GuestFormValues, 'id'>) {
-    if (isEditMode && guest) {
+    if (isEditMode && guest?.id) {
       updateGuest(guest.id, data);
       toast({
         title: "Guest Updated",

@@ -25,19 +25,20 @@ import {
 import { Table, tableSchema } from "@/lib/types";
 import { useGuestStore } from "@/hooks/use-guest-store";
 import { useToast } from "@/hooks/use-toast";
+import { useEffect } from "react";
 
 type TableFormValues = z.infer<typeof tableSchema>;
 
 interface TableDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  table?: Table | null;
+  table?: Partial<Table> | null;
 }
 
 export function TableDialog({ open, onOpenChange, table }: TableDialogProps) {
   const { addTable, updateTable } = useGuestStore();
   const { toast } = useToast();
-  const isEditMode = !!table;
+  const isEditMode = !!table?.id;
 
   const form = useForm<Omit<TableFormValues, 'id'>>({
     resolver: zodResolver(tableSchema.omit({ id: true })),
@@ -47,8 +48,16 @@ export function TableDialog({ open, onOpenChange, table }: TableDialogProps) {
     },
   });
 
+  useEffect(() => {
+    form.reset({
+      name: table?.name || "",
+      capacity: table?.capacity || 1,
+    });
+  }, [table, form]);
+
+
   function onSubmit(data: Omit<TableFormValues, 'id'>) {
-    if (isEditMode && table) {
+    if (isEditMode && table?.id) {
       updateTable(table.id, data);
       toast({
         title: "Table Updated",

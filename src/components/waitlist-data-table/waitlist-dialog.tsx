@@ -27,6 +27,7 @@ import { WaitingGuest, waitingGuestSchema } from "@/lib/types";
 import { useGuestStore } from "@/hooks/use-guest-store";
 import { useToast } from "@/hooks/use-toast";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { useEffect } from "react";
 
 
 type WaitingGuestFormValues = z.infer<typeof waitingGuestSchema>;
@@ -34,13 +35,13 @@ type WaitingGuestFormValues = z.infer<typeof waitingGuestSchema>;
 interface WaitingGuestDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  guest?: WaitingGuest | null;
+  guest?: Partial<WaitingGuest> | null;
 }
 
 export function WaitingGuestDialog({ open, onOpenChange, guest }: WaitingGuestDialogProps) {
   const { addWaitingGuest, updateWaitingGuest } = useGuestStore();
   const { toast } = useToast();
-  const isEditMode = !!guest;
+  const isEditMode = !!guest?.id;
 
   const formSchema = waitingGuestSchema.omit({ id: true, tokenNumber: true, createdAt: true });
 
@@ -54,8 +55,17 @@ export function WaitingGuestDialog({ open, onOpenChange, guest }: WaitingGuestDi
     },
   });
 
+  useEffect(() => {
+    form.reset({
+      name: guest?.name || "",
+      phone: guest?.phone || "",
+      numberOfGuests: guest?.numberOfGuests || 1,
+      status: guest?.status || "waiting",
+    });
+  }, [guest, form]);
+
   function onSubmit(data: Omit<WaitingGuestFormValues, 'id' | 'tokenNumber' | 'createdAt'>) {
-    if (isEditMode && guest) {
+    if (isEditMode && guest?.id) {
       updateWaitingGuest(guest.id, data);
       toast({
         title: "Guest Updated",

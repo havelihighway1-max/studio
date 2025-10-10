@@ -35,6 +35,7 @@ import { cn } from "@/lib/utils";
 import { Calendar } from "@/components/ui/calendar";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Switch } from "../ui/switch";
+import { useEffect } from "react";
 
 
 type ReservationFormValues = z.infer<typeof reservationSchema>;
@@ -42,13 +43,13 @@ type ReservationFormValues = z.infer<typeof reservationSchema>;
 interface ReservationDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  reservation?: Reservation | null;
+  reservation?: Partial<Reservation> | null;
 }
 
 export function ReservationDialog({ open, onOpenChange, reservation }: ReservationDialogProps) {
   const { addReservation, updateReservation } = useGuestStore();
   const { toast } = useToast();
-  const isEditMode = !!reservation;
+  const isEditMode = !!reservation?.id;
 
   const getDateOfEvent = () => {
     if(reservation?.dateOfEvent) {
@@ -75,8 +76,23 @@ export function ReservationDialog({ open, onOpenChange, reservation }: Reservati
     },
   });
 
+  useEffect(() => {
+    form.reset({
+      name: reservation?.name || "",
+      phone: reservation?.phone || "",
+      numberOfGuests: reservation?.numberOfGuests || 1,
+      dateOfEvent: getDateOfEvent(),
+      status: reservation?.status || "upcoming",
+      notes: reservation?.notes || "",
+      advancePayment: reservation?.advancePayment || undefined,
+      occasion: reservation?.occasion || undefined,
+      checkedIn: reservation?.checkedIn || false,
+    });
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [reservation, form]);
+
   function onSubmit(data: Omit<ReservationFormValues, 'id'>) {
-    if (isEditMode && reservation) {
+    if (isEditMode && reservation?.id) {
       updateReservation(reservation.id, data);
       toast({
         title: "Reservation Updated",
