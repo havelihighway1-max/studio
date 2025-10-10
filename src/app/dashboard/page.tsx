@@ -111,7 +111,7 @@ export default function DashboardPage() {
           <Header onAddNewGuest={() => openGuestDialog()} />
           <main className="flex-1 p-4 md:p-6 lg:p-8">
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-5">
-              <Card className="bg-chart-1/20 border-chart-1">
+              <Card className="bg-chart-1 border-chart-1">
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                   <CardTitle className="text-sm font-medium">
                     Total Guests
@@ -123,7 +123,7 @@ export default function DashboardPage() {
                   <div className="text-2xl font-bold">{totalGuests}</div>
                 </CardContent>
               </Card>
-              <Card className="bg-chart-2/20 border-chart-2">
+              <Card className="bg-chart-2 border-chart-2">
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                   <CardTitle className="text-sm font-medium">
                     New Today
@@ -135,7 +135,7 @@ export default function DashboardPage() {
                   <div className="text-2xl font-bold">+{newToday}</div>
                 </CardContent>
               </Card>
-              <Card className="bg-chart-3/20 border-chart-3">
+              <Card className="bg-chart-3 border-chart-3">
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                   <CardTitle className="text-sm font-medium">
                     New This Month
@@ -147,7 +147,7 @@ export default function DashboardPage() {
                   <div className="text-2xl font-bold">+{newThisMonth}</div>
                 </CardContent>
               </Card>
-              <Card className="bg-chart-4/20 border-chart-4">
+              <Card className="bg-chart-4 border-chart-4">
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                   <CardTitle className="text-sm font-medium">
                     Same Day Last Week
@@ -161,8 +161,8 @@ export default function DashboardPage() {
               </Card>
                <Card
                 className={cn(
-                  "bg-chart-5/20 border-chart-5",
-                  anniversaryEvents.length > 0 ? "cursor-pointer hover:bg-chart-5/30" : ""
+                  "bg-chart-5 border-chart-5",
+                  anniversaryEvents.length > 0 ? "cursor-pointer hover:bg-chart-5/80" : ""
                 )}
                 onClick={() => anniversaryEvents.length > 0 && setIsAnniversaryDialogOpen(true)}
               >
