@@ -3,9 +3,9 @@
 
 import { useState, useMemo } from "react";
 import { DateRange } from "react-day-picker";
-import { addDays, format, isWithinInterval } from "date-fns";
+import { addDays, format, isWithinInterval, isValid } from "date-fns";
 import { Calendar as CalendarIcon, Printer } from "lucide-react";
-import { collection, query } from 'firebase/firestore';
+import { collection, query, Timestamp } from 'firebase/firestore';
 
 import { useGuestStore } from "@/hooks/use-guest-store";
 import { Guest } from "@/lib/types";
@@ -23,6 +23,13 @@ import { Header } from "@/components/header";
 import { GuestDialog } from "@/components/guest-data-table/guest-dialog";
 import { useCollection, useFirestore, useMemoFirebase, useUser } from "@/firebase";
 
+const convertGuestTimestamps = (guests: (Omit<Guest, 'visitDate'> & { visitDate: Timestamp })[]): Guest[] => {
+  return guests.map(g => ({
+    ...g,
+    visitDate: g.visitDate.toDate(),
+  }));
+};
+
 export default function ReportsPage() {
   const { openGuestDialog, isGuestDialogOpen, closeGuestDialog } = useGuestStore();
   const firestore = useFirestore();
@@ -33,21 +40,22 @@ export default function ReportsPage() {
     return query(collection(firestore, 'guests'));
   }, [firestore, user]);
   
-  const { data: allGuests, isLoading } = useCollection<Guest>(guestsQuery);
+  const { data: rawGuests, isLoading } = useCollection<(Omit<Guest, 'visitDate'> & { visitDate: Timestamp })>(guestsQuery);
+  const allGuests = useMemo(() => (rawGuests ? convertGuestTimestamps(rawGuests) : []), [rawGuests]);
 
-  const [date, setDate] = useState<DateRange | undefined>({
-    from: addDays(new Date(), -30),
-    to: new Date(),
-  });
+  const [date, setDate] = useState<DateRange | undefined>(undefined);
 
   const safeGuests = useMemo(() => allGuests || [], [allGuests]);
 
-  const filteredGuests = safeGuests.filter((guest) => {
-    if (!date?.from) return true; // If no start date, show all
-    const toDate = date.to || date.from;
-    const visitDate = new Date(guest.visitDate); // Convert Firestore timestamp
-    return isWithinInterval(visitDate, { start: date.from, end: toDate });
-  });
+  const filteredGuests = useMemo(() => {
+    return safeGuests.filter((guest) => {
+      if (!date?.from) return true; // If no start date, show all
+      const toDate = date.to || date.from;
+      const visitDate = guest.visitDate;
+      if (!isValid(visitDate)) return false; // Skip invalid dates
+      return isWithinInterval(visitDate, { start: date.from, end: toDate });
+    });
+  }, [safeGuests, date]);
 
   return (
     <div className="flex min-h-screen w-full flex-col bg-background print:bg-white">
@@ -56,7 +64,7 @@ export default function ReportsPage() {
         <div className="mb-8 print:hidden">
           <h1 className="font-headline text-4xl font-bold">Guest Reports</h1>
           <p className="text-muted-foreground">
-            Analyze your guest data by selecting a date range.
+            Analyze your guest data by selecting a date range. All guests are shown by default.
           </p>
         </div>
 
@@ -82,7 +90,7 @@ export default function ReportsPage() {
                     format(date.from, "LLL dd, y")
                   )
                 ) : (
-                  <span>Pick a date</span>
+                  <span>Pick a date range</span>
                 )}
               </Button>
             </PopoverTrigger>
@@ -110,7 +118,7 @@ export default function ReportsPage() {
           <div className="mb-4 hidden print:block">
             <h1 className="font-headline text-2xl font-bold">Guest Report</h1>
             <p className="text-sm">
-                Date Range: {date?.from ? format(date.from, "LLL dd, y") : 'N/A'} - {date?.to ? format(date.to, "LLL dd, y") : 'N/A'}
+                Date Range: {date?.from ? format(date.from, "LLL dd, y") : 'All Time'} - {date?.to ? format(date.to, "LLL dd, y") : ''}
             </p>
              <p className="text-sm">
                 Total Guests in Report: <strong>{filteredGuests.length}</strong>
