@@ -23,11 +23,11 @@ export function Header({ onAddNewGuest }: HeaderProps) {
   }
 
   return (
-    <header className="sticky top-0 z-10 border-b bg-background/80 backdrop-blur-sm">
+    <header className="sticky top-0 z-10 border-b bg-primary/10 backdrop-blur-sm">
       <div className="container mx-auto grid h-16 grid-cols-3 items-center px-4 md:px-6">
         <div className="flex items-center gap-2 justify-start">
           {!isDashboardPage ? (
-             <Button asChild variant="outline">
+             <Button asChild variant="outline" className="bg-background/70">
               <Link href="/dashboard">
                 <ArrowLeft className="mr-2 h-4 w-4" />
                 Back to Dashboard
@@ -35,25 +35,25 @@ export function Header({ onAddNewGuest }: HeaderProps) {
             </Button>
           ) : (
             <>
-              <Button asChild variant="outline">
+              <Button asChild variant="outline" className="bg-background/70">
                 <Link href="/reports">
                   <BarChart2 className="mr-2 h-4 w-4" />
                   Reports
                 </Link>
               </Button>
-              <Button asChild variant="outline">
+              <Button asChild variant="outline" className="bg-background/70">
                 <Link href="/reservations">
                   <CalendarClock className="mr-2 h-4 w-4" />
                   Reservations
                 </Link>
               </Button>
-              <Button asChild variant="outline">
+              <Button asChild variant="outline" className="bg-background/70">
                 <Link href="/tables">
                   <Table className="mr-2 h-4 w-4" />
                   Tables
                 </Link>
               </Button>
-              <Button asChild variant="outline">
+              <Button asChild variant="outline" className="bg-background/70">
                 <Link href="/waitlist">
                   <UserCheck className="mr-2 h-4 w-4" />
                   Waitlist
