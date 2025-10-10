@@ -17,6 +17,7 @@ import { Button } from "@/components/ui/button";
 import { PlaceHolderImages } from "@/lib/placeholder-images";
 import { AnniversaryDialog } from "@/components/anniversary-dialog";
 import { Guest, Reservation } from "@/lib/types";
+import { cn } from "@/lib/utils";
 
 
 export default function DashboardPage() {
@@ -110,7 +111,7 @@ export default function DashboardPage() {
           <Header onAddNewGuest={() => openGuestDialog()} />
           <main className="flex-1 p-4 md:p-6 lg:p-8">
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-5">
-              <Card>
+              <Card className="bg-chart-1/20 border-chart-1">
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                   <CardTitle className="text-sm font-medium">
                     Total Guests
@@ -122,7 +123,7 @@ export default function DashboardPage() {
                   <div className="text-2xl font-bold">{totalGuests}</div>
                 </CardContent>
               </Card>
-              <Card>
+              <Card className="bg-chart-2/20 border-chart-2">
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                   <CardTitle className="text-sm font-medium">
                     New Today
@@ -134,7 +135,7 @@ export default function DashboardPage() {
                   <div className="text-2xl font-bold">+{newToday}</div>
                 </CardContent>
               </Card>
-              <Card>
+              <Card className="bg-chart-3/20 border-chart-3">
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                   <CardTitle className="text-sm font-medium">
                     New This Month
@@ -146,7 +147,7 @@ export default function DashboardPage() {
                   <div className="text-2xl font-bold">+{newThisMonth}</div>
                 </CardContent>
               </Card>
-              <Card>
+              <Card className="bg-chart-4/20 border-chart-4">
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                   <CardTitle className="text-sm font-medium">
                     Same Day Last Week
@@ -159,7 +160,10 @@ export default function DashboardPage() {
                 </CardContent>
               </Card>
                <Card
-                className={anniversaryEvents.length > 0 ? "cursor-pointer hover:bg-card/80" : ""}
+                className={cn(
+                  "bg-chart-5/20 border-chart-5",
+                  anniversaryEvents.length > 0 ? "cursor-pointer hover:bg-chart-5/30" : ""
+                )}
                 onClick={() => anniversaryEvents.length > 0 && setIsAnniversaryDialogOpen(true)}
               >
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
