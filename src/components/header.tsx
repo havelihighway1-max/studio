@@ -22,6 +22,10 @@ export function Header({ onAddNewGuest }: HeaderProps) {
     auth.signOut();
   }
 
+  const handleAddNewGuest = () => {
+    onAddNewGuest();
+  }
+
   return (
     <header className="sticky top-0 z-10 border-b bg-primary text-primary-foreground">
       <div className="container mx-auto grid h-16 grid-cols-3 items-center px-4 md:px-6">
@@ -66,7 +70,7 @@ export function Header({ onAddNewGuest }: HeaderProps) {
           
         </Link>
         <div className="flex items-center gap-2 justify-end">
-          <Button onClick={onAddNewGuest} variant="secondary" className="animate-pulse">
+          <Button onClick={handleAddNewGuest} variant="secondary" className="animate-pulse">
             <PlusCircle className="mr-2 h-4 w-4" />
             Add New Guest
           </Button>
