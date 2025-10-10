@@ -25,6 +25,8 @@ export default function DashboardPage() {
 
   const [isAnniversaryDialogOpen, setIsAnniversaryDialogOpen] = useState(false);
   const [anniversaryEvents, setAnniversaryEvents] = useState<(Guest | Reservation)[]>([]);
+  
+  const backgroundImage = PlaceHolderImages.find(img => img.id === 'crowd-background');
 
   useEffect(() => {
     setIsClient(true);
@@ -94,6 +96,16 @@ export default function DashboardPage() {
 
   return (
     <div className="relative flex min-h-screen w-full flex-col bg-background">
+       {backgroundImage && (
+        <Image
+          src={backgroundImage.imageUrl}
+          alt={backgroundImage.description}
+          fill
+          className="object-cover object-center filter blur-sm brightness-50"
+          data-ai-hint={backgroundImage.imageHint}
+          priority
+        />
+      )}
        <div className="relative z-10 flex min-h-screen w-full flex-col">
           <Header onAddNewGuest={() => openGuestDialog()} />
           <main className="flex-1 p-4 md:p-6 lg:p-8">
