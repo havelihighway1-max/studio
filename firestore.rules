@@ -1,80 +1,74 @@
 /**
- * @fileoverview Firestore Security Rules for Prototyping.
+ * @file Firestore Security Rules
+ * @version 2
  *
- * Core Philosophy:
- * This ruleset is in prototyping mode. All permissions are explicitly removed.
+ * @description
+ * This ruleset provides full access to all data for all users, including unauthenticated users.
+ * This configuration is intended for rapid prototyping and should NOT be used in a production environment.
+ *
+ * Core Philosophy: Open access for all users.
  *
  * Data Structure:
- * - /guests/{guestId}: Stores guest visit records.
- * - /reservations/{reservationId}: Stores guest reservations.
- * - /tables/{tableId}: Stores restaurant table information.
- * - /waitingGuests/{waitingGuestId}: Stores the waiting list.
+ * - /guests/{guestId}: Stores individual records of guest visits.
+ * - /reservations/{reservationId}: Stores all guest reservations.
+ * - /tables/{tableId}: Stores the restaurant's table layout and capacity.
+ * - /waitingGuests/{waitingGuestId}: Stores the list of guests currently waiting for a table.
  *
  * Key Security Decisions:
- * - No data access is permitted.
+ * - Unrestricted read access to all collections.
+ * - Unrestricted write access to all collections.
+ * - No data validation is performed in this prototyping configuration.
  */
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
 
     /**
-     * @description Secures guest visit records.
+     * @description Allows any user to read, create, update, and delete guest records.
      * @path /guests/{guestId}
-     * @allow None
-     * @deny None
-     * @principle Explicitly removes all access during prototyping.
+     * @allow (read, write) Any user can read and write guest data.
+     * @deny (none) This rule provides open access.
+     * @principle Unrestricted access for prototyping.
      */
     match /guests/{guestId} {
-      allow get: if false;
-      allow list: if false;
-      allow create: if false;
-      allow update: if false;
-      allow delete: if false;
+      allow get, list: if true;
+      allow create, update, delete: if true;
     }
 
     /**
-     * @description Secures guest reservations.
+     * @description Allows any user to read, create, update, and delete reservation records.
      * @path /reservations/{reservationId}
-     * @allow None
-     * @deny None
-     * @principle Explicitly removes all access during prototyping.
+     * @allow (read, write) Any user can read and write reservation data.
+     * @deny (none) This rule provides open access.
+     * @principle Unrestricted access for prototyping.
      */
     match /reservations/{reservationId} {
-      allow get: if false;
-      allow list: if false;
-      allow create: if false;
-      allow update: if false;
-      allow delete: if false;
+      allow get, list: if true;
+      allow create, update, delete: if true;
     }
 
     /**
-     * @description Secures restaurant table information.
+     * @description Allows any user to read, create, update, and delete table records.
      * @path /tables/{tableId}
-     * @allow None
-     * @deny None
-     * @principle Explicitly removes all access during prototyping.
+     * @allow (read, write) Any user can read and write table data.
+     * @deny (none) This rule provides open access.
+     * @principle Unrestricted access for prototyping.
      */
     match /tables/{tableId} {
-      allow get: if false;
-      allow list: if false;
-      allow create: if false;
-      allow update: if false;
-      allow delete: if false;
+      allow get, list: if true;
+      allow create, update, delete: if true;
     }
 
     /**
-     * @description Secures the waiting list.
+     * @description Allows any user to read, create, update, and delete waiting guest records.
      * @path /waitingGuests/{waitingGuestId}
-     * @allow None
-     * @deny None
-     * @principle Explicitly removes all access during prototyping.
+     * @allow (read, write) Any user can read and write waiting guest data.
+     * @deny (none) This rule provides open access.
+     * @principle Unrestricted access for prototyping.
      */
     match /waitingGuests/{waitingGuestId} {
-      allow get: if false;
-      allow list: if false;
-      allow create: if false;
-      allow update: if false;
-      allow delete: if false;
+      allow get, list: if true;
+      allow create, update, delete: if true;
     }
   }
 }
