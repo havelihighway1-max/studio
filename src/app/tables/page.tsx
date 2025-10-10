@@ -12,6 +12,7 @@ import { tableSchema, Table } from "@/lib/types";
 import { useToast } from "@/hooks/use-toast";
 import { useCollection, useFirestore, useMemoFirebase, useUser } from "@/firebase";
 import { collection, query } from "firebase/firestore";
+import { Button } from "@/components/ui/button";
 
 export default function TablesPage() {
   const { 
@@ -20,7 +21,8 @@ export default function TablesPage() {
     isTableDialogOpen, 
     closeTableDialog,
     editingTable,
-    openGuestDialog
+    openGuestDialog,
+    addTable
   } = useGuestStore();
   const firestore = useFirestore();
   const { toast } = useToast();
@@ -39,6 +41,27 @@ export default function TablesPage() {
 
   const handleImportClick = () => {
     fileInputRef.current?.click();
+  };
+
+  const handleSeedTables = async () => {
+    try {
+      const tablesToAdd: Omit<Table, 'id'>[] = [];
+      for (let i = 101; i <= 150; i++) {
+        tablesToAdd.push({ name: `Table ${i}`, capacity: 4 });
+      }
+      await setTables(tablesToAdd);
+      toast({
+        title: "Seeding Successful",
+        description: "Tables 101 to 150 have been added.",
+      });
+    } catch (error) {
+      console.error("Seeding Error:", error);
+      toast({
+        variant: "destructive",
+        title: "Seeding Failed",
+        description: "An error occurred while adding the tables.",
+      });
+    }
   };
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -114,6 +137,12 @@ export default function TablesPage() {
           accept=".csv"
           className="hidden"
         />
+
+        <div className="mb-4">
+          <Button onClick={handleSeedTables} variant="secondary">
+            Seed Tables 101-150
+          </Button>
+        </div>
 
         <DataTable 
           columns={columns} 
