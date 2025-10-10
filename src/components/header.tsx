@@ -14,7 +14,7 @@ interface HeaderProps {
 }
 
 export function Header({ onAddNewGuest }: HeaderProps) {
-  const { user, isAdmin } = useAdmin();
+  const { user, isAdmin, isLoading } = useAdmin();
   const auth = useAuth();
   const pathname = usePathname();
   const isDashboardPage = pathname === '/dashboard';
@@ -72,17 +72,17 @@ export function Header({ onAddNewGuest }: HeaderProps) {
         </Link>
         <div className="flex items-center gap-2 justify-end">
           <VoiceCommandButton />
-          <Button onClick={handleAddNewGuest} variant="secondary" className="animate-pulse">
+          <Button onClick={handleAddNewGuest} variant="secondary" className="animate-pulse" disabled={isLoading || !user}>
             <PlusCircle className="mr-2 h-4 w-4" />
             Add New Guest
           </Button>
           {user ? (
-            <Button variant="ghost" className="hover:bg-primary/80" onClick={handleLogout}>
+            <Button variant="ghost" className="hover:bg-primary/80" onClick={handleLogout} disabled={isLoading}>
               <LogOut className="mr-2 h-4 w-4" />
               Logout
             </Button>
           ) : (
-            <Button asChild variant="ghost" className="hover:bg-primary/80">
+            <Button asChild variant="ghost" className="hover:bg-primary/80" disabled={isLoading}>
               <Link href="/login">
                 <LogIn className="mr-2 h-4 w-4" />
                 Admin Login

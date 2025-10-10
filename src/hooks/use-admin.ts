@@ -11,13 +11,15 @@ export function useAdmin() {
 
   const adminDocRef = useMemo(() => {
     if (!user) return null;
+    // This is a protected collection for admin roles.
+    // Replace `roles_admin` with your actual collection name if different.
     return doc(firestore, `roles_admin/${user.uid}`);
   }, [user, firestore]);
 
   const { data: adminDoc, isLoading: isAdminLoading } = useDoc(adminDocRef);
 
   const isAdmin = !!adminDoc;
-  const isLoading = isUserLoading || isAdminLoading;
+  const isLoading = isUserLoading || (user && isAdminLoading);
 
   return { user, isAdmin, isLoading };
 }
