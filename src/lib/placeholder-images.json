@@ -9,8 +9,8 @@
     {
       "id": "crowd-background",
       "description": "A background image of a bustling crowd in a restaurant or event.",
-      "imageUrl": "https://picsum.photos/seed/crowd/1920/1080",
-      "imageHint": "crowd event"
+      "imageUrl": "https://images.unsplash.com/photo-1552566626-52f8b828add9?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&ixlib=rb-4.0.3&q=80&w=1920",
+      "imageHint": "restaurant crowd"
     }
   ]
 }
