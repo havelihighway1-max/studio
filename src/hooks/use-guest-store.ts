@@ -7,6 +7,7 @@ import {
   addDocumentNonBlocking,
   deleteDocumentNonBlocking,
   setDocumentNonBlocking,
+  updateDocumentNonBlocking,
 } from '@/firebase/non-blocking-updates';
 import { collection, doc, writeBatch, getFirestore, getDocs, query, orderBy } from 'firebase/firestore';
 
@@ -86,7 +87,7 @@ export const useGuestStore = create<AppState>((set, get) => ({
   updateGuest: (id, updatedData) => {
     const firestore = getDb();
     const docRef = doc(firestore, "guests", id);
-    setDocumentNonBlocking(docRef, updatedData, { merge: true });
+    updateDocumentNonBlocking(docRef, updatedData);
   },
   deleteGuest: (id) => {
     const firestore = getDb();
@@ -102,7 +103,7 @@ export const useGuestStore = create<AppState>((set, get) => ({
   updateReservation: (id, updatedData) => {
     const firestore = getDb();
     const docRef = doc(firestore, "reservations", id);
-    setDocumentNonBlocking(docRef, updatedData, { merge: true });
+    updateDocumentNonBlocking(docRef, updatedData);
   },
   deleteReservation: (id) => {
     const firestore = getDb();
@@ -118,7 +119,7 @@ export const useGuestStore = create<AppState>((set, get) => ({
   updateTable: (id, updatedData) => {
     const firestore = getDb();
     const docRef = doc(firestore, "tables", id);
-    setDocumentNonBlocking(docRef, updatedData, { merge: true });
+    updateDocumentNonBlocking(docRef, updatedData);
   },
   deleteTable: (id) => {
     const firestore = getDb();
@@ -156,7 +157,7 @@ export const useGuestStore = create<AppState>((set, get) => ({
   updateWaitingGuest: (id, data) => {
     const firestore = getDb();
     const docRef = doc(firestore, "waitingGuests", id);
-    setDocumentNonBlocking(docRef, data, { merge: true });
+    updateDocumentNonBlocking(docRef, data);
   },
   deleteWaitingGuest: (id) => {
     const firestore = getDb();

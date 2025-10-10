@@ -52,7 +52,7 @@ interface TableDialogProps {
 }
 
 export function TableDialog({ open, onOpenChange, table, allTables }: TableDialogProps) {
-  const { addTable, updateTable, deleteTable } = useGuestStore();
+  const { addTable, updateTable, deleteTable, setTables } = useGuestStore();
   const { toast } = useToast();
   const isEditMode = !!table?.id;
   const [isLoading, setIsLoading] = useState(false);
@@ -89,14 +89,23 @@ export function TableDialog({ open, onOpenChange, table, allTables }: TableDialo
         description: `Table ${data.name} has been successfully added.`,
       });
     }
-    onOpenChange(false);
-    form.reset();
+    // Don't close on submit, so user can add multiple tables
+    form.reset({ name: '', capacity: 1, status: 'available' }); 
+    if(isEditMode) onOpenChange(false);
   }
   
   const handleDeleteAll = async () => {
     setIsLoading(true);
     try {
-        await Promise.all(allTables.map(t => deleteTable(t.id)));
+        const db = getFirestore();
+        const tablesCollection = collection(db, 'tables');
+        const querySnapshot = await getDocs(tablesCollection);
+        const batch = writeBatch(db);
+        querySnapshot.docs.forEach(doc => {
+            batch.delete(doc.ref);
+        });
+        await batch.commit();
+
         toast({
             title: "All tables deleted",
         });
@@ -117,6 +126,26 @@ export function TableDialog({ open, onOpenChange, table, allTables }: TableDialo
     }
     onOpenChange(isOpen);
   };
+  
+  const handleSeedTables = async () => {
+    const tablesToAdd: Omit<Table, 'id' | 'status'>[] = [];
+    for (let i = 101; i <= 150; i++) {
+        tablesToAdd.push({ name: `Table ${i}`, capacity: 4 });
+    }
+    try {
+        await setTables(tablesToAdd);
+        toast({
+            title: "Tables Seeded",
+            description: "Tables 101 to 150 have been added.",
+        });
+    } catch (e) {
+        toast({
+            variant: "destructive",
+            title: "Error Seeding Tables",
+        });
+    }
+  }
+
 
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
@@ -166,6 +195,12 @@ export function TableDialog({ open, onOpenChange, table, allTables }: TableDialo
                         </DialogFooter>
                     </form>
                 </Form>
+                 <div className="mt-8 pt-4 border-t">
+                    <h4 className="font-medium mb-2">Quick Actions</h4>
+                     <Button onClick={handleSeedTables} variant="secondary" className="w-full">
+                        Seed Tables (101-150)
+                    </Button>
+                </div>
             </div>
             <div className="md:col-span-2">
                  <div className="flex justify-between items-center mb-4 border-b pb-2">
