@@ -66,3 +66,54 @@
     @apply bg-background text-foreground;
   }
 }
+
+@media print {
+  body {
+    background: white !important;
+    color: black !important;
+  }
+  .print\:hidden {
+    display: none !important;
+  }
+  .print\:block {
+    display: block !important;
+  }
+  .print\:p-0 {
+    padding: 0 !important;
+  }
+  .print\:bg-white {
+    background-color: white !important;
+  }
+  .print\:border-none {
+     border: none !important;
+  }
+  .print\:shadow-none {
+      box-shadow: none !important;
+  }
+  .print\:text-black {
+    color: black !important;
+  }
+  #print-area {
+    color: black;
+  }
+  #print-area .text-muted-foreground {
+    color: #4a5568; /* A darker gray for print */
+  }
+  #print-area table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+  #print-area th, #print-area td {
+    border: 1px solid #ddd;
+    padding: 8px;
+    color: black;
+  }
+  #print-area th {
+    background-color: #f2f2f2;
+  }
+  #print-area .bg-card {
+    background-color: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+  }
+}

@@ -4,7 +4,7 @@
 import { useState, useMemo } from "react";
 import { DateRange } from "react-day-picker";
 import { addDays, format, isWithinInterval } from "date-fns";
-import { Calendar as CalendarIcon } from "lucide-react";
+import { Calendar as CalendarIcon, Printer } from "lucide-react";
 import { collection, query } from 'firebase/firestore';
 
 import { useGuestStore } from "@/hooks/use-guest-store";
@@ -50,17 +50,17 @@ export default function ReportsPage() {
   });
 
   return (
-    <div className="flex min-h-screen w-full flex-col bg-background">
+    <div className="flex min-h-screen w-full flex-col bg-background print:bg-white">
       <Header onAddNewGuest={openGuestDialog} />
-      <main className="flex-1 p-4 md:p-6 lg:p-8">
-        <div className="mb-8">
+      <main className="flex-1 p-4 md:p-6 lg:p-8 print:p-0">
+        <div className="mb-8 print:hidden">
           <h1 className="font-headline text-4xl font-bold">Guest Reports</h1>
           <p className="text-muted-foreground">
             Analyze your guest data by selecting a date range.
           </p>
         </div>
 
-        <div className="mb-8 flex items-center gap-4">
+        <div className="mb-8 flex items-center gap-4 print:hidden">
           <Popover>
             <PopoverTrigger asChild>
               <Button
@@ -100,9 +100,24 @@ export default function ReportsPage() {
           <p className="text-muted-foreground">
             Showing <strong>{filteredGuests.length}</strong> of <strong>{safeGuests.length}</strong> guests.
           </p>
+           <Button onClick={() => window.print()} variant="outline" className="ml-auto">
+            <Printer className="mr-2 h-4 w-4" />
+            Print Report
+          </Button>
         </div>
 
-        <DataTable columns={columns} data={filteredGuests} isLoading={isLoading} />
+        <div className="print:block" id="print-area">
+          <div className="mb-4 hidden print:block">
+            <h1 className="font-headline text-2xl font-bold">Guest Report</h1>
+            <p className="text-sm">
+                Date Range: {date?.from ? format(date.from, "LLL dd, y") : 'N/A'} - {date?.to ? format(date.to, "LLL dd, y") : 'N/A'}
+            </p>
+             <p className="text-sm">
+                Total Guests in Report: <strong>{filteredGuests.length}</strong>
+            </p>
+          </div>
+          <DataTable columns={columns} data={filteredGuests} isLoading={isLoading} />
+        </div>
       </main>
       <GuestDialog
         key={useGuestStore.getState().editingGuest?.id || 'new-report'}

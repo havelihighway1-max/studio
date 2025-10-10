@@ -69,7 +69,7 @@ export function DataTable<TData, TValue>({
 
   return (
     <div className="space-y-4">
-      <div className="flex items-center justify-between gap-4">
+      <div className="flex items-center justify-between gap-4 print:hidden">
         <Input
           placeholder="Filter by name..."
           value={globalFilter ?? ""}
@@ -87,14 +87,14 @@ export function DataTable<TData, TValue>({
           </Button>
         </div>
       </div>
-      <div className="rounded-lg border shadow-sm bg-card">
+      <div className="rounded-lg border shadow-sm bg-card print:border-none print:shadow-none print:bg-white">
         <Table>
           <TableHeader>
             {table.getHeaderGroups().map((headerGroup) => (
               <TableRow key={headerGroup.id}>
                 {headerGroup.headers.map((header) => {
                   return (
-                    <TableHead key={header.id}>
+                    <TableHead key={header.id} className="print:text-black">
                       {header.isPlaceholder
                         ? null
                         : flexRender(
@@ -145,7 +145,7 @@ export function DataTable<TData, TValue>({
           </TableBody>
         </Table>
       </div>
-      <div className="flex items-center justify-end space-x-2 py-4">
+      <div className="flex items-center justify-end space-x-2 py-4 print:hidden">
         <Button
           variant="outline"
           size="sm"

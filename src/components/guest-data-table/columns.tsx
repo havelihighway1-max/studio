@@ -33,7 +33,7 @@ const DataTableRowActions = ({ row }: { row: { original: Guest } }) => {
       <DropdownMenuTrigger asChild>
         <Button
           variant="ghost"
-          className="flex h-8 w-8 p-0 data-[state=open]:bg-muted"
+          className="flex h-8 w-8 p-0 data-[state=open]:bg-muted print:hidden"
         >
           <MoreHorizontal className="h-4 w-4" />
           <span className="sr-only">Open menu</span>
@@ -66,9 +66,10 @@ export const columns: ColumnDef<Guest>[] = [
         <Button
           variant="ghost"
           onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+          className="print:p-0 print:text-left print:w-full print:justify-start"
         >
           Name
-          <ArrowUpDown className="ml-2 h-4 w-4" />
+          <ArrowUpDown className="ml-2 h-4 w-4 print:hidden" />
         </Button>
       )
     },
@@ -86,9 +87,10 @@ export const columns: ColumnDef<Guest>[] = [
         <Button
           variant="ghost"
           onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+          className="print:p-0 print:text-left print:w-full print:justify-start"
         >
           Guests
-          <ArrowUpDown className="ml-2 h-4 w-4" />
+          <ArrowUpDown className="ml-2 h-4 w-4 print:hidden" />
         </Button>
       )
     },
@@ -109,9 +111,10 @@ export const columns: ColumnDef<Guest>[] = [
         <Button
           variant="ghost"
           onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+           className="print:p-0 print:text-left print:w-full print:justify-start"
         >
           Visit Date
-          <ArrowUpDown className="ml-2 h-4 w-4" />
+          <ArrowUpDown className="ml-2 h-4 w-4 print:hidden" />
         </Button>
       )
     },
