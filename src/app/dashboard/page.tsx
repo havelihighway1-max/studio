@@ -20,7 +20,21 @@ import { Guest, Reservation } from "@/lib/types";
 import { cn } from "@/lib/utils";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { useCollection, useFirestore, useMemoFirebase, useUser } from "@/firebase";
-import { collection, query } from "firebase/firestore";
+import { collection, query, Timestamp } from "firebase/firestore";
+
+const convertGuestTimestamps = (guests: (Omit<Guest, 'visitDate'> & { visitDate: Timestamp })[]): Guest[] => {
+  return guests.map(g => ({
+    ...g,
+    visitDate: g.visitDate.toDate(),
+  }));
+};
+
+const convertReservationTimestamps = (reservations: (Omit<Reservation, 'dateOfEvent'> & { dateOfEvent: Timestamp })[]): Reservation[] => {
+  return reservations.map(r => ({
+    ...r,
+    dateOfEvent: r.dateOfEvent.toDate(),
+  }));
+};
 
 
 export default function DashboardPage() {
@@ -40,9 +54,11 @@ export default function DashboardPage() {
     return query(collection(firestore, 'reservations'));
   }, [firestore, user]);
 
-  const { data: guests, isLoading: guestsLoading } = useCollection<Guest>(guestsQuery);
-  const { data: reservations, isLoading: reservationsLoading } = useCollection<Reservation>(reservationsQuery);
-
+  const { data: rawGuests, isLoading: guestsLoading } = useCollection<(Omit<Guest, 'visitDate'> & { visitDate: Timestamp })>(guestsQuery);
+  const { data: rawReservations, isLoading: reservationsLoading } = useCollection<(Omit<Reservation, 'dateOfEvent'> & { dateOfEvent: Timestamp })>(reservationsQuery);
+  
+  const guests = useMemo(() => (rawGuests ? convertGuestTimestamps(rawGuests) : []), [rawGuests]);
+  const reservations = useMemo(() => (rawReservations ? convertReservationTimestamps(rawReservations) : []), [rawReservations]);
 
   const [isAnniversaryDialogOpen, setIsAnniversaryDialogOpen] = useState(false);
   const [anniversaryEvents, setAnniversaryEvents] = useState<(Guest | Reservation)[]>([]);
@@ -88,23 +104,22 @@ export default function DashboardPage() {
     }
   }, [isClient, guests, reservations]);
 
-  const safeGuests = useMemo(() => guests || [], [guests]);
   
-  const totalGuests = safeGuests.reduce((sum, guest) => sum + (Number(guest.numberOfGuests) || 0), 0);
-  const newToday = safeGuests.filter((g) => isSameDay(new Date(g.visitDate), new Date())).reduce((sum, guest) => sum + (Number(guest.numberOfGuests) || 0), 0);
-  const newThisMonth = safeGuests.filter((g) => isThisMonth(new Date(g.visitDate))).reduce((sum, guest) => sum + (Number(guest.numberOfGuests) || 0), 0);
+  const totalGuests = guests.reduce((sum, guest) => sum + (Number(guest.numberOfGuests) || 0), 0);
+  const newToday = guests.filter((g) => isSameDay(new Date(g.visitDate), new Date())).reduce((sum, guest) => sum + (Number(guest.numberOfGuests) || 0), 0);
+  const newThisMonth = guests.filter((g) => isThisMonth(new Date(g.visitDate))).reduce((sum, guest) => sum + (Number(guest.numberOfGuests) || 0), 0);
   
   const today = new Date();
   const lastWeekSameDay = new Date(today);
   lastWeekSameDay.setDate(today.getDate() - 7);
-  const sameDayLastWeekCount = safeGuests.filter((g) => isSameDay(new Date(g.visitDate), lastWeekSameDay)).reduce((sum, guest) => sum + (Number(guest.numberOfGuests) || 0), 0);
+  const sameDayLastWeekCount = guests.filter((g) => isSameDay(new Date(g.visitDate), lastWeekSameDay)).reduce((sum, guest) => sum + (Number(guest.numberOfGuests) || 0), 0);
 
   const handleWhatsAppBroadcast = () => {
     if (isOffline) {
         alert("This feature requires an internet connection.");
         return;
     }
-    const todaysGuests = safeGuests.filter(g => isSameDay(new Date(g.visitDate), new Date()));
+    const todaysGuests = guests.filter(g => isSameDay(new Date(g.visitDate), new Date()));
     const phoneNumbers = todaysGuests
       .map(guest => guest.phone)
       .filter(phone => !!phone)
@@ -251,3 +266,5 @@ export default function DashboardPage() {
     </div>
   );
 }
+
+    
