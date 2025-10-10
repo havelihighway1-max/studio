@@ -1,0 +1,65 @@
+
+{
+  "menu": [
+    {
+      "category": "Appetizers",
+      "items": [
+        {
+          "name": "Samosa",
+          "description": "Crispy pastry filled with spiced potatoes and peas.",
+          "price": 5.99
+        },
+        {
+          "name": "Pakora",
+          "description": "Mixed vegetables dipped in chickpea batter and deep-fried.",
+          "price": 6.99
+        }
+      ]
+    },
+    {
+      "category": "Kebabs & Grills",
+      "items": [
+        {
+          "name": "Chicken Tikka Kebab",
+          "description": "Tender chicken pieces marinated in yogurt and spices, grilled to perfection.",
+          "price": 14.99
+        },
+        {
+          "name": "Seekh Kebab",
+          "description": "Minced lamb mixed with herbs and spices, cooked on skewers.",
+          "price": 16.99
+        }
+      ]
+    },
+    {
+      "category": "Main Courses",
+      "items": [
+        {
+          "name": "Butter Chicken",
+          "description": "Grilled chicken simmered in a creamy tomato sauce.",
+          "price": 18.99
+        },
+        {
+          "name": "Lamb Karahi",
+          "description": "Lamb cooked with tomatoes, ginger, and spices in a traditional karahi.",
+          "price": 20.99
+        }
+      ]
+    },
+    {
+      "category": "Breads",
+      "items": [
+        {
+          "name": "Naan",
+          "description": "Soft leavened bread baked in a tandoor.",
+          "price": 3.50
+        },
+        {
+          "name": "Garlic Naan",
+          "description": "Naan bread topped with fresh garlic and cilantro.",
+          "price": 4.00
+        }
+      ]
+    }
+  ]
+}

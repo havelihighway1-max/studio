@@ -3,7 +3,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { PlusCircle, BarChart2, CalendarClock, Table, UserCheck, ArrowLeft } from "lucide-react";
+import { PlusCircle, BarChart2, CalendarClock, Table, UserCheck, ArrowLeft, Utensils } from "lucide-react";
 import { Button } from "./ui/button";
 import { useUser } from "@/firebase";
 import { VoiceCommandButton } from "./voice-command-button";
@@ -22,7 +22,7 @@ export function Header({ onAddNewGuest }: HeaderProps) {
   }
 
   return (
-    <header className="sticky top-0 z-10 border-b bg-primary text-primary-foreground">
+    <header className="sticky top-0 z-10 border-b bg-primary text-primary-foreground print:hidden">
       <div className="container mx-auto grid h-16 grid-cols-3 items-center px-4 md:px-6">
         <div className="flex items-center gap-2 justify-start">
           {!isDashboardPage ? (
@@ -56,6 +56,12 @@ export function Header({ onAddNewGuest }: HeaderProps) {
                 <Link href="/waitlist">
                   <UserCheck className="mr-2 h-4 w-4" />
                   Waitlist
+                </Link>
+              </Button>
+               <Button asChild variant="outline" className="bg-primary hover:bg-primary/90 border-primary-foreground/50 text-primary-foreground">
+                <Link href="/menu">
+                  <Utensils className="mr-2 h-4 w-4" />
+                  Menu
                 </Link>
               </Button>
             </>
