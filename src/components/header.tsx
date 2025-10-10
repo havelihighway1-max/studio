@@ -66,7 +66,7 @@ export function Header({ onAddNewGuest }: HeaderProps) {
         </Link>
         <div className="flex items-center gap-2 justify-end">
           <VoiceCommandButton />
-          <Button onClick={handleAddNewGuest} variant="secondary" className="animate-pulse" disabled={isLoading || !user}>
+          <Button onClick={handleAddNewGuest} variant="secondary" className="animate-pulse">
             <PlusCircle className="mr-2 h-4 w-4" />
             Add New Guest
           </Button>
