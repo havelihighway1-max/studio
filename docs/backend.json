@@ -1,75 +1,86 @@
 
 {
   "entities": {
-    "GuestEntry": {
-      "$schema": "http://json-schema.org/draft-07/schema#",
-      "title": "GuestEntry",
+    "Guest": {
+      "title": "Guest",
       "type": "object",
-      "description": "Represents a guest entry with their contact details, visit information, and feedback.",
+      "description": "Represents a guest who has visited the restaurant.",
       "properties": {
-        "id": {
-          "type": "string",
-          "description": "Unique identifier for the GuestEntry entity."
-        },
-        "firstName": {
-          "type": "string",
-          "description": "The first name of the guest."
-        },
-        "lastName": {
-          "type": "string",
-          "description": "The last name of the guest."
-        },
-        "email": {
-          "type": "string",
-          "description": "The email address of the guest.",
-          "format": "email"
-        },
-        "phoneNumber": {
-          "type": "string",
-          "description": "The phone number of the guest."
-        },
-        "visitDate": {
-          "type": "string",
-          "description": "The date of the guest's visit.",
-          "format": "date-time"
-        },
-        "feedback": {
-          "type": "string",
-          "description": "Specific feedback or notes about the guest's experience."
-        }
+        "id": { "type": "string", "description": "Unique identifier for the guest." },
+        "name": { "type": "string", "description": "The full name of the guest." },
+        "phone": { "type": "string", "description": "The phone number of the guest." },
+        "numberOfGuests": { "type": "number", "description": "The number of people in the guest's party." },
+        "tables": { "type": "string", "description": "The table number(s) assigned to the guest." },
+        "visitDate": { "type": "string", "format": "date-time", "description": "The date and time of the guest's visit." },
+        "preferences": { "type": "string", "description": "Guest's preferences (e.g., allergies, seating)." },
+        "feedback": { "type": "string", "description": "Feedback or notes from the guest." }
       },
-      "required": [
-        "id",
-        "firstName",
-        "lastName",
-        "visitDate"
-      ]
+      "required": ["id", "name", "numberOfGuests", "visitDate"]
+    },
+    "Reservation": {
+      "title": "Reservation",
+      "type": "object",
+      "description": "Represents a reservation made by a guest.",
+      "properties": {
+        "id": { "type": "string", "description": "Unique identifier for the reservation." },
+        "name": { "type": "string", "description": "The full name of the person who made the reservation." },
+        "phone": { "type": "string", "description": "The phone number for the reservation." },
+        "numberOfGuests": { "type": "number", "description": "The number of people in the party." },
+        "dateOfEvent": { "type": "string", "format": "date-time", "description": "The date and time of the reservation." },
+        "status": { "type": "string", "enum": ["upcoming", "seated", "canceled"], "description": "The current status of the reservation." },
+        "notes": { "type": "string", "description": "Any special notes for the reservation." },
+        "advancePayment": { "type": "number", "description": "Any advance payment made." },
+        "occasion": { "type": "string", "enum": ["birthday", "anniversary", "marriage", "other"], "description": "The occasion for the reservation." },
+        "checkedIn": { "type": "boolean", "description": "Whether the guest has checked in." }
+      },
+      "required": ["id", "name", "numberOfGuests", "dateOfEvent", "status"]
+    },
+    "Table": {
+      "title": "Table",
+      "type": "object",
+      "description": "Represents a table in the restaurant.",
+      "properties": {
+        "id": { "type": "string", "description": "Unique identifier for the table." },
+        "name": { "type": "string", "description": "The name or number of the table (e.g., 'T1', 'Patio 2')." },
+        "capacity": { "type": "number", "description": "The seating capacity of the table." }
+      },
+      "required": ["id", "name", "capacity"]
+    },
+    "WaitingGuest": {
+        "title": "WaitingGuest",
+        "type": "object",
+        "description": "Represents a guest on the waiting list.",
+        "properties": {
+            "id": { "type": "string", "description": "Unique identifier for the waiting guest." },
+            "tokenNumber": { "type": "number", "description": "The token number assigned to the guest." },
+            "name": { "type": "string", "description": "The full name of the guest." },
+            "phone": { "type": "string", "description": "The phone number of the guest." },
+            "numberOfGuests": { "type": "number", "description": "The number of people in the party." },
+            "status": { "type": "string", "enum": ["waiting", "called", "seated"], "description": "The current status of the waiting guest." },
+            "createdAt": { "type": "string", "format": "date-time", "description": "The time the guest was added to the waitlist." }
+        },
+        "required": ["id", "tokenNumber", "name", "numberOfGuests", "status", "createdAt"]
     }
   },
   "auth": {
-    "providers": [
-      "anonymous"
-    ]
+    "providers": ["anonymous"]
   },
   "firestore": {
-    "structure": [
-      {
-        "path": "/guest_entries/{guestEntryId}",
-        "definition": {
-          "entityName": "GuestEntry",
-          "schema": {
-            "$ref": "#/backend/entities/GuestEntry"
-          },
-          "description": "Collection to store all guest entries. All entries can be read by authenticated users. Includes 'guestEntryId' as the document ID.",
-          "params": [
-            {
-              "name": "guestEntryId",
-              "description": "Unique identifier for each guest entry."
-            }
-          ]
-        }
-      }
-    ],
-    "reasoning": "The Firestore structure is designed to manage guest entries. It prioritizes Authorization Independence by avoiding hierarchical authorization dependencies. Guest entries are stored in a top-level collection, which ensures security rules can be applied consistently across all documents within that collection.\n\n**Authorization Independence:** No `get()` calls are needed in security rules because access control is determined by the absence of ownership (guest entries, all entries can be read by any authenticated user).\n\n**QAPs Support:**\n*   List operation is secured because there are no custom claims and authorization depends solely on request.auth.uid.\n"
+    "/guests/{guestId}": {
+      "schema": { "$ref": "#/entities/Guest" },
+      "description": "Stores individual records of guest visits."
+    },
+    "/reservations/{reservationId}": {
+      "schema": { "$ref": "#/entities/Reservation" },
+      "description": "Stores all guest reservations."
+    },
+    "/tables/{tableId}": {
+      "schema": { "$ref": "#/entities/Table" },
+      "description": "Stores the restaurant's table layout and capacity."
+    },
+    "/waitingGuests/{waitingGuestId}": {
+      "schema": { "$ref": "#/entities/WaitingGuest" },
+      "description": "Stores the list of guests currently waiting for a table."
+    }
   }
 }

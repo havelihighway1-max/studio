@@ -1,80 +1,40 @@
 /**
- * @fileoverview Firestore Security Rules for the EmberTable application.
- *
- * Core Philosophy:
- * This ruleset focuses on providing read access to guest entries for all authenticated users while restricting write access to authorized administrators.  Admin users are managed via a separate "roles_admin" collection.
+ * @file Firestore Security Rules
+ * @description This ruleset configures access control for the GuestEntry data model. It focuses on allowing all read access, and forbidding write access.
  *
  * Data Structure:
- * - /guest_entries/{guestEntryId}: Stores guest entry data. All authenticated users can read entries. Only admins can create, update, or delete.
- * - /roles_admin/{adminUserId}:  Stores administrator UIDs.  Existence in this collection grants admin privileges. Only admins can manage this collection.
+ * - /guest_entries/{guestEntryId}: Top-level collection for guest entries.
  *
  * Key Security Decisions:
- * - All authenticated users can read guest entries.
- * - Only users listed in the /roles_admin collection have create, update, and delete privileges on guest entries.
- * - The /roles_admin collection itself can only be managed by existing admins.
- *
- * Denormalization for Authorization:
- * - Admin status is checked by verifying the existence of a document in the `/roles_admin/{adminUserId}` collection.  This avoids needing to store admin status on the user document or making complex queries.
- *
- * Structural Segregation:
- * - Admin roles are stored in a separate collection, allowing for clear separation of concerns and easy management of administrator privileges.
+ * - Guest entries can be read by any authenticated user.
+ * - Guest entries cannot be created, updated or deleted through the client.
  */
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
-
     /**
-     * @description Checks if the current user is signed in.
-     * @returns {boolean} True if the user is signed in, false otherwise.
-     */
-    function isSignedIn() {
-      return request.auth != null;
-    }
-
-    /**
-     * @description Checks if the user with the given UID exists in the roles_admin collection.
-     * @param {string} userId - The UID of the user to check.
-     * @returns {boolean} True if the user is an admin, false otherwise.
-     */
-    function isAdmin(userId) {
-      return exists(/databases/$(database)/documents/roles_admin/$(userId));
-    }
-
-    /**
-     * @description Rules for the guest_entries collection.
+     * @description Controls access to the 'guest_entries' collection. Guest entries can be read by any authenticated user, but cannot be created, updated, or deleted by the client.
      * @path /guest_entries/{guestEntryId}
-     * @allow (get, list): Authenticated user can read guest entries
-     *   request.auth.uid: "some_user_id"
-     * @allow (create, update, delete): Admin user can modify guest entries
-     *   request.auth.uid: "admin_user_id"
-     * @deny (create, update, delete): Non-admin user attempts to modify guest entries
-     *   request.auth.uid: "non_admin_user_id"
-     * @principle Allows read access to all authenticated users, and restricts write access to administrators.
+     * @allow (get, list) Any authenticated user can read any guest entry.
+     *   Example: A user with UID "user123" can read /guest_entries/entry456.
+     * @deny (create, update, delete) No user can create, update, or delete a guest entry through the client.
+     *   Example: A user with UID "user123" cannot create a new document under /guest_entries.
+     * @principle Allows public read access but restricts write access to prevent unauthorized data modification.
      */
     match /guest_entries/{guestEntryId} {
-      allow get, list: if isSignedIn();
-      allow create: if isSignedIn() && isAdmin(request.auth.uid);
-      allow update: if isSignedIn() && isAdmin(request.auth.uid) && resource != null;
-      allow delete: if isSignedIn() && isAdmin(request.auth.uid) && resource != null;
-    }
+      // Allow anyone signed in to read
+      allow get: if isSignedIn();
+      allow list: if isSignedIn();
 
-    /**
-     * @description Rules for the roles_admin collection.
-     * @path /roles_admin/{adminUserId}
-     * @allow (get, list): Only admins can list admins.
-     *   request.auth.uid: "admin_user_id"
-     * @allow (create, update, delete): Only admins can manage the admins.
-     *   request.auth.uid: "admin_user_id"
-     * @deny (create, update, delete): Non-admin user attempts to manage admins
-     *   request.auth.uid: "non_admin_user_id"
-     * @principle Restricts management of admin roles to existing administrators.
-     */
-    match /roles_admin/{adminUserId} {
-      allow get: if isSignedIn() && isAdmin(request.auth.uid);
-      allow list: if isSignedIn() && isAdmin(request.auth.uid);
-      allow create: if isSignedIn() && isAdmin(request.auth.uid);
-      allow update: if isSignedIn() && isAdmin(request.auth.uid) && resource != null;
-      allow delete: if isSignedIn() && isAdmin(request.auth.uid) && resource != null;
+      // No one should be able to create, update, or delete from the client.
+      allow create: if false;
+      allow update: if false;
+      allow delete: if false;
     }
+  }
+
+  // Helper function to determine if a user is signed in
+  function isSignedIn() {
+    return request.auth != null;
   }
 }
