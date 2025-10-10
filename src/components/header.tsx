@@ -13,7 +13,7 @@ interface HeaderProps {
 }
 
 export function Header({ onAddNewGuest }: HeaderProps) {
-  const { user, isLoading } = useUser();
+  const { user, isUserLoading } = useUser();
   const pathname = usePathname();
   const isDashboardPage = pathname === '/dashboard';
 
@@ -66,7 +66,7 @@ export function Header({ onAddNewGuest }: HeaderProps) {
         </Link>
         <div className="flex items-center gap-2 justify-end">
           <VoiceCommandButton />
-          <Button onClick={handleAddNewGuest} variant="secondary" className="animate-pulse">
+          <Button onClick={handleAddNewGuest} variant="secondary" disabled={isUserLoading} className="animate-pulse">
             <PlusCircle className="mr-2 h-4 w-4" />
             Add New Guest
           </Button>
