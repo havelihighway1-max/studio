@@ -1,7 +1,7 @@
 
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import {
   Dialog,
   DialogContent,
@@ -10,7 +10,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { summarizeGuestFeedbackAction } from "@/app/actions";
+import { summarizeGuestDataAction } from "@/app/actions";
 import { Sparkles } from "lucide-react";
 import { Skeleton } from "../ui/skeleton";
 import { useCollection, useFirestore, useMemoFirebase, useUser } from "@/firebase";
@@ -35,20 +35,14 @@ export function InsightsDialog({ open, onOpenChange }: InsightsDialogProps) {
   }, [firestore, user]);
 
   const { data: guests, isLoading: guestsLoading } = useCollection<Guest>(guestsQuery);
+  const safeGuests = useMemo(() => guests || [], [guests]);
 
-  const getFeedback = () => {
-    if (!guests) return [];
-    return guests
-      .map((guest) => guest.feedback)
-      .filter((feedback): feedback is string => !!feedback && feedback.trim() !== '');
-  };
 
   const generateSummary = async () => {
     setIsLoading(true);
     setError("");
     setSummary("");
-    const feedback = getFeedback();
-    const result = await summarizeGuestFeedbackAction(feedback);
+    const result = await summarizeGuestDataAction(safeGuests);
     if (result.success) {
       setSummary(result.summary || "");
     } else {
@@ -58,11 +52,11 @@ export function InsightsDialog({ open, onOpenChange }: InsightsDialogProps) {
   };
 
   useEffect(() => {
-    if (open && !guestsLoading && user) {
+    if (open && !guestsLoading && user && safeGuests.length > 0) {
       generateSummary();
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [open, guestsLoading, user]);
+  }, [open, guestsLoading, user, safeGuests.length]);
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -70,10 +64,10 @@ export function InsightsDialog({ open, onOpenChange }: InsightsDialogProps) {
         <DialogHeader>
           <DialogTitle className="font-headline text-2xl flex items-center gap-2">
             <Sparkles className="h-6 w-6 text-accent" />
-            Guest Feedback Summary
+            Guest Data Analysis
           </DialogTitle>
           <DialogDescription>
-            AI-powered insights from your collected guest feedback.
+            AI-powered insights from your collected guest data, analyzed by date.
           </DialogDescription>
         </DialogHeader>
         <div className="py-4 min-h-[120px]">
@@ -86,7 +80,7 @@ export function InsightsDialog({ open, onOpenChange }: InsightsDialogProps) {
           ) : error ? (
             <p className="text-sm text-destructive">{error}</p>
           ) : (
-            <p className="text-sm text-foreground leading-relaxed">{summary}</p>
+            <p className="text-sm text-foreground leading-relaxed whitespace-pre-wrap">{summary}</p>
           )}
         </div>
         <div className="flex justify-end">

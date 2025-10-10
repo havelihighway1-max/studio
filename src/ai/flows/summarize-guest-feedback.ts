@@ -1,50 +1,62 @@
 'use server';
 /**
- * @fileOverview This file defines a Genkit flow for summarizing guest feedback.
+ * @fileOverview This file defines a Genkit flow for summarizing guest data.
  *
- * - summarizeGuestFeedback - A function that takes in guest feedback and returns a summary of common themes and areas for improvement.
- * - SummarizeGuestFeedbackInput - The input type for the summarizeGuestFeedback function.
- * - SummarizeGuestFeedbackOutput - The return type for the summarizeGuestFeedback function.
+ * - summarizeGuestFeedback - A function that takes in guest data and returns a summary of common themes and areas for improvement.
+ * - SummarizeGuestDataInput - The input type for the summarizeGuestData function.
+ * - SummarizeGuestDataOutput - The return type for the summarizeGuestData function.
  */
 
 import {ai} from '@/ai/genkit';
 import {z} from 'genkit';
+import { guestSchema } from '@/lib/types';
 
-const SummarizeGuestFeedbackInputSchema = z.object({
-  feedback: z.array(z.string()).describe('An array of guest feedback strings.'),
+// We can't use the exact guestSchema because of the date object.
+// Genkit flows receive serialized JSON data.
+const guestDataSchema = guestSchema.omit({ visitDate: true, id: true }).extend({
+  visitDate: z.string().describe("The date of the guest's visit in ISO 8601 format."),
 });
-export type SummarizeGuestFeedbackInput = z.infer<typeof SummarizeGuestFeedbackInputSchema>;
 
-const SummarizeGuestFeedbackOutputSchema = z.object({
-  summary: z.string().describe('A summary of the common themes and areas for improvement based on the guest feedback.'),
+const SummarizeGuestDataInputSchema = z.object({
+  guests: z.array(guestDataSchema).describe('An array of guest objects.'),
 });
-export type SummarizeGuestFeedbackOutput = z.infer<typeof SummarizeGuestFeedbackOutputSchema>;
+export type SummarizeGuestDataInput = z.infer<typeof SummarizeGuestDataInputSchema>;
 
-export async function summarizeGuestFeedback(input: SummarizeGuestFeedbackInput): Promise<SummarizeGuestFeedbackOutput> {
-  return summarizeGuestFeedbackFlow(input);
+const SummarizeGuestDataOutputSchema = z.object({
+  summary: z.string().describe('A date-wise summary of guest traffic, feedback, and preferences.'),
+});
+export type SummarizeGuestDataOutput = z.infer<typeof SummarizeGuestDataOutputSchema>;
+
+export async function summarizeGuestData(input: SummarizeGuestDataInput): Promise<SummarizeGuestDataOutput> {
+  return summarizeGuestDataFlow(input);
 }
 
 const prompt = ai.definePrompt({
-  name: 'summarizeGuestFeedbackPrompt',
-  input: {schema: SummarizeGuestFeedbackInputSchema},
-  output: {schema: SummarizeGuestFeedbackOutputSchema},
-  prompt: `You are a restaurant manager tasked with summarizing guest feedback to identify common themes and areas for improvement.
+  name: 'summarizeGuestDataPrompt',
+  input: {schema: SummarizeGuestDataInputSchema},
+  output: {schema: SummarizeGuestDataOutputSchema},
+  prompt: `You are a restaurant manager tasked with analyzing guest data to identify trends and areas for improvement.
 
-  Here is the guest feedback:
-  {{#each feedback}}
-  - {{{this}}}
+  Here is the raw guest data, including names, number of guests, visit dates, preferences, and feedback:
+  {{#each guests}}
+  - Name: {{this.name}}
+    - Party Size: {{this.numberOfGuests}}
+    - Visit Date: {{this.visitDate}}
+    - Preferences: {{this.preferences}}
+    - Feedback: {{this.feedback}}
   {{/each}}
 
-  Please provide a concise summary of the common themes and areas for improvement, highlighting key issues and suggestions for the restaurant to address. Focus on actionable insights that can be used to enhance the guest experience.
-  Output should be no more than 3 sentences.
+  Please provide a concise, date-wise summary. Analyze guest traffic, common feedback themes, and any notable preferences. Focus on actionable insights that can be used to enhance the guest experience.
+  Group your findings by date.
+  Output should be a few sentences per day.
   `,
 });
 
-const summarizeGuestFeedbackFlow = ai.defineFlow(
+const summarizeGuestDataFlow = ai.defineFlow(
   {
-    name: 'summarizeGuestFeedbackFlow',
-    inputSchema: SummarizeGuestFeedbackInputSchema,
-    outputSchema: SummarizeGuestFeedbackOutputSchema,
+    name: 'summarizeGuestDataFlow',
+    inputSchema: SummarizeGuestDataInputSchema,
+    outputSchema: SummarizeGuestDataOutputSchema,
   },
   async input => {
     const {output} = await prompt(input);
