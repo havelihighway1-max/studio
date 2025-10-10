@@ -9,7 +9,6 @@ import { ArrowUpDown, MoreHorizontal, Pen, Trash2 } from "lucide-react"
 import { useGuestStore } from "@/hooks/use-guest-store"
 import { format } from "date-fns"
 import { MessageSquare } from "lucide-react";
-import { Timestamp } from "firebase/firestore"
 
 
 const DataTableRowActions = ({ row }: { row: { original: Guest } }) => {
@@ -119,8 +118,8 @@ export const columns: ColumnDef<Guest>[] = [
       )
     },
     cell: ({ row }) => {
-      const date = row.getValue("visitDate") as Timestamp
-      return <div className="text-muted-foreground">{format(date.toDate(), "PPP")}</div>
+      const date = row.getValue("visitDate") as Date
+      return <div className="text-muted-foreground">{format(date, "PPP")}</div>
     },
   },
   {
