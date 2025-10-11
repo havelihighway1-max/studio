@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useState } from 'react';
+import { useState, useMemo, useCallback } from 'react';
 import { Header } from '@/components/header';
 import { useGuestStore } from '@/hooks/use-guest-store';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
@@ -12,6 +12,8 @@ import { ArrowLeft, Utensils, Plus, Minus, Trash2 } from 'lucide-react';
 import { OrderMenuItem } from '@/lib/types';
 import { Input } from '@/components/ui/input';
 import { Separator } from '@/components/ui/separator';
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
+import { Label } from '@/components/ui/label';
 
 interface MenuItem {
   name: string;
@@ -28,6 +30,7 @@ export default function MenuPage() {
   const { openGuestDialog } = useGuestStore();
   const [selectedCategory, setSelectedCategory] = useState<MenuCategory | null>(null);
   const [orderItems, setOrderItems] = useState<OrderMenuItem[]>([]);
+  const [paymentMethod, setPaymentMethod] = useState<'cash' | 'card'>('cash');
   const menu: MenuCategory[] = menuData.menu;
 
   const handleAddItem = (item: MenuItem) => {
@@ -57,12 +60,24 @@ export default function MenuPage() {
     setOrderItems((prevItems) => prevItems.filter((i) => i.name !== name));
   };
   
+  const { subtotal, tax, total } = useMemo(() => {
+    const subtotal = orderItems.reduce((acc, item) => acc + item.price * item.quantity, 0);
+    const taxRate = paymentMethod === 'cash' ? 0.15 : 0.08;
+    const tax = subtotal * taxRate;
+    const total = subtotal + tax;
+    return { subtotal, tax, total };
+  }, [orderItems, paymentMethod]);
+
   const handlePlaceOrder = () => {
-    openGuestDialog({ orderItems: orderItems });
+    openGuestDialog({ 
+      orderItems: orderItems,
+      paymentMethod: paymentMethod,
+      subtotal: subtotal,
+      tax: tax,
+      total: total
+    });
     setOrderItems([]);
   }
-
-  const subtotal = orderItems.reduce((acc, item) => acc + item.price * item.quantity, 0);
 
   return (
     <div className="flex min-h-screen w-full flex-col bg-background">
@@ -135,7 +150,7 @@ export default function MenuPage() {
                     <CardDescription>Items will appear here as you add them.</CardDescription>
                 </CardHeader>
                 <CardContent>
-                    <ScrollArea className="h-[calc(100vh-480px)]">
+                    <ScrollArea className="h-[calc(100vh-580px)]">
                         <div className="space-y-4 pr-4">
                             {orderItems.length === 0 ? (
                                 <p className="text-center text-muted-foreground py-16">No items added yet.</p>
@@ -161,9 +176,33 @@ export default function MenuPage() {
                 {orderItems.length > 0 && (
                     <CardFooter className="flex-col items-stretch space-y-4">
                          <Separator />
-                        <div className="flex justify-between font-bold text-lg">
-                            <span>Subtotal</span>
-                            <span>{subtotal.toFixed(2)}</span>
+                          <div className="space-y-2">
+                            <RadioGroup
+                                value={paymentMethod}
+                                onValueChange={(value: 'cash' | 'card') => setPaymentMethod(value)}
+                                className="flex items-center space-x-4 py-2"
+                            >
+                                <div className="flex items-center space-x-2">
+                                    <RadioGroupItem value="cash" id="cash" />
+                                    <Label htmlFor="cash" className="font-normal">Cash (15% Tax)</Label>
+                                </div>
+                                <div className="flex items-center space-x-2">
+                                    <RadioGroupItem value="card" id="card" />
+                                    <Label htmlFor="card" className="font-normal">Card (8% Tax)</Label>
+                                </div>
+                            </RadioGroup>
+                            <div className="flex justify-between items-center text-sm">
+                                <span className="text-muted-foreground">Subtotal</span>
+                                <span>{subtotal.toFixed(2)}</span>
+                            </div>
+                            <div className="flex justify-between items-center text-sm">
+                                <span className="text-muted-foreground">Tax</span>
+                                <span>{tax.toFixed(2)}</span>
+                            </div>
+                            <div className="flex justify-between items-center font-bold text-lg">
+                                <span>Total</span>
+                                <span>{total.toFixed(2)}</span>
+                            </div>
                         </div>
                         <Button size="lg" className="w-full" onClick={handlePlaceOrder}>Place Order</Button>
                     </CardFooter>
@@ -175,4 +214,3 @@ export default function MenuPage() {
     </div>
   );
 }
-
