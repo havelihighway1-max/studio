@@ -2,7 +2,7 @@
 {
   "menu": [
     {
-      "category": "Salad Raita",
+      "category": "RAITA & SALAD",
       "items": [
         {
           "name": "FRESH GREEN SALAD",
@@ -35,7 +35,7 @@
       ]
     },
     {
-      "category": "Starter",
+      "category": "STARTER",
       "items": [
         {
           "name": "HAVELI SPECIAL SOUP",
@@ -80,7 +80,7 @@
       ]
     },
     {
-      "category": "Naan",
+      "category": "NAAN",
       "items": [
         {
           "name": "CHEESE NAAN",
@@ -145,7 +145,7 @@
       ]
     },
     {
-      "category": "Appetizers",
+      "category": "APPETIZER",
       "items": [
         {
           "name": "FRIES",
@@ -214,7 +214,7 @@
       ]
     },
     {
-      "category": "Chinese",
+      "category": "CHINESE",
       "items": [
         {
           "name": "DRAGON CHICKEN WITH RICE",
@@ -299,7 +299,7 @@
       ]
     },
     {
-      "category": "Rice",
+      "category": "RICE",
       "items": [
         {
           "name": "VEGETABLE FRIED RICE",
@@ -332,7 +332,7 @@
       ]
     },
     {
-      "category": "Steaks",
+      "category": "STEAKS",
       "items": [
         {
           "name": "TEXAS STEAK CHICKEN",
@@ -425,7 +425,7 @@
       ]
     },
     {
-      "category": "Category 2009",
+      "category": "GRILL BURGER",
       "items": [
         {
           "name": "SIGNATURE BURGER (CHICKEN)",
@@ -466,7 +466,7 @@
       ]
     },
     {
-      "category": "Category 2031",
+      "category": "BAR BQ TEMPTATION",
       "items": [
         {
           "name": "ARABIC TIKKA",
@@ -531,7 +531,7 @@
       ]
     },
     {
-      "category": "Category 2013",
+      "category": "AFGHANI",
       "items": [
         {
           "name": "BEEF AFGHANI BOTI ",
@@ -544,7 +544,7 @@
       ]
     },
     {
-      "category": "Category 2010",
+      "category": "KEBABS",
       "items": [
         {
           "name": "CHICKEN BIHARI BOTI ",
@@ -641,7 +641,7 @@
       ]
     },
     {
-      "category": "Category 2012",
+      "category": "CHULLU",
       "items": [
         {
           "name": "TURKISH CHULLU",
@@ -666,7 +666,7 @@
       ]
     },
     {
-      "category": "Category 2014",
+      "category": "CHICKEN KARAHI",
       "items": [
         {
           "name": "CHICKEN SHAl KARAHI ( HALF )",
@@ -739,7 +739,7 @@
       ]
     },
     {
-      "category": "Category 2007",
+      "category": "MUTTON KARAHI",
       "items": [
         {
           "name": "MUTTON CHEF SPECIAL KARAHI ( LEG ONLY ) HALF",
@@ -800,7 +800,7 @@
       ]
     },
     {
-      "category": "Category 2015",
+      "category": "HANDI",
       "items": [
         {
           "name": "CHICKEN MAKHNI HANDI",
@@ -841,7 +841,7 @@
       ]
     },
     {
-      "category": "Category 2020",
+      "category": "CURRIES",
       "items": [
         {
           "name": "HAVELI SPECIAL MUTTON KATAKAT",
@@ -854,7 +854,7 @@
       ]
     },
     {
-      "category": "Category 2017",
+      "category": "BEVERAGES",
       "items": [
         {
           "name": "LARGE WATER",
@@ -891,7 +891,7 @@
       ]
     },
     {
-      "category": "Category 2021",
+      "category": "HOT BEVERGES",
       "items": [
         {
           "name": "DOODH PATTI",
@@ -920,7 +920,7 @@
       ]
     },
     {
-      "category": "Category 2018",
+      "category": "DRINKS",
       "items": [
         {
           "name": "MINT LEMONADE",
@@ -1013,7 +1013,7 @@
       ]
     },
     {
-      "category": "Category 2019",
+      "category": "ICE CREAM",
       "items": [
         {
           "name": "ICE CREAM ( 2 SCOOP )",
@@ -1058,7 +1058,7 @@
       ]
     },
     {
-      "category": "Category 2024",
+      "category": "BBQ MUTTON",
       "items": [
         {
           "name": "MUTTON DASTI WITH RICE",
@@ -1075,7 +1075,7 @@
       ]
     },
     {
-      "category": "Category 2032",
+      "category": "DAM PUKHT",
       "items": [
         {
           "name": "MUTTON RIBS WITH RICE",
@@ -1104,7 +1104,7 @@
       ]
     },
     {
-      "category": "Category 2023",
+      "category": "BBQ BEEF",
       "items": [
         {
           "name": "HUNZAl KEBAB",
@@ -1113,7 +1113,7 @@
       ]
     },
     {
-      "category": "Category 2022",
+      "category": "SHAKES",
       "items": [
         {
           "name": "VANILLA SHAKES",
@@ -1150,7 +1150,7 @@
       ]
     },
     {
-      "category": "Category 2028",
+      "category": "GOSHT APKA ZAIQA HAMARA",
       "items": [
         {
           "name": "BEHARI KABAB (PER KG)",
@@ -1227,7 +1227,7 @@
       ]
     },
     {
-      "category": "Category 2029",
+      "category": "EXTRA SALES",
       "items": [
         {
           "name": "EXTRA SALES",
@@ -1604,7 +1604,7 @@
       ]
     },
     {
-      "category": "Category 2030",
+      "category": "HAVELI SPECIALITIES",
       "items": [
         {
           "name": "HUMMUS WITH GARLIC NAAN",
@@ -1653,7 +1653,7 @@
       ]
     },
     {
-      "category": "Category 2027",
+      "category": "SEA FOOD",
       "items": [
         {
           "name": "LIVE FISH",
@@ -1714,7 +1714,7 @@
       ]
     },
     {
-      "category": "Category 2033",
+      "category": "SEHRI MENU",
       "items": [
         {
           "name": "DAJAJ KHUBUS PILAF",
@@ -1795,7 +1795,7 @@
       ]
     },
     {
-      "category": "Category 2034",
+      "category": "GLASS",
       "items": [
         {
           "name": "ADULT",
@@ -1820,7 +1820,7 @@
       ]
     },
     {
-      "category": "Category 2036",
+      "category": "FISH",
       "items": [
         {
           "name": "RED SNAPPER FISH",
@@ -1837,7 +1837,7 @@
       ]
     },
     {
-      "category": "Category 2035",
+      "category": "BUFFET",
       "items": [
         {
           "name": "BUFFET ADULTS",
@@ -1850,7 +1850,7 @@
       ]
     },
     {
-      "category": "Category 3040",
+      "category": "TURKISH CUISINE",
       "items": [
         {
           "name": "CHICKEN CHOPS",
