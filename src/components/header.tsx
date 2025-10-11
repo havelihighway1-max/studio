@@ -22,11 +22,11 @@ export function Header({ onAddNewGuest }: HeaderProps) {
   }
 
   return (
-    <header className="sticky top-0 z-10 border-b bg-primary text-primary-foreground print:hidden">
+    <header className="sticky top-0 z-10 border-b bg-background print:hidden">
       <div className="container mx-auto grid h-16 grid-cols-3 items-center px-4 md:px-6">
         <div className="flex items-center gap-2 justify-start">
           {!isDashboardPage ? (
-             <Button asChild variant="outline" className="bg-primary hover:bg-primary/90 border-primary-foreground/50 text-primary-foreground">
+             <Button asChild variant="outline">
               <Link href="/dashboard">
                 <ArrowLeft className="mr-2 h-4 w-4" />
                 Back to Dashboard
@@ -34,31 +34,31 @@ export function Header({ onAddNewGuest }: HeaderProps) {
             </Button>
           ) : (
             <>
-              <Button asChild variant="outline" className="bg-primary hover:bg-primary/90 border-primary-foreground/50 text-primary-foreground">
+              <Button asChild variant="outline">
                 <Link href="/reports">
                   <BarChart2 className="mr-2 h-4 w-4" />
                   Reports
                 </Link>
               </Button>
-              <Button asChild variant="outline" className="bg-primary hover:bg-primary/90 border-primary-foreground/50 text-primary-foreground">
+              <Button asChild variant="outline">
                 <Link href="/reservations">
                   <CalendarClock className="mr-2 h-4 w-4" />
                   Reservations
                 </Link>
               </Button>
-              <Button asChild variant="outline" className="bg-primary hover:bg-primary/90 border-primary-foreground/50 text-primary-foreground">
+              <Button asChild variant="outline">
                 <Link href="/tables">
                   <Table className="mr-2 h-4 w-4" />
                   Tables
                 </Link>
               </Button>
-              <Button asChild variant="outline" className="bg-primary hover:bg-primary/90 border-primary-foreground/50 text-primary-foreground">
+              <Button asChild variant="outline">
                 <Link href="/waitlist">
                   <UserCheck className="mr-2 h-4 w-4" />
                   Waitlist
                 </Link>
               </Button>
-               <Button asChild variant="outline" className="bg-primary hover:bg-primary/90 border-primary-foreground/50 text-primary-foreground">
+               <Button asChild variant="outline">
                 <Link href="/menu">
                   <Utensils className="mr-2 h-4 w-4" />
                   Menu
@@ -72,7 +72,7 @@ export function Header({ onAddNewGuest }: HeaderProps) {
         </Link>
         <div className="flex items-center gap-2 justify-end">
           <VoiceCommandButton />
-          <Button onClick={handleAddNewGuest} variant="secondary" disabled={isUserLoading}>
+          <Button onClick={handleAddNewGuest} variant="default" disabled={isUserLoading}>
             <PlusCircle className="mr-2 h-4 w-4" />
             Add New Guest
           </Button>

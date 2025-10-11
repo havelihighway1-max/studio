@@ -136,7 +136,7 @@ export function VoiceCommandButton() {
 
   return (
     <Button
-      variant="secondary"
+      variant="default"
       size="icon"
       onMouseDown={startRecording}
       onMouseUp={stopRecording}
