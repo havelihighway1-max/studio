@@ -149,9 +149,9 @@ export default function MenuPage() {
                     <CardTitle className="font-headline text-2xl">Current Order</CardTitle>
                     <CardDescription>Items will appear here as you add them.</CardDescription>
                 </CardHeader>
-                <CardContent>
-                    <ScrollArea className="h-[calc(100vh-580px)]">
-                        <div className="space-y-4 pr-4">
+                <CardContent className="p-0">
+                    <ScrollArea className="h-64">
+                        <div className="space-y-4 p-6 pt-0">
                             {orderItems.length === 0 ? (
                                 <p className="text-center text-muted-foreground py-16">No items added yet.</p>
                             ) : (
@@ -174,7 +174,7 @@ export default function MenuPage() {
                     </ScrollArea>
                 </CardContent>
                 {orderItems.length > 0 && (
-                    <CardFooter className="flex-col items-stretch space-y-4">
+                    <CardFooter className="flex-col items-stretch space-y-4 pt-6">
                          <Separator />
                           <div className="space-y-2">
                             <RadioGroup
