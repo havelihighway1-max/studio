@@ -298,9 +298,9 @@ export function GuestDialog({ open, onOpenChange, guest }: GuestDialogProps) {
                             <CommandList>
                                 <CommandEmpty>No results found.</CommandEmpty>
                                 <CommandGroup>
-                                {allMenuItems.map((item) => (
+                                {allMenuItems.map((item, index) => (
                                     <CommandItem
-                                    key={item.name}
+                                    key={`${item.name}-${item.price}-${index}`}
                                     value={item.name}
                                     onSelect={() => addMenuItem(item)}
                                     >
