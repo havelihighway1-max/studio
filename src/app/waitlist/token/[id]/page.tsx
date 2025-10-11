@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useEffect, useState, useMemo } from 'react';
+import { useEffect, useState, useMemo, use } from 'react';
 import { WaitingGuest } from '@/lib/types';
 import { Button } from '@/components/ui/button';
 import { Printer } from 'lucide-react';
@@ -10,7 +10,9 @@ import { doc } from 'firebase/firestore';
 
 export default function TokenPrintPage({ params }: { params: { id: string } }) {
   const firestore = useFirestore();
-  const guestDocRef = useMemoFirebase(() => doc(firestore, 'waitingGuests', params.id), [firestore, params.id]);
+  const { id } = params; // Next.js 15 can sometimes make params a promise. This handles it.
+  
+  const guestDocRef = useMemoFirebase(() => doc(firestore, 'waitingGuests', id), [firestore, id]);
   const { data: guest, isLoading } = useDoc<WaitingGuest>(guestDocRef);
 
   if (isLoading) {
