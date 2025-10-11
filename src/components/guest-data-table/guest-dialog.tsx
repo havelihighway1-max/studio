@@ -96,7 +96,7 @@ export function GuestDialog({ open, onOpenChange, guest }: GuestDialogProps) {
 
   const calculateTotals = useCallback(() => {
     const subtotal = orderItems.reduce((acc, item) => acc + item.price * item.quantity, 0);
-    const taxRate = paymentMethod === 'cash' ? 0.13 : 0.08;
+    const taxRate = paymentMethod === 'cash' ? 0.15 : 0.08;
     const tax = subtotal * taxRate;
     const total = subtotal + tax;
 
@@ -357,7 +357,7 @@ export function GuestDialog({ open, onOpenChange, guest }: GuestDialogProps) {
                                     <FormControl>
                                     <RadioGroupItem value="cash" />
                                     </FormControl>
-                                    <FormLabel className="font-normal">Cash (13% Tax)</FormLabel>
+                                    <FormLabel className="font-normal">Cash (15% Tax)</FormLabel>
                                 </FormItem>
                                 <FormItem className="flex items-center space-x-2 space-y-0">
                                     <FormControl>
@@ -398,3 +398,5 @@ export function GuestDialog({ open, onOpenChange, guest }: GuestDialogProps) {
     </Dialog>
   );
 }
+
+    
