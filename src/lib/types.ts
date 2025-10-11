@@ -1,5 +1,13 @@
 import { z } from "zod";
 
+export const menuItemSchema = z.object({
+  name: z.string(),
+  price: z.number(),
+  quantity: z.number().default(1),
+});
+
+export type OrderMenuItem = z.infer<typeof menuItemSchema>;
+
 export const guestSchema = z.object({
   id: z.string(),
   name: z.string().min(2, { message: "Name must be at least 2 characters." }),
@@ -9,6 +17,12 @@ export const guestSchema = z.object({
   visitDate: z.date(),
   preferences: z.string().optional(),
   feedback: z.string().optional(),
+  orderType: z.enum(["dine-in", "takeaway"]).default("dine-in"),
+  paymentMethod: z.enum(["cash", "card"]).default("cash"),
+  orderItems: z.array(menuItemSchema).optional(),
+  subtotal: z.number().optional(),
+  tax: z.number().optional(),
+  total: z.number().optional(),
 });
 
 export type Guest = z.infer<typeof guestSchema>;

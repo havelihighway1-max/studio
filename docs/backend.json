@@ -13,9 +13,26 @@
         "tables": { "type": "string", "description": "The table number(s) assigned to the guest." },
         "visitDate": { "type": "string", "format": "date-time", "description": "The date and time of the guest's visit." },
         "preferences": { "type": "string", "description": "Guest's preferences (e.g., allergies, seating)." },
-        "feedback": { "type": "string", "description": "Feedback or notes from the guest." }
+        "feedback": { "type": "string", "description": "Feedback or notes from the guest." },
+        "orderType": { "type": "string", "enum": ["dine-in", "takeaway"], "description": "The type of order." },
+        "paymentMethod": { "type": "string", "enum": ["cash", "card"], "description": "The payment method used." },
+        "orderItems": { 
+            "type": "array",
+            "description": "The items ordered by the guest.",
+            "items": {
+                "type": "object",
+                "properties": {
+                    "name": { "type": "string" },
+                    "price": { "type": "number" },
+                    "quantity": { "type": "number" }
+                }
+            }
+        },
+        "subtotal": { "type": "number", "description": "The subtotal of the order." },
+        "tax": { "type": "number", "description": "The tax amount for the order." },
+        "total": { "type": "number", "description": "The total amount of the order." }
       },
-      "required": ["id", "name", "numberOfGuests", "visitDate"]
+      "required": ["id", "name", "numberOfGuests", "visitDate", "orderType", "paymentMethod"]
     },
     "Reservation": {
       "title": "Reservation",

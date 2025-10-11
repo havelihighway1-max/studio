@@ -99,9 +99,25 @@ export const columns: ColumnDef<Guest>[] = [
     }
   },
   {
-    accessorKey: "tables",
-    header: "Table(s)",
-    cell: ({ row }) => <div className="text-muted-foreground text-center">{row.getValue("tables") || 'N/A'}</div>
+    accessorKey: "total",
+    header: ({ column }) => (
+      <Button
+        variant="ghost"
+        onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+        className="print:p-0 print:text-left print:w-full print:justify-start"
+      >
+        Bill
+        <ArrowUpDown className="ml-2 h-4 w-4 print:hidden" />
+      </Button>
+    ),
+    cell: ({ row }) => {
+      const total = parseFloat(row.getValue("total") || "0");
+      const formatted = new Intl.NumberFormat("en-US", {
+        style: "currency",
+        currency: "PKR",
+      }).format(total);
+      return <div className="text-right font-medium">{total > 0 ? formatted : 'N/A'}</div>;
+    },
   },
   {
     accessorKey: "visitDate",
