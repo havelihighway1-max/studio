@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useState, useMemo, useCallback } from 'react';
+import { useState, useMemo } from 'react';
 import { Header } from '@/components/header';
 import { useGuestStore } from '@/hooks/use-guest-store';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
@@ -9,11 +9,12 @@ import menuData from '@/lib/menu-data.json';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft, Utensils, Plus, Minus, Trash2 } from 'lucide-react';
-import { OrderMenuItem } from '@/lib/types';
+import { OrderMenuItem, Guest } from '@/lib/types';
 import { Input } from '@/components/ui/input';
 import { Separator } from '@/components/ui/separator';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Label } from '@/components/ui/label';
+import { useToast } from '@/hooks/use-toast';
 
 interface MenuItem {
   name: string;
@@ -27,10 +28,12 @@ interface MenuCategory {
 }
 
 export default function MenuPage() {
-  const { openGuestDialog } = useGuestStore();
+  const { openGuestDialog, addGuest } = useGuestStore();
+  const { toast } = useToast();
   const [selectedCategory, setSelectedCategory] = useState<MenuCategory | null>(null);
   const [orderItems, setOrderItems] = useState<OrderMenuItem[]>([]);
   const [paymentMethod, setPaymentMethod] = useState<'cash' | 'card'>('cash');
+  const [orderCount, setOrderCount] = useState(1);
   const menu: MenuCategory[] = menuData.menu;
 
   const handleAddItem = (item: MenuItem) => {
@@ -68,15 +71,42 @@ export default function MenuPage() {
     return { subtotal, tax, total };
   }, [orderItems, paymentMethod]);
 
-  const handlePlaceOrder = () => {
-    openGuestDialog({ 
-      orderItems: orderItems,
-      paymentMethod: paymentMethod,
-      subtotal: subtotal,
-      tax: tax,
-      total: total
+  const handleSaveOrder = () => {
+    const guestData: Omit<Guest, 'id'> = {
+        name: `Takeaway Order #${orderCount}`,
+        numberOfGuests: 1,
+        visitDate: new Date(),
+        orderType: 'takeaway',
+        orderItems: orderItems,
+        paymentMethod: paymentMethod,
+        subtotal: subtotal,
+        tax: tax,
+        total: total,
+        status: 'open',
+    };
+    
+    addGuest(guestData);
+
+    toast({
+        title: "Order Saved",
+        description: `Takeaway Order #${orderCount} has been saved as an open order.`,
     });
+
     setOrderItems([]);
+    setOrderCount(prev => prev + 1);
+  };
+  
+  const handlePlaceOrder = () => {
+    if(orderItems.length === 0) {
+      toast({
+        variant: 'destructive',
+        title: 'Empty Order',
+        description: 'Please add items to the order before saving.',
+      });
+      return;
+    }
+    
+    handleSaveOrder();
   }
 
   return (
@@ -204,7 +234,7 @@ export default function MenuPage() {
                                 <span>{total.toFixed(2)}</span>
                             </div>
                         </div>
-                        <Button size="lg" className="w-full" onClick={handlePlaceOrder}>Place Order</Button>
+                        <Button size="lg" className="w-full" onClick={handlePlaceOrder}>Save Order</Button>
                     </CardFooter>
                 )}
              </Card>
