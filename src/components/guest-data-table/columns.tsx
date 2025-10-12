@@ -5,15 +5,16 @@ import { ColumnDef } from "@tanstack/react-table"
 import { Guest } from "@/lib/types"
 import { Button } from "@/components/ui/button"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
-import { ArrowUpDown, MoreHorizontal, Pen, Trash2 } from "lucide-react"
+import { ArrowUpDown, MoreHorizontal, Pen, Trash2, CheckCircle, FileX } from "lucide-react"
 import { useGuestStore } from "@/hooks/use-guest-store"
 import { format } from "date-fns"
 import { MessageSquare } from "lucide-react";
+import { Badge } from "../ui/badge"
 
 
 const DataTableRowActions = ({ row }: { row: { original: Guest } }) => {
   const guest = row.original
-  const { openGuestDialog, deleteGuest } = useGuestStore();
+  const { openGuestDialog, deleteGuest, updateGuest } = useGuestStore();
 
   const handleWhatsAppMessage = () => {
     if (guest.phone) {
@@ -43,6 +44,18 @@ const DataTableRowActions = ({ row }: { row: { original: Guest } }) => {
           <Pen className="mr-2 h-4 w-4" />
           Edit
         </DropdownMenuItem>
+         {guest.status === 'open' && (
+          <DropdownMenuItem onSelect={() => updateGuest(guest.id, { status: 'closed' })}>
+            <CheckCircle className="mr-2 h-4 w-4 text-green-500" />
+            Close Order
+          </DropdownMenuItem>
+        )}
+        {guest.status === 'closed' && (
+          <DropdownMenuItem onSelect={() => updateGuest(guest.id, { status: 'open' })}>
+            <FileX className="mr-2 h-4 w-4 text-orange-500" />
+            Re-open Order
+          </DropdownMenuItem>
+        )}
         <DropdownMenuItem onSelect={() => deleteGuest(guest.id)} className="text-destructive focus:text-destructive focus:bg-destructive/10">
           <Trash2 className="mr-2 h-4 w-4" />
           Delete
@@ -118,6 +131,16 @@ export const columns: ColumnDef<Guest>[] = [
       }).format(total);
       return <div className="text-right font-medium">{total > 0 ? formatted : 'N/A'}</div>;
     },
+  },
+   {
+    accessorKey: "status",
+    header: "Order Status",
+    cell: ({ row }) => {
+        const status = row.getValue("status") as string;
+        const variant: "outline" | "default" = 
+            status === "open" ? "outline" : "default"
+        return <Badge variant={variant} className="capitalize">{status}</Badge>
+    }
   },
   {
     accessorKey: "visitDate",

@@ -82,6 +82,7 @@ export function GuestDialog({ open, onOpenChange, guest }: GuestDialogProps) {
       subtotal: guest?.subtotal || 0,
       tax: guest?.tax || 0,
       total: guest?.total || 0,
+      status: guest?.status || "open",
     },
   });
 
@@ -123,6 +124,7 @@ export function GuestDialog({ open, onOpenChange, guest }: GuestDialogProps) {
         orderType: guest?.orderType || "dine-in",
         paymentMethod: guest?.paymentMethod || "cash",
         orderItems: guest?.orderItems || [],
+        status: guest?.status || "open",
       });
     }
   }, [guest, open, form]);
@@ -398,5 +400,3 @@ export function GuestDialog({ open, onOpenChange, guest }: GuestDialogProps) {
     </Dialog>
   );
 }
-
-    

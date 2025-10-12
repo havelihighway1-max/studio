@@ -23,6 +23,7 @@ export const guestSchema = z.object({
   subtotal: z.number().optional(),
   tax: z.number().optional(),
   total: z.number().optional(),
+  status: z.enum(["open", "closed"]).default("open"),
 });
 
 export type Guest = z.infer<typeof guestSchema>;
