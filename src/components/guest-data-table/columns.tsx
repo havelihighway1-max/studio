@@ -5,7 +5,7 @@ import { ColumnDef } from "@tanstack/react-table"
 import { Guest } from "@/lib/types"
 import { Button } from "@/components/ui/button"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
-import { ArrowUpDown, MoreHorizontal, Pen, Trash2, CheckCircle, FileX } from "lucide-react"
+import { ArrowUpDown, MoreHorizontal, Pen, Trash2, CheckCircle, FileX, Utensils, ShoppingBag } from "lucide-react"
 import { useGuestStore } from "@/hooks/use-guest-store"
 import { format } from "date-fns"
 import { MessageSquare } from "lucide-react";
@@ -131,6 +131,18 @@ export const columns: ColumnDef<Guest>[] = [
       }).format(total);
       return <div className="text-right font-medium">{total > 0 ? formatted : 'N/A'}</div>;
     },
+  },
+  {
+    accessorKey: "orderType",
+    header: "Order Type",
+    cell: ({ row }) => {
+        const orderType = row.getValue("orderType") as string;
+        const Icon = orderType === "dine-in" ? Utensils : ShoppingBag;
+        return <div className="flex items-center gap-2 capitalize">
+            <Icon className="h-4 w-4 text-muted-foreground" />
+            {orderType}
+        </div>
+    }
   },
    {
     accessorKey: "status",
