@@ -24,10 +24,12 @@ import { GuestDialog } from "@/components/guest-data-table/guest-dialog";
 import { useCollection, useFirestore, useMemoFirebase, useUser } from "@/firebase";
 
 const convertGuestTimestamps = (guests: (Omit<Guest, 'visitDate'> & { visitDate: Timestamp })[]): Guest[] => {
-  return guests.map(g => ({
-    ...g,
-    visitDate: g.visitDate.toDate(),
-  }));
+  return guests
+    .filter(g => g.visitDate) // Filter out guests with no visitDate
+    .map(g => ({
+      ...g,
+      visitDate: g.visitDate.toDate(),
+    }));
 };
 
 export default function ReportsPage() {
