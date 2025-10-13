@@ -15,12 +15,14 @@ import { Sparkles } from "lucide-react";
 import { Skeleton } from "../ui/skeleton";
 import { useCollection, useFirestore, useMemoFirebase, useUser } from "@/firebase";
 import { Guest } from "@/lib/types";
-import { collection, query } from "firebase/firestore";
+import { collection, query, Timestamp } from "firebase/firestore";
 
 interface InsightsDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
 }
+
+type GuestWithTimestamp = Omit<Guest, 'visitDate'> & { visitDate: Timestamp | Date };
 
 export function InsightsDialog({ open, onOpenChange }: InsightsDialogProps) {
   const [summary, setSummary] = useState("");
@@ -34,7 +36,7 @@ export function InsightsDialog({ open, onOpenChange }: InsightsDialogProps) {
     return query(collection(firestore, 'guests'));
   }, [firestore, user]);
 
-  const { data: guests, isLoading: guestsLoading } = useCollection<Guest>(guestsQuery);
+  const { data: guests, isLoading: guestsLoading } = useCollection<GuestWithTimestamp>(guestsQuery);
   const safeGuests = useMemo(() => guests || [], [guests]);
 
 
@@ -56,7 +58,7 @@ export function InsightsDialog({ open, onOpenChange }: InsightsDialogProps) {
       generateSummary();
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [open, guestsLoading, user, safeGuests.length]);
+  }, [open, guestsLoading, user]);
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
