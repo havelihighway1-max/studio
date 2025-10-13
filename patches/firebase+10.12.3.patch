@@ -1,0 +1,30 @@
+diff --git a/node_modules/firebase/dist/esm/index.esm.js b/node_modules/firebase/dist/esm/index.esm.js
+index 99d2dfa..d62b694 100644
+--- a/node_modules/firebase/dist/esm/index.esm.js
++++ b/node_modules/firebase/dist/esm/index.esm.js
+@@ -19363,7 +19363,7 @@
+  * found in the LICENSE file at https://firebase.google.com/terms/
+  */
+ function getElementIdentifier(element) {
+-    return element.tagName.substring(0, 100);
++    return element.tagName.substring(0, 80);
+ }
+ 
+ /**
+@@ -19420,10 +19420,10 @@
+                 const value = metric.value;
+                 // For INP, attribute the value to the element that the user interacted with.
+                 // The web-vitals library for INP provides the element in the metric object.
+-                if (metric.attribution.element) {
+-                    trace.putAttribute(WEB_VITALS_ATTRIBUTION_PREFIX + metricName, getElementIdentifier(metric.attribution.element));
+-                }
+-                trace.putMetric(metricName, Math.floor(value));
++                // FIX(prescott): Disable for now because of crashes
++                // if (metric.attribution.element) {
++                //     trace.putAttribute(WEB_VITALS_ATTRIBUTION_PREFIX + metricName, getElementIdentifier(metric.attribution.element));
++                // }
++                // trace.putMetric(metricName, Math.floor(value));
+                 // The trace is created and destroyed internally and should not be used by users.
+                 trace.stop();
+             };
+

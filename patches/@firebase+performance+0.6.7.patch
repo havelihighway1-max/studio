@@ -1,0 +1,21 @@
+diff --git a/node_modules/@firebase/performance/dist/index.esm2017.js b/node_modules/@firebase/performance/dist/index.esm2017.js
+index 47c352a..4a34e06 100644
+--- a/node_modules/@firebase/performance/dist/index.esm2017.js
++++ b/node_modules/@firebase/performance/dist/index.esm2017.js
+@@ -1071,7 +1071,11 @@
+         const eventTarget = getEventTarget(event);
+         if (eventTarget) {
+             const trace = new Trace(this.performanceController, OOB_TRACE_PAGE_LOAD_PREFIX +
+-                (getDomElementMetric(eventTarget) ||
+-                    getEventType(event) ||
+-                    this.performanceController.getUrl()));
++                truncate(getDomElementMetric(eventTarget) ||
++                    getEventType(event), 40));
+             this.performanceController.logTrace(trace);
+         }
+     }
+ }
++function truncate(str, n) {
++    return (str.length > n) ? str.slice(0, n - 1) + '…' : str;
++}
+\ No newline at end of file
