@@ -15,8 +15,7 @@ interface HeaderProps {
 export function Header({ onAddNewGuest }: HeaderProps) {
   const { user, isUserLoading } = useUser();
   const pathname = usePathname();
-  const isDashboardPage = pathname === '/dashboard';
-  const { toggleKeyboard } = useKeyboard();
+  const isDashboardPage = pathname === '/';
 
   const handleAddNewGuest = () => {
     onAddNewGuest();
@@ -28,7 +27,7 @@ export function Header({ onAddNewGuest }: HeaderProps) {
         <div className="flex items-center gap-2 justify-start">
           {!isDashboardPage ? (
              <Button asChild variant="outline">
-              <Link href="/dashboard">
+              <Link href="/">
                 <ArrowLeft className="mr-2 h-4 w-4" />
                 Back to Dashboard
               </Link>
