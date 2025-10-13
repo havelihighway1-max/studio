@@ -70,7 +70,8 @@ export const FirebaseProvider: React.FC<FirebaseProviderProps> = ({
 
   // Effect to subscribe to Firebase auth state changes
   useEffect(() => {
-    if (!auth) { // If no Auth service instance, cannot determine user state
+    // This check is crucial. We only proceed if the auth service instance is valid.
+    if (!auth) {
       setUserAuthState({ user: null, isUserLoading: false, userError: new Error("Auth service not provided.") });
       return;
     }
@@ -79,22 +80,27 @@ export const FirebaseProvider: React.FC<FirebaseProviderProps> = ({
       auth,
       (firebaseUser) => { // Auth state determined
         if (firebaseUser) {
+          // If a user (anonymous or otherwise) is found, update the state.
           setUserAuthState({ user: firebaseUser, isUserLoading: false, userError: null });
         } else {
-          // No user, sign in anonymously.
+          // No user is signed in. Attempt to sign in anonymously.
+          // This is safe to call here because we've confirmed `auth` is valid.
           signInAnonymously(auth).catch((error) => {
+             // If anonymous sign-in fails, record the error.
              console.error("FirebaseProvider: Anonymous sign-in error:", error);
              setUserAuthState({ user: null, isUserLoading: false, userError: error });
           });
         }
       },
-      (error) => { // Auth listener error
+      (error) => { // Auth listener itself threw an error
         console.error("FirebaseProvider: onAuthStateChanged error:", error);
         setUserAuthState({ user: null, isUserLoading: false, userError: error });
       }
     );
-    return () => unsubscribe(); // Cleanup
-  }, [auth]); // Depends on the auth instance
+
+    // Cleanup subscription on unmount
+    return () => unsubscribe();
+  }, [auth]); // This effect depends only on the auth service instance.
 
   // Memoize the context value
   const contextValue = useMemo((): FirebaseContextState => {
