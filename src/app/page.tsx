@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useState, useEffect } from 'react';
@@ -44,7 +43,7 @@ export default function LandingPage() {
           <p className="mt-4 max-w-2xl text-lg md:text-xl text-foreground/90">
             Your Restaurant. Smarter.
           </p>
-          <Button asChild size="lg" className="mt-8 animate-pulse">
+          <Button asChild size="lg" className="mt-8">
             <Link href="/dashboard">
               Enter Dashboard
               <ArrowRight className="ml-2 h-5 w-5" />
