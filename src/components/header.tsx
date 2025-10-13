@@ -6,7 +6,6 @@ import { usePathname } from "next/navigation";
 import { PlusCircle, BarChart2, CalendarClock, Table, UserCheck, ArrowLeft, Utensils } from "lucide-react";
 import { Button } from "./ui/button";
 import { useUser } from "@/firebase";
-import { VoiceCommandButton } from "./voice-command-button";
 
 interface HeaderProps {
   onAddNewGuest: () => void;
@@ -71,7 +70,6 @@ export function Header({ onAddNewGuest }: HeaderProps) {
           
         </Link>
         <div className="flex items-center gap-2 justify-end">
-          <VoiceCommandButton />
           <Button onClick={handleAddNewGuest} variant="default" disabled={isUserLoading}>
             <PlusCircle className="mr-2 h-4 w-4" />
             Add New Guest

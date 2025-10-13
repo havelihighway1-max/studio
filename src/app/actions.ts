@@ -2,7 +2,6 @@
 "use server";
 
 import { summarizeGuestData } from "@/ai/flows/summarize-guest-feedback";
-import { interpretVoiceCommand as interpretVoiceCommandFlow } from "@/ai/flows/interpret-voice-command";
 import { Guest } from "@/lib/types";
 
 export async function summarizeGuestDataAction(guests: Guest[]) {
@@ -22,17 +21,5 @@ export async function summarizeGuestDataAction(guests: Guest[]) {
   } catch (error) {
     console.error("Error summarizing feedback:", error);
     return { success: false, error: "Failed to generate insights. Please try again." };
-  }
-}
-
-
-export async function interpretVoiceCommand(audioDataUri: string) {
-  try {
-    const result = await interpretVoiceCommandFlow({ audioDataUri });
-    return result;
-  } catch (error) {
-    console.error("Error interpreting voice command:", error);
-    // Rethrow or return a structured error
-    throw new Error("Failed to process voice command in the backend.");
   }
 }
