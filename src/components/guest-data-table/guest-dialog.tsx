@@ -130,14 +130,21 @@ export function GuestDialog({ open, onOpenChange, guest }: GuestDialogProps) {
   }, [guest, open, form]);
 
   function onSubmit(data: GuestFormValues) {
+    const sanitizedData = { ...data };
+    
+    // Firestore does not accept `undefined`.
+    if (sanitizedData.subtotal === undefined) delete (sanitizedData as Partial<typeof sanitizedData>).subtotal;
+    if (sanitizedData.tax === undefined) delete (sanitizedData as Partial<typeof sanitizedData>).tax;
+    if (sanitizedData.total === undefined) delete (sanitizedData as Partial<typeof sanitizedData>).total;
+
     if (isEditMode) {
-      updateGuest(data.id, data);
+      updateGuest(data.id, sanitizedData);
       toast({
         title: "Guest Updated",
         description: `${data.name}'s information has been successfully updated.`,
       });
     } else {
-      addGuest(data);
+      addGuest(sanitizedData);
       toast({
         title: "Guest Added",
         description: `${data.name} has been successfully added to your guest list.`,

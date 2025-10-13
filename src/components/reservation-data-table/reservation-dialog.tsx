@@ -92,14 +92,23 @@ export function ReservationDialog({ open, onOpenChange, reservation }: Reservati
   }, [reservation, form]);
 
   function onSubmit(data: Omit<ReservationFormValues, 'id'>) {
+    const sanitizedData = { ...data };
+    // Firestore does not accept `undefined`. Convert to null or remove.
+    if (sanitizedData.advancePayment === undefined) {
+      delete (sanitizedData as Partial<typeof sanitizedData>).advancePayment;
+    }
+    if (sanitizedData.occasion === undefined) {
+      delete (sanitizedData as Partial<typeof sanitizedData>).occasion;
+    }
+
     if (isEditMode && reservation?.id) {
-      updateReservation(reservation.id, data);
+      updateReservation(reservation.id, sanitizedData);
       toast({
         title: "Reservation Updated",
         description: `Reservation for ${data.name} has been successfully updated.`,
       });
     } else {
-      addReservation(data);
+      addReservation(sanitizedData);
       toast({
         title: "Reservation Added",
         description: `Reservation for ${data.name} has been successfully added.`,
@@ -246,7 +255,7 @@ export function ReservationDialog({ open, onOpenChange, reservation }: Reservati
                   <FormItem>
                     <FormLabel>Advance Payment</FormLabel>
                     <FormControl>
-                      <Input type="number" placeholder="Amount" {...field} onChange={e => field.onChange(parseInt(e.target.value))} />
+                      <Input type="number" placeholder="Amount" {...field} onChange={e => field.onChange(e.target.value === '' ? undefined : parseInt(e.target.value))} value={field.value ?? ''}/>
                     </FormControl>
                     <FormMessage />
                   </FormItem>
