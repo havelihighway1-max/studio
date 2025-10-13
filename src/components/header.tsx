@@ -16,6 +16,7 @@ export function Header({ onAddNewGuest }: HeaderProps) {
   const { user, isUserLoading } = useUser();
   const pathname = usePathname();
   const isDashboardPage = pathname === '/';
+  const { toggleKeyboard } = useKeyboard();
 
   const handleAddNewGuest = () => {
     onAddNewGuest();
