@@ -23,10 +23,12 @@ import { useCollection, useFirestore, useMemoFirebase, useUser } from "@/firebas
 import { collection, query, Timestamp } from "firebase/firestore";
 
 const convertGuestTimestamps = (guests: (Omit<Guest, 'visitDate'> & { visitDate: Timestamp })[]): Guest[] => {
-  return guests.map(g => ({
-    ...g,
-    visitDate: g.visitDate.toDate(),
-  }));
+  return guests
+    .filter(g => g.visitDate) // Filter out guests with no visitDate
+    .map(g => ({
+      ...g,
+      visitDate: g.visitDate.toDate(),
+    }));
 };
 
 const convertReservationTimestamps = (reservations: (Omit<Reservation, 'dateOfEvent'> & { dateOfEvent: Timestamp })[]): Reservation[] => {
@@ -87,6 +89,7 @@ export default function DashboardPage() {
       const currentDay = today.getDate();
 
       const anniversaryGuests = guests.filter(guest => {
+        if (!guest.visitDate) return false;
         const visitDate = new Date(guest.visitDate);
         return visitDate.getMonth() === currentMonth &&
                visitDate.getDate() === currentDay &&
