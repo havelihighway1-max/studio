@@ -83,11 +83,13 @@ export const FirebaseProvider: React.FC<FirebaseProviderProps> = ({
         if (firebaseUser) {
           setUserAuthState({ user: firebaseUser, isUserLoading: false, userError: null });
         } else {
-          // No user, sign in anonymously
-          signInAnonymously(auth).catch((error) => {
-             console.error("FirebaseProvider: Anonymous sign-in error:", error);
-             setUserAuthState({ user: null, isUserLoading: false, userError: error });
-          });
+          // No user, sign in anonymously, but only if auth is confirmed to be available.
+          if(auth) {
+            signInAnonymously(auth).catch((error) => {
+               console.error("FirebaseProvider: Anonymous sign-in error:", error);
+               setUserAuthState({ user: null, isUserLoading: false, userError: error });
+            });
+          }
         }
       },
       (error) => { // Auth listener error
