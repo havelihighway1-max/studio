@@ -1,3 +1,4 @@
+
 'use server';
 /**
  * @fileOverview This file defines a Genkit flow for summarizing guest data.
@@ -9,16 +10,17 @@
 
 import {ai} from '@/ai/genkit';
 import {z} from 'genkit';
-import { guestSchema } from '@/lib/types';
 
-// We can't use the exact guestSchema because of the date object.
-// Genkit flows receive serialized JSON data.
-const guestDataSchema = guestSchema.omit({ visitDate: true, id: true }).extend({
+// We only need a subset of guest data for the summary.
+const guestSummaryDataSchema = z.object({
+  name: z.string(),
   visitDate: z.string().describe("The date of the guest's visit in ISO 8601 format."),
+  preferences: z.string().optional(),
+  feedback: z.string().optional(),
 });
 
 const SummarizeGuestDataInputSchema = z.object({
-  guests: z.array(guestDataSchema).describe('An array of guest objects.'),
+  guests: z.array(guestSummaryDataSchema).describe('An array of guest summary objects.'),
 });
 export type SummarizeGuestDataInput = z.infer<typeof SummarizeGuestDataInputSchema>;
 
@@ -37,10 +39,9 @@ const prompt = ai.definePrompt({
   output: {schema: SummarizeGuestDataOutputSchema},
   prompt: `You are a restaurant manager tasked with analyzing guest data to identify trends and areas for improvement.
 
-  Here is the raw guest data, including names, number of guests, visit dates, preferences, and feedback:
+  Here is the raw guest data, including names, visit dates, preferences, and feedback:
   {{#each guests}}
   - Name: {{this.name}}
-    - Party Size: {{this.numberOfGuests}}
     - Visit Date: {{this.visitDate}}
     - Preferences: {{this.preferences}}
     - Feedback: {{this.feedback}}

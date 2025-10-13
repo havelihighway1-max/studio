@@ -12,7 +12,7 @@ export async function summarizeGuestDataAction(guests: GuestWithTimestamp[]) {
     return { success: true, summary: "There is no guest data to analyze yet." };
   }
 
-  // The flow expects date as a string, not a Date or Timestamp object.
+  // The flow expects specific fields and a string date.
   const serializableGuests = guests.map(g => {
     let visitDateStr: string;
     if (g.visitDate instanceof Timestamp) {
@@ -24,8 +24,10 @@ export async function summarizeGuestDataAction(guests: GuestWithTimestamp[]) {
     }
     
     return {
-      ...g,
+      name: g.name,
       visitDate: visitDateStr,
+      preferences: g.preferences,
+      feedback: g.feedback,
     };
   });
 

@@ -10,6 +10,7 @@ import { InsightsDialog } from "@/components/guest-data-table/insights-dialog";
 import {
   isSameDay,
   isThisMonth,
+  startOfYear,
 } from "date-fns";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Users, Calendar, UserPlus, CalendarCheck, MessageSquare, History, WifiOff } from "lucide-react";
@@ -20,7 +21,7 @@ import { Guest, Reservation } from "@/lib/types";
 import { cn } from "@/lib/utils";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { useCollection, useFirestore, useMemoFirebase, useUser } from "@/firebase";
-import { collection, query, Timestamp } from "firebase/firestore";
+import { collection, query, Timestamp, where } from "firebase/firestore";
 
 const convertGuestTimestamps = (guests: (Omit<Guest, 'visitDate'> & { visitDate: Timestamp })[]): Guest[] => {
   return guests
@@ -32,10 +33,12 @@ const convertGuestTimestamps = (guests: (Omit<Guest, 'visitDate'> & { visitDate:
 };
 
 const convertReservationTimestamps = (reservations: (Omit<Reservation, 'dateOfEvent'> & { dateOfEvent: Timestamp })[]): Reservation[] => {
-  return reservations.map(r => ({
-    ...r,
-    dateOfEvent: r.dateOfEvent.toDate(),
-  }));
+  return reservations
+    .filter(r => r.dateOfEvent) // Filter out reservations with no dateOfEvent
+    .map(r => ({
+      ...r,
+      dateOfEvent: r.dateOfEvent.toDate(),
+    }));
 };
 
 
@@ -46,15 +49,17 @@ export default function DashboardPage() {
   const firestore = useFirestore();
   const { user, isUserLoading } = useUser();
 
+  const currentYearStart = useMemo(() => startOfYear(new Date()), []);
+
   const guestsQuery = useMemoFirebase(() => {
     if (!user) return null;
-    return query(collection(firestore, 'guests'));
-  }, [firestore, user]);
+    return query(collection(firestore, 'guests'), where('visitDate', '>=', currentYearStart));
+  }, [firestore, user, currentYearStart]);
   
   const reservationsQuery = useMemoFirebase(() => {
     if (!user) return null;
-    return query(collection(firestore, 'reservations'));
-  }, [firestore, user]);
+    return query(collection(firestore, 'reservations'), where('dateOfEvent', '>=', currentYearStart));
+  }, [firestore, user, currentYearStart]);
 
   const { data: rawGuests, isLoading: guestsLoading } = useCollection<(Omit<Guest, 'visitDate'> & { visitDate: Timestamp })>(guestsQuery);
   const { data: rawReservations, isLoading: reservationsLoading } = useCollection<(Omit<Reservation, 'dateOfEvent'> & { dateOfEvent: Timestamp })>(reservationsQuery);
@@ -97,6 +102,7 @@ export default function DashboardPage() {
       });
 
       const anniversaryReservations = reservations.filter(reservation => {
+        if (!reservation.dateOfEvent) return false;
         const eventDate = new Date(reservation.dateOfEvent);
         return eventDate.getMonth() === currentMonth &&
                eventDate.getDate() === currentDay &&

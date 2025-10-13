@@ -1,6 +1,7 @@
+
 'use client';
     
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import {
   DocumentReference,
   onSnapshot,
@@ -44,11 +45,23 @@ export function useDoc<T = any>(
   type StateDataType = WithId<T> | null;
 
   const [data, setData] = useState<StateDataType>(null);
-  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
   const [error, setError] = useState<FirestoreError | Error | null>(null);
 
+  const docRefRef = useRef(memoizedDocRef);
+
   useEffect(() => {
-    if (!memoizedDocRef) {
+    if (docRefRef.current !== memoizedDocRef) {
+      docRefRef.current = memoizedDocRef;
+      setIsLoading(true);
+      setData(null);
+      setError(null);
+    }
+  }, [memoizedDocRef]);
+
+  useEffect(() => {
+    const currentDocRef = docRefRef.current;
+    if (!currentDocRef) {
       setData(null);
       setIsLoading(false);
       setError(null);
@@ -56,11 +69,9 @@ export function useDoc<T = any>(
     }
 
     setIsLoading(true);
-    setError(null);
-    // Optional: setData(null); // Clear previous data instantly
 
     const unsubscribe = onSnapshot(
-      memoizedDocRef,
+      currentDocRef,
       (snapshot: DocumentSnapshot<DocumentData>) => {
         if (snapshot.exists()) {
           setData({ ...(snapshot.data() as T), id: snapshot.id });
@@ -74,7 +85,7 @@ export function useDoc<T = any>(
       (error: FirestoreError) => {
         const contextualError = new FirestorePermissionError({
           operation: 'get',
-          path: memoizedDocRef.path,
+          path: currentDocRef.path,
         })
 
         setError(contextualError)
@@ -87,7 +98,7 @@ export function useDoc<T = any>(
     );
 
     return () => unsubscribe();
-  }, [memoizedDocRef]); // Re-run if the memoizedDocRef changes.
+  }, [docRefRef.current]);
 
   return { data, isLoading, error };
 }

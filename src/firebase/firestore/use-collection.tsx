@@ -1,6 +1,7 @@
+
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import {
   Query,
   onSnapshot,
@@ -58,11 +59,26 @@ export function useCollection<T = any>(
   type StateDataType = ResultItemType[] | null;
 
   const [data, setData] = useState<StateDataType>(null);
-  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
   const [error, setError] = useState<FirestoreError | Error | null>(null);
 
+  const queryRef = useRef(memoizedTargetRefOrQuery);
+
   useEffect(() => {
-    if (!memoizedTargetRefOrQuery) {
+    // Only update the ref if the query has actually changed.
+    // This prevents re-subscriptions on re-renders if the parent component didn't memoize.
+    if (queryRef.current !== memoizedTargetRefOrQuery) {
+      queryRef.current = memoizedTargetRefOrQuery;
+      // Reset state when query changes
+      setIsLoading(true);
+      setData(null);
+      setError(null);
+    }
+  }, [memoizedTargetRefOrQuery]);
+
+  useEffect(() => {
+    const currentQuery = queryRef.current;
+    if (!currentQuery) {
       setData(null);
       setIsLoading(false);
       setError(null);
@@ -70,11 +86,9 @@ export function useCollection<T = any>(
     }
 
     setIsLoading(true);
-    setError(null);
 
-    // Directly use memoizedTargetRefOrQuery as it's assumed to be the final query
     const unsubscribe = onSnapshot(
-      memoizedTargetRefOrQuery,
+      currentQuery,
       (snapshot: QuerySnapshot<DocumentData>) => {
         const results: ResultItemType[] = [];
         for (const doc of snapshot.docs) {
@@ -87,9 +101,9 @@ export function useCollection<T = any>(
       (error: FirestoreError) => {
         // This logic extracts the path from either a ref or a query
         const path: string =
-          memoizedTargetRefOrQuery.type === 'collection'
-            ? (memoizedTargetRefOrQuery as CollectionReference).path
-            : (memoizedTargetRefOrQuery as unknown as InternalQuery)._query.path.canonicalString()
+          currentQuery.type === 'collection'
+            ? (currentQuery as CollectionReference).path
+            : (currentQuery as unknown as InternalQuery)._query.path.canonicalString()
 
         const contextualError = new FirestorePermissionError({
           operation: 'list',
@@ -106,7 +120,8 @@ export function useCollection<T = any>(
     );
 
     return () => unsubscribe();
-  }, [memoizedTargetRefOrQuery]); // Re-run if the target query/reference changes.
+  }, [queryRef.current]); // Only depends on the ref's current value
+  
   if(memoizedTargetRefOrQuery && !memoizedTargetRefOrQuery.__memo) {
     throw new Error(memoizedTargetRefOrQuery + ' was not properly memoized using useMemoFirebase');
   }
