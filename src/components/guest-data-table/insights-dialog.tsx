@@ -57,8 +57,9 @@ export function InsightsDialog({ open, onOpenChange }: InsightsDialogProps) {
     if (open && !guestsLoading && user && safeGuests.length > 0) {
       generateSummary();
     }
+  // I've fixed the dependency array to be explicit and stable.
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [open, guestsLoading, user]);
+  }, [open, guestsLoading, user, safeGuests]);
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
