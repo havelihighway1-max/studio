@@ -68,6 +68,21 @@
   }
 }
 
+@layer components {
+  .simple-keyboard {
+    @apply bg-card rounded-xl shadow-lg;
+  }
+  .simple-keyboard .hg-button {
+      @apply bg-background/50 border-border;
+  }
+  .simple-keyboard .hg-button:hover {
+      @apply bg-accent/50;
+  }
+  .simple-keyboard .hg-button:active {
+      @apply bg-accent;
+  }
+}
+
 @media print {
   body {
     background: white !important;

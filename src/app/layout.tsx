@@ -2,6 +2,8 @@ import type { Metadata } from 'next';
 import './globals.css';
 import { Toaster } from "@/components/ui/toaster";
 import { FirebaseClientProvider } from '@/firebase';
+import 'react-simple-keyboard/build/css/index.css';
+import { KeyboardProvider } from '@/components/keyboard-provider';
 
 export const metadata: Metadata = {
   title: 'HAVELI KEBAB & GRILL',
@@ -23,7 +25,9 @@ export default function RootLayout({
       </head>
       <body className="font-body antialiased">
         <FirebaseClientProvider>
-          {children}
+          <KeyboardProvider>
+            {children}
+          </KeyboardProvider>
         </FirebaseClientProvider>
         <Toaster />
       </body>

@@ -3,9 +3,10 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { PlusCircle, BarChart2, CalendarClock, Table, UserCheck, ArrowLeft, Utensils } from "lucide-react";
+import { PlusCircle, BarChart2, CalendarClock, Table, UserCheck, ArrowLeft, Utensils, Keyboard } from "lucide-react";
 import { Button } from "./ui/button";
 import { useUser } from "@/firebase";
+import { useKeyboard } from "./keyboard-provider";
 
 interface HeaderProps {
   onAddNewGuest: () => void;
@@ -15,6 +16,7 @@ export function Header({ onAddNewGuest }: HeaderProps) {
   const { user, isUserLoading } = useUser();
   const pathname = usePathname();
   const isDashboardPage = pathname === '/dashboard';
+  const { toggleKeyboard } = useKeyboard();
 
   const handleAddNewGuest = () => {
     onAddNewGuest();
@@ -70,6 +72,10 @@ export function Header({ onAddNewGuest }: HeaderProps) {
           
         </Link>
         <div className="flex items-center gap-2 justify-end">
+          <Button onClick={toggleKeyboard} variant="outline" size="icon">
+            <Keyboard className="h-4 w-4" />
+            <span className="sr-only">Toggle Keyboard</span>
+          </Button>
           <Button onClick={handleAddNewGuest} variant="default" disabled={isUserLoading}>
             <PlusCircle className="mr-2 h-4 w-4" />
             Add New Guest
