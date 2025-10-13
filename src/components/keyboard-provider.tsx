@@ -31,7 +31,7 @@ export function KeyboardProvider({ children }: { children: ReactNode }) {
   return (
     <KeyboardContext.Provider value={{ isKeyboardOpen, toggleKeyboard, openKeyboard, closeKeyboard }}>
       {children}
-      {isKeyboardOpen && <VirtualKeyboard />}
+      <VirtualKeyboard />
     </KeyboardContext.Provider>
   );
 }
