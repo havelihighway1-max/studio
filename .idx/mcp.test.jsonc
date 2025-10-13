@@ -1,0 +1,42 @@
+jsonc
+// Test file for ./.idx/mcp.json
+{
+  "tests": [
+    {
+      // Test case to check if the root key 'mcpServers' exists
+      "description": "should have the 'mcpServers' key",
+      "path": "$",
+      "check": "has('mcpServers')"
+    },
+    {
+      // Test case to check if the 'firebase' key exists within 'mcpServers'
+      "description": "should have the 'firebase' key within 'mcpServers'",
+      "path": "$.mcpServers",
+      "check": "has('firebase')"
+    },
+    {
+      // Test case to check if the 'command' key exists within the 'firebase' configuration
+      "description": "should have the 'command' key for firebase",
+      "path": "$.mcpServers.firebase",
+      "check": "has('command')"
+    },
+    {
+      // Test case to check if the 'args' key exists within the 'firebase' configuration
+      "description": "should have the 'args' key for firebase",
+      "path": "$.mcpServers.firebase",
+      "check": "has('args')"
+    },
+    {
+      // Test case to verify the value of the 'command' key
+      "description": "should have 'command' value of 'npx'",
+      "path": "$.mcpServers.firebase.command",
+      "check": "equals('npx')"
+    },
+    {
+      // Test case to verify the presence and order of specific arguments in the 'args' array
+      "description": "should have correct arguments in 'args' array",
+      "path": "$.mcpServers.firebase.args",
+      "check": "equals(['-y', 'firebase-tools@latest', 'experimental:mcp', '--only', 'auth,firestore'])"
+    }
+  ]
+}
