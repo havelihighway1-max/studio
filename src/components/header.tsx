@@ -1,4 +1,3 @@
-
 "use client";
 
 import Link from "next/link";
@@ -76,7 +75,7 @@ export function Header({ onAddNewGuest }: HeaderProps) {
           </Button>
           <Button onClick={handleAddNewGuest} variant="default">
             <PlusCircle className="mr-2 h-4 w-4" />
-            Order Estimate
+            Walking Guest
           </Button>
         </div>
       </div>
