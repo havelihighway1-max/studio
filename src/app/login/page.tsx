@@ -17,8 +17,8 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 
 const loginSchema = z.object({
-  email: z.string().email({ message: 'Please enter a valid email address.' }),
-  password: z.string().min(6, { message: 'Password must be at least 6 characters.' }),
+  email: z.string().min(1, { message: 'Please enter a username or email.' }),
+  password: z.string().min(1, { message: 'Please enter a password.' }),
 });
 
 type LoginFormValues = z.infer<typeof loginSchema>;
@@ -36,11 +36,13 @@ export default function LoginPage() {
     setIsLoading(true);
     setError(null);
     try {
-      await signInWithEmailAndPassword(auth, data.email, data.password);
+      // For the demo, we allow 'Admin' to be used as an email.
+      const emailToUse = data.email === 'Admin' ? 'admin@example.com' : data.email;
+      await signInWithEmailAndPassword(auth, emailToUse, data.password);
       router.push('/');
     } catch (err: any) {
       if (err.code === 'auth/user-not-found' || err.code === 'auth/wrong-password' || err.code === 'auth/invalid-credential') {
-        setError('Invalid email or password. Please try again.');
+        setError('Invalid username or password. Please try again.');
       } else {
         setError('An unexpected error occurred. Please try again later.');
         console.error(err);
@@ -67,11 +69,11 @@ export default function LoginPage() {
               </Alert>
             )}
             <div className="space-y-2">
-              <Label htmlFor="email">Email</Label>
+              <Label htmlFor="email">Username or Email</Label>
               <Input
                 id="email"
-                type="email"
-                placeholder="m@example.com"
+                type="text"
+                placeholder="Admin"
                 {...register('email')}
                 disabled={isLoading}
               />
@@ -82,6 +84,7 @@ export default function LoginPage() {
               <Input
                 id="password"
                 type="password"
+                placeholder="Admin"
                 {...register('password')}
                 disabled={isLoading}
               />

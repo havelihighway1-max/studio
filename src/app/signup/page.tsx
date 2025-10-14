@@ -30,6 +30,10 @@ export default function SignupPage() {
 
    const { register, handleSubmit, formState: { errors } } = useForm<SignupFormValues>({
     resolver: zodResolver(signupSchema),
+    defaultValues: {
+      email: "admin@example.com",
+      password: "password"
+    }
   });
 
   const onSubmit: SubmitHandler<SignupFormValues> = async (data) => {
@@ -40,7 +44,8 @@ export default function SignupPage() {
       router.push('/');
     } catch (err: any) {
        if (err.code === 'auth/email-already-in-use') {
-        setError('This email address is already in use.');
+        setError('This email address is already in use. Please log in instead.');
+        router.push('/login');
       } else {
         setError('An unexpected error occurred. Please try again later.');
         console.error(err);
