@@ -13,7 +13,7 @@ import { Button } from "@/components/ui/button";
 import { summarizeGuestDataAction } from "@/app/actions";
 import { Sparkles } from "lucide-react";
 import { Skeleton } from "../ui/skeleton";
-import { useCollection, useFirestore, useMemoFirebase, useUser } from "@/firebase";
+import { useCollection, useFirestore, useMemoFirebase } from "@/firebase";
 import { Guest } from "@/lib/types";
 import { collection, query, Timestamp } from "firebase/firestore";
 
@@ -28,13 +28,12 @@ export function InsightsDialog({ open, onOpenChange }: InsightsDialogProps) {
   const [summary, setSummary] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
-  const { user } = useUser();
   const firestore = useFirestore();
 
   const guestsQuery = useMemoFirebase(() => {
-    if (!user) return null;
+    if (!firestore) return null;
     return query(collection(firestore, 'guests'));
-  }, [firestore, user]);
+  }, [firestore]);
 
   const { data: guests, isLoading: guestsLoading } = useCollection<GuestWithTimestamp>(guestsQuery);
   const safeGuests = useMemo(() => guests || [], [guests]);
@@ -54,12 +53,11 @@ export function InsightsDialog({ open, onOpenChange }: InsightsDialogProps) {
   };
 
   useEffect(() => {
-    if (open && !guestsLoading && user && safeGuests.length > 0) {
+    if (open && !guestsLoading && safeGuests.length > 0) {
       generateSummary();
     }
-  // I've fixed the dependency array to be explicit and stable.
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [open, guestsLoading, user, safeGuests]);
+  }, [open, guestsLoading, safeGuests]);
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>

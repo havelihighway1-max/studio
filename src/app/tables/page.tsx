@@ -7,7 +7,7 @@ import { TableDialog } from "@/components/table-data-table/table-dialog";
 import { useGuestStore } from "@/hooks/use-guest-store";
 import { Table } from "@/lib/types";
 import { useToast } from "@/hooks/use-toast";
-import { useCollection, useFirestore, useMemoFirebase, useUser } from "@/firebase";
+import { useCollection, useFirestore, useMemoFirebase } from "@/firebase";
 import { collection, query, orderBy } from "firebase/firestore";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -34,14 +34,13 @@ export default function TablesPage() {
   } = useGuestStore();
   const firestore = useFirestore();
   const { toast } = useToast();
-  const { user } = useUser();
   const [selectedTable, setSelectedTable] = useState<Table | null>(null);
   const [isConfirmDialogOpen, setIsConfirmDialogOpen] = useState(false);
 
   const tablesQuery = useMemoFirebase(() => {
-    if (!user) return null;
+    if (!firestore) return null;
     return query(collection(firestore, 'tables'), orderBy('name'));
-  }, [firestore, user]);
+  }, [firestore]);
 
   const { data: tables, isLoading } = useCollection<Table>(tablesQuery);
 

@@ -3,7 +3,7 @@
 
 import { useState, useMemo } from "react";
 import { DateRange } from "react-day-picker";
-import { addDays, format, isWithinInterval, isValid } from "date-fns";
+import { format, isWithinInterval, isValid } from "date-fns";
 import { Calendar as CalendarIcon, Printer } from "lucide-react";
 import { collection, query, Timestamp } from 'firebase/firestore';
 
@@ -21,7 +21,7 @@ import { columns } from "@/components/guest-data-table/columns";
 import { cn } from "@/lib/utils";
 import { Header } from "@/components/header";
 import { GuestDialog } from "@/components/guest-data-table/guest-dialog";
-import { useCollection, useFirestore, useMemoFirebase, useUser } from "@/firebase";
+import { useCollection, useFirestore, useMemoFirebase } from "@/firebase";
 
 const convertGuestTimestamps = (guests: (Omit<Guest, 'visitDate'> & { visitDate: Timestamp })[]): Guest[] => {
   return guests
@@ -35,12 +35,11 @@ const convertGuestTimestamps = (guests: (Omit<Guest, 'visitDate'> & { visitDate:
 export default function ReportsPage() {
   const { openGuestDialog, isGuestDialogOpen, closeGuestDialog } = useGuestStore();
   const firestore = useFirestore();
-  const { user } = useUser();
   
   const guestsQuery = useMemoFirebase(() => {
-    if (!user) return null;
+    if (!firestore) return null;
     return query(collection(firestore, 'guests'));
-  }, [firestore, user]);
+  }, [firestore]);
   
   const { data: rawGuests, isLoading } = useCollection<(Omit<Guest, 'visitDate'> & { visitDate: Timestamp })>(guestsQuery);
   const allGuests = useMemo(() => (rawGuests ? convertGuestTimestamps(rawGuests) : []), [rawGuests]);

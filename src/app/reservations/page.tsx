@@ -6,7 +6,7 @@ import { Header } from "@/components/header";
 import { ReservationDialog } from "@/components/reservation-data-table/reservation-dialog";
 import { DataTable } from "@/components/reservation-data-table/data-table";
 import { columns } from "@/components/reservation-data-table/columns";
-import { useCollection, useFirestore, useMemoFirebase, useUser } from "@/firebase";
+import { useCollection, useFirestore, useMemoFirebase } from "@/firebase";
 import { Reservation } from "@/lib/types";
 import { collection, query } from "firebase/firestore";
 import { useMemo } from "react";
@@ -20,12 +20,11 @@ export default function ReservationsPage() {
     openGuestDialog // for adding a walk-in guest from this page
   } = useGuestStore();
   const firestore = useFirestore();
-  const { user } = useUser();
 
   const reservationsQuery = useMemoFirebase(() => {
-    if (!user) return null;
+    if (!firestore) return null;
     return query(collection(firestore, 'reservations'));
-  }, [firestore, user]);
+  }, [firestore]);
 
   const { data: reservations, isLoading } = useCollection<Reservation>(reservationsQuery);
 

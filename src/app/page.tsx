@@ -3,7 +3,6 @@
 
 import { useEffect, useMemo, useState } from "react";
 import Image from "next/image";
-import { useRouter } from 'next/navigation';
 import { Header } from "@/components/header";
 import { useGuestStore } from "@/hooks/use-guest-store";
 import { GuestDialog } from "@/components/guest-data-table/guest-dialog";
@@ -21,7 +20,7 @@ import { AnniversaryDialog } from "@/components/anniversary-dialog";
 import { Guest, Reservation } from "@/lib/types";
 import { cn } from "@/lib/utils";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { useCollection, useFirestore, useMemoFirebase, useUser } from "@/firebase";
+import { useCollection, useFirestore, useMemoFirebase } from "@/firebase";
 import { collection, query, Timestamp, where } from "firebase/firestore";
 
 const convertGuestTimestamps = (guests: (Omit<Guest, 'visitDate'> & { visitDate: Timestamp })[]): Guest[] => {
@@ -48,20 +47,18 @@ export default function DashboardPage() {
   const [isOffline, setIsOffline] = useState(false);
   const { isGuestDialogOpen, closeGuestDialog, openGuestDialog, isInsightsDialogOpen, closeInsightsDialog } = useGuestStore();
   const firestore = useFirestore();
-  const { user, isUserLoading } = useUser();
-  const router = useRouter();
 
   const currentYearStart = useMemo(() => startOfYear(new Date()), []);
 
   const guestsQuery = useMemoFirebase(() => {
-    if (!user) return null;
+    if (!firestore) return null;
     return query(collection(firestore, 'guests'), where('visitDate', '>=', currentYearStart));
-  }, [firestore, user, currentYearStart]);
+  }, [firestore, currentYearStart]);
   
   const reservationsQuery = useMemoFirebase(() => {
-    if (!user) return null;
+    if (!firestore) return null;
     return query(collection(firestore, 'reservations'), where('dateOfEvent', '>=', currentYearStart));
-  }, [firestore, user, currentYearStart]);
+  }, [firestore, currentYearStart]);
 
   const { data: rawGuests, isLoading: guestsLoading } = useCollection<(Omit<Guest, 'visitDate'> & { visitDate: Timestamp })>(guestsQuery);
   const { data: rawReservations, isLoading: reservationsLoading } = useCollection<(Omit<Reservation, 'dateOfEvent'> & { dateOfEvent: Timestamp })>(reservationsQuery);
@@ -88,12 +85,6 @@ export default function DashboardPage() {
         };
     }
   }, []);
-
-  useEffect(() => {
-    if (!isUserLoading && !user) {
-      router.push('/login');
-    }
-  }, [isUserLoading, user, router]);
 
   useEffect(() => {
     if (isClient && guests && reservations) {
@@ -154,7 +145,7 @@ export default function DashboardPage() {
   };
 
 
-  if (!isClient || isUserLoading || !user) {
+  if (!isClient) {
     // You can keep a skeleton loader here if you want
     return (
         <div className="flex min-h-screen items-center justify-center bg-background">
