@@ -9,6 +9,7 @@ import { KeyboardProvider } from '@/components/keyboard-provider';
 export const metadata: Metadata = {
   title: 'HAVELI KEBAB & GRILL',
   description: 'Your Restaurant. Smarter.',
+  manifest: '/manifest.json',
 };
 
 export default function RootLayout({
