@@ -22,7 +22,6 @@ import { cn } from "@/lib/utils";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { useCollection, useFirestore, useMemoFirebase } from "@/firebase";
 import { collection, query, Timestamp, where } from "firebase/firestore";
-import { AuthGate } from "@/components/auth-gate";
 
 const convertGuestTimestamps = (guests: (Omit<Guest, 'visitDate'> & { visitDate: Timestamp })[]): Guest[] => {
   return guests
@@ -43,7 +42,7 @@ const convertReservationTimestamps = (reservations: (Omit<Reservation, 'dateOfEv
 };
 
 
-function DashboardContent() {
+export default function DashboardPage() {
   const [isClient, setIsClient] = useState(false);
   const [isOffline, setIsOffline] = useState(false);
   const { isGuestDialogOpen, closeGuestDialog, openGuestDialog, isInsightsDialogOpen, closeInsightsDialog } = useGuestStore();
@@ -145,7 +144,7 @@ function DashboardContent() {
     }
   };
 
-  const isLoading = guestsLoading || reservationsLoading;
+  const isLoading = guestsLoading || reservationsLoading || !firestore;
 
   if (!isClient) {
     return null;
@@ -185,7 +184,7 @@ function DashboardContent() {
                   <Users className="h-4 w-4 text-muted-foreground" />
                 </CardHeader>
                 <CardContent>
-                  <div className="text-2xl font-bold">{totalGuests}</div>
+                  <div className="text-2xl font-bold">{isLoading ? '...' : totalGuests}</div>
                 </CardContent>
               </Card>
               <Card className="border-chart-2 bg-chart-2">
@@ -197,7 +196,7 @@ function DashboardContent() {
                   <Calendar className="h-4 w-4 text-muted-foreground" />
                 </CardHeader>
                 <CardContent>
-                  <div className="text-2xl font-bold">+{newToday}</div>
+                  <div className="text-2xl font-bold">{isLoading ? '...' : `+${newToday}`}</div>
                 </CardContent>
               </Card>
               <Card className="border-chart-3 bg-chart-3">
@@ -209,7 +208,7 @@ function DashboardContent() {
                   <UserPlus className="h-4 w-4 text-muted-foreground" />
                 </CardHeader>
                 <CardContent>
-                  <div className="text-2xl font-bold">+{newThisMonth}</div>
+                  <div className="text-2xl font-bold">{isLoading ? '...' : `+${newThisMonth}`}</div>
                 </CardContent>
               </Card>
               <Card className="border-chart-4 bg-chart-4">
@@ -221,15 +220,15 @@ function DashboardContent() {
                   <CalendarCheck className="h-4 w-4 text-muted-foreground" />
                 </CardHeader>
                 <CardContent>
-                  <div className="text-2xl font-bold">{sameDayLastWeekCount}</div>
+                  <div className="text-2xl font-bold">{isLoading ? '...' : sameDayLastWeekCount}</div>
                 </CardContent>
               </Card>
                <Card
                 className={cn(
                   "border-chart-5 bg-chart-5",
-                  anniversaryEvents.length > 0 ? "cursor-pointer hover:bg-chart-5/90" : ""
+                  anniversaryEvents.length > 0 && !isLoading ? "cursor-pointer hover:bg-chart-5/90" : ""
                 )}
-                onClick={() => anniversaryEvents.length > 0 && setIsAnniversaryDialogOpen(true)}
+                onClick={() => anniversaryEvents.length > 0 && !isLoading && setIsAnniversaryDialogOpen(true)}
               >
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                   <CardTitle className="text-sm font-medium">
@@ -239,9 +238,9 @@ function DashboardContent() {
                   <History className="h-4 w-4 text-muted-foreground" />
                 </CardHeader>
                 <CardContent>
-                  <div className="text-2xl font-bold">{anniversaryEvents.length}</div>
+                  <div className="text-2xl font-bold">{isLoading ? '...' : anniversaryEvents.length}</div>
                    <p className="text-xs text-muted-foreground">
-                    {anniversaryEvents.length > 0 ? "Click to view anniversaries" : "No events from past years"}
+                    {isLoading ? 'Loading...' : (anniversaryEvents.length > 0 ? "Click to view anniversaries" : "No events from past years")}
                   </p>
                 </CardContent>
               </Card>
@@ -272,10 +271,4 @@ function DashboardContent() {
   );
 }
 
-export default function DashboardPage() {
-  return (
-    <AuthGate>
-      <DashboardContent />
-    </AuthGate>
-  );
-}
+    

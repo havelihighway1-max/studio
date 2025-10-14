@@ -2,13 +2,10 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname, useRouter } from "next/navigation";
-import { PlusCircle, BarChart2, CalendarClock, Table, UserCheck, ArrowLeft, Utensils, Keyboard, LogOut } from "lucide-react";
+import { usePathname } from "next/navigation";
+import { PlusCircle, BarChart2, CalendarClock, Table, UserCheck, ArrowLeft, Utensils, Keyboard } from "lucide-react";
 import { Button } from "./ui/button";
 import { useKeyboard } from "./keyboard-provider";
-import { useAuth, useUser } from "@/firebase";
-import { signOut } from "firebase/auth";
-
 
 interface HeaderProps {
   onAddNewGuest: () => void;
@@ -16,20 +13,12 @@ interface HeaderProps {
 
 export function Header({ onAddNewGuest }: HeaderProps) {
   const pathname = usePathname();
-  const router = useRouter();
-  const { user, isUserLoading } = useUser();
-  const auth = useAuth();
   const isDashboardPage = pathname === '/';
   const { toggleKeyboard } = useKeyboard();
 
   const handleAddNewGuest = () => {
     onAddNewGuest();
   }
-
-  const handleSignOut = async () => {
-    await signOut(auth);
-    router.push('/login');
-  };
   
   return (
     <header className="sticky top-0 z-10 border-b bg-background print:hidden">
@@ -85,24 +74,10 @@ export function Header({ onAddNewGuest }: HeaderProps) {
             <Keyboard className="h-4 w-4" />
             <span className="sr-only">Toggle Keyboard</span>
           </Button>
-          {user && !isUserLoading ? (
-            <>
-              <Button onClick={handleAddNewGuest} variant="default">
-                <PlusCircle className="mr-2 h-4 w-4" />
-                Add New Guest
-              </Button>
-              <Button onClick={handleSignOut} variant="outline">
-                <LogOut className="mr-2 h-4 w-4" />
-                Sign Out
-              </Button>
-            </>
-          ) : (
-             <Button asChild>
-                <Link href="/login">
-                  Login
-                </Link>
-            </Button>
-          )}
+          <Button onClick={handleAddNewGuest} variant="default">
+            <PlusCircle className="mr-2 h-4 w-4" />
+            Add New Guest
+          </Button>
         </div>
       </div>
     </header>
