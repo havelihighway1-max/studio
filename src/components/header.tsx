@@ -3,10 +3,12 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { PlusCircle, BarChart2, CalendarClock, Table, UserCheck, ArrowLeft, Utensils, Keyboard } from "lucide-react";
+import { PlusCircle, BarChart2, CalendarClock, Table, UserCheck, ArrowLeft, Utensils, Keyboard, LogOut } from "lucide-react";
 import { Button } from "./ui/button";
-import { useUser } from "@/firebase";
+import { useAuth, useUser } from "@/firebase";
 import { useKeyboard } from "./keyboard-provider";
+import { signOut } from "firebase/auth";
+import { useRouter } from "next/navigation";
 
 interface HeaderProps {
   onAddNewGuest: () => void;
@@ -14,6 +16,8 @@ interface HeaderProps {
 
 export function Header({ onAddNewGuest }: HeaderProps) {
   const { user, isUserLoading } = useUser();
+  const auth = useAuth();
+  const router = useRouter();
   const pathname = usePathname();
   const isDashboardPage = pathname === '/';
   const { toggleKeyboard } = useKeyboard();
@@ -21,6 +25,11 @@ export function Header({ onAddNewGuest }: HeaderProps) {
   const handleAddNewGuest = () => {
     onAddNewGuest();
   }
+  
+  const handleSignOut = async () => {
+    await signOut(auth);
+    router.push('/login');
+  };
 
   return (
     <header className="sticky top-0 z-10 border-b bg-background print:hidden">
@@ -76,6 +85,12 @@ export function Header({ onAddNewGuest }: HeaderProps) {
             <Keyboard className="h-4 w-4" />
             <span className="sr-only">Toggle Keyboard</span>
           </Button>
+          {!isUserLoading && user && !user.isAnonymous && (
+            <Button onClick={handleSignOut} variant="outline">
+              <LogOut className="mr-2 h-4 w-4" />
+              Sign Out
+            </Button>
+          )}
           <Button onClick={handleAddNewGuest} variant="default" disabled={isUserLoading}>
             <PlusCircle className="mr-2 h-4 w-4" />
             Add New Guest

@@ -3,6 +3,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import Image from "next/image";
+import { useRouter } from 'next/navigation';
 import { Header } from "@/components/header";
 import { useGuestStore } from "@/hooks/use-guest-store";
 import { GuestDialog } from "@/components/guest-data-table/guest-dialog";
@@ -48,6 +49,7 @@ export default function DashboardPage() {
   const { isGuestDialogOpen, closeGuestDialog, openGuestDialog, isInsightsDialogOpen, closeInsightsDialog } = useGuestStore();
   const firestore = useFirestore();
   const { user, isUserLoading } = useUser();
+  const router = useRouter();
 
   const currentYearStart = useMemo(() => startOfYear(new Date()), []);
 
@@ -86,6 +88,12 @@ export default function DashboardPage() {
         };
     }
   }, []);
+
+  useEffect(() => {
+    if (!isUserLoading && user?.isAnonymous) {
+      router.push('/login');
+    }
+  }, [isUserLoading, user, router]);
 
   useEffect(() => {
     if (isClient && guests && reservations) {
@@ -146,7 +154,7 @@ export default function DashboardPage() {
   };
 
 
-  if (!isClient || isUserLoading || guestsLoading || reservationsLoading) {
+  if (!isClient || isUserLoading || guestsLoading || reservationsLoading || user?.isAnonymous) {
     // You can keep a skeleton loader here if you want
     return (
         <div className="flex min-h-screen items-center justify-center bg-background">
