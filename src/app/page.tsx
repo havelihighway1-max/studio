@@ -144,8 +144,9 @@ export default function DashboardPage() {
     }
   };
 
+  const isLoading = guestsLoading || reservationsLoading;
 
-  if (!isClient) {
+  if (!isClient || isLoading) {
     // You can keep a skeleton loader here if you want
     return (
         <div className="flex min-h-screen items-center justify-center bg-background">
