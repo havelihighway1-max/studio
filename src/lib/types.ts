@@ -1,3 +1,4 @@
+
 import { z } from "zod";
 
 export const menuItemSchema = z.object({
@@ -18,7 +19,7 @@ export const guestSchema = z.object({
   preferences: z.string().optional(),
   feedback: z.string().optional(),
   orderType: z.enum(["dine-in", "takeaway"]).default("dine-in"),
-  paymentMethod: z.enum(["cash", "card"]).default("cash"),
+  paymentMethod: z.enum(["cash", "card"]).optional(),
   orderItems: z.array(menuItemSchema).optional(),
   subtotal: z.number().optional(),
   tax: z.number().optional(),
