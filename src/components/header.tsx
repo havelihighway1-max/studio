@@ -6,7 +6,7 @@ import { usePathname, useRouter } from "next/navigation";
 import { PlusCircle, BarChart2, CalendarClock, Table, UserCheck, ArrowLeft, Utensils, Keyboard, LogOut } from "lucide-react";
 import { Button } from "./ui/button";
 import { useUser } from "@/firebase";
-import { auth } from "@/firebase/client"; // Direct import
+import { auth } from "@/firebase/provider"; // Import from provider
 import { useKeyboard } from "./keyboard-provider";
 import { signOut } from "firebase/auth";
 

@@ -2,12 +2,25 @@
 'use client';
 
 import React, { DependencyList, createContext, useContext, ReactNode, useMemo, useState, useEffect } from 'react';
-import { FirebaseApp } from 'firebase/app';
-import { Firestore } from 'firebase/firestore';
+import { FirebaseApp, getApp, getApps, initializeApp } from 'firebase/app';
+import { Firestore, getFirestore } from 'firebase/firestore';
 import { Auth, User, onAuthStateChanged } from 'firebase/auth';
-import { FirebaseErrorListener } from '@/components/FirebaseErrorListener'
-// Import the singleton instances directly
-import { firebaseApp, auth, firestore } from './client';
+import { FirebaseErrorListener } from '@/components/FirebaseErrorListener';
+import { firebaseConfig } from './config';
+import { getAuth } from 'firebase/auth';
+
+// --- Singleton Instances ---
+// This ensures Firebase is initialized only once.
+let firebaseApp: FirebaseApp;
+if (!getApps().length) {
+  firebaseApp = initializeApp(firebaseConfig);
+} else {
+  firebaseApp = getApp();
+}
+
+export const auth = getAuth(firebaseApp);
+export const firestore = getFirestore(firebaseApp);
+// --- End Singleton Instances ---
 
 interface FirebaseProviderProps {
   children: ReactNode;
