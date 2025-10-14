@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState, useMemo } from 'react';
@@ -8,7 +7,7 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import menuData from '@/lib/menu-data.json';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, Utensils, Plus, Minus, Trash2, CreditCard, Wallet } from 'lucide-react';
+import { ArrowLeft, Utensils, Plus, Minus, Trash2, CreditCard, Wallet, FileText } from 'lucide-react';
 import { OrderMenuItem, Guest } from '@/lib/types';
 import { Input } from '@/components/ui/input';
 import { Separator } from '@/components/ui/separator';
@@ -69,9 +68,10 @@ export default function MenuPage() {
     return { subtotal, cashTotal, cardTotal };
   }, [orderItems]);
 
-  const handleSaveOrder = () => {
-    // Defaulting to cash for saving the order as per the new design
-    const cashTax = subtotal * 0.15;
+  const handleSaveOrder = (paymentMethod: 'cash' | 'card' = 'cash') => {
+    const isCash = paymentMethod === 'cash';
+    const tax = isCash ? subtotal * 0.15 : subtotal * 0.08;
+    const total = isCash ? cashTotal : cardTotal;
 
     const guestData: Omit<Guest, 'id'> = {
         name: `Takeaway Order #${orderCount}`,
@@ -79,10 +79,10 @@ export default function MenuPage() {
         visitDate: new Date(),
         orderType: 'takeaway',
         orderItems: orderItems,
-        paymentMethod: 'cash',
+        paymentMethod: paymentMethod,
         subtotal: subtotal,
-        tax: cashTax,
-        total: cashTotal,
+        tax: tax,
+        total: total,
         status: 'open',
     };
     
@@ -107,7 +107,8 @@ export default function MenuPage() {
       return;
     }
     
-    handleSaveOrder();
+    // For "Order Estimate" we just default to cash and save.
+    handleSaveOrder('cash');
   }
 
   return (
@@ -232,7 +233,19 @@ export default function MenuPage() {
                                 </div>
                              </div>
                         </div>
-                        <Button size="lg" className="w-full" onClick={handlePlaceOrder}>Save Order</Button>
+                        <div className="grid grid-cols-2 gap-2">
+                          <Button size="lg" className="w-full" onClick={() => handleSaveOrder('cash')}>
+                            Save as Cash
+                          </Button>
+                          <Button size="lg" className="w-full" onClick={() => handleSaveOrder('card')} variant="secondary">
+                            Save as Card
+                          </Button>
+                        </div>
+                        <Button size="lg" className="w-full" onClick={handlePlaceOrder} variant="outline">
+                            <FileText className="mr-2 h-4 w-4" />
+                            Order Estimate
+                        </Button>
+
                     </CardFooter>
                 )}
              </Card>

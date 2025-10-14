@@ -13,6 +13,7 @@ interface HeaderProps {
 export function Header({ onAddNewGuest }: HeaderProps) {
   const pathname = usePathname();
   const isDashboardPage = pathname === '/';
+  const isMenuPage = pathname === '/menu';
   const { toggleKeyboard } = useKeyboard();
 
   const handleAddNewGuest = () => {
@@ -73,10 +74,12 @@ export function Header({ onAddNewGuest }: HeaderProps) {
             <Keyboard className="h-4 w-4" />
             <span className="sr-only">Toggle Keyboard</span>
           </Button>
-          <Button onClick={handleAddNewGuest} variant="default">
-            <PlusCircle className="mr-2 h-4 w-4" />
-            Walking Guest
-          </Button>
+          {!isMenuPage && (
+            <Button onClick={handleAddNewGuest} variant="default">
+                <PlusCircle className="mr-2 h-4 w-4" />
+                Walking Guest
+            </Button>
+          )}
         </div>
       </div>
     </header>
