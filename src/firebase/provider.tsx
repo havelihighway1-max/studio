@@ -2,12 +2,18 @@
 'use client';
 
 import React, { DependencyList, createContext, useContext, ReactNode, useMemo, useState, useEffect } from 'react';
-import { FirebaseApp } from 'firebase/app';
-import { Firestore } from 'firebase/firestore';
-import { Auth, User, onAuthStateChanged } from 'firebase/auth';
+import { FirebaseApp, getApp, getApps, initializeApp } from 'firebase/app';
+import { Firestore, getFirestore } from 'firebase/firestore';
+import { Auth, User, onAuthStateChanged, getAuth } from 'firebase/auth';
 import { FirebaseErrorListener } from '@/components/FirebaseErrorListener';
-import { auth, firestore, firebaseApp } from './client';
+import { firebaseConfig } from './client';
 
+// Define a shape for the core SDKs
+interface FirebaseSDKs {
+  app: FirebaseApp;
+  auth: Auth;
+  firestore: Firestore;
+}
 
 // Internal state for user authentication
 interface UserAuthState {
@@ -18,11 +24,10 @@ interface UserAuthState {
 
 // Combined state for the Firebase context
 export interface FirebaseContextState {
-  areServicesAvailable: boolean; // True if core services (app, firestore, auth instance) are provided
+  areServicesAvailable: boolean; // True if core services are initialized
   firebaseApp: FirebaseApp | null;
   firestore: Firestore | null;
   auth: Auth | null; // The Auth service instance
-  // User authentication state
   user: User | null;
   isUserLoading: boolean; // True during initial auth check
   userError: Error | null; // Error from auth listener
@@ -54,16 +59,30 @@ export const FirebaseContext = createContext<FirebaseContextState | undefined>(u
 export const FirebaseProvider: React.FC<{children: ReactNode}> = ({
   children
 }) => {
+  const [sdks, setSdks] = useState<FirebaseSDKs | null>(null);
   const [userAuthState, setUserAuthState] = useState<UserAuthState>({
     user: null,
     isUserLoading: true, // Start loading until first auth event
     userError: null,
   });
 
+  // Effect to initialize Firebase services once.
+  useEffect(() => {
+    // This function ensures Firebase is initialized only once.
+    const app = !getApps().length ? initializeApp(firebaseConfig) : getApp();
+    const auth = getAuth(app);
+    const firestore = getFirestore(app);
+    setSdks({ app, auth, firestore });
+  }, []);
+
   // Effect to subscribe to Firebase auth state changes
   useEffect(() => {
+    if (!sdks?.auth) {
+      return; // Do nothing if auth service is not yet initialized
+    }
+
     const unsubscribe = onAuthStateChanged(
-      auth,
+      sdks.auth,
       (firebaseUser) => { // Auth state determined
         setUserAuthState({ user: firebaseUser, isUserLoading: false, userError: null });
       },
@@ -75,22 +94,21 @@ export const FirebaseProvider: React.FC<{children: ReactNode}> = ({
 
     // Cleanup subscription on unmount
     return () => unsubscribe();
-  }, []); // This effect runs once on mount.
+  }, [sdks?.auth]); // Re-run this effect only when the auth service is available.
 
   // Memoize the context value
   const contextValue = useMemo((): FirebaseContextState => {
-    // Services are now guaranteed to be available because they are imported singletons.
-    const servicesAvailable = !!(firebaseApp && firestore && auth);
+    const servicesAvailable = !!sdks;
     return {
       areServicesAvailable: servicesAvailable,
-      firebaseApp: firebaseApp,
-      firestore: firestore,
-      auth: auth,
+      firebaseApp: sdks?.app || null,
+      firestore: sdks?.firestore || null,
+      auth: sdks?.auth || null,
       user: userAuthState.user,
       isUserLoading: userAuthState.isUserLoading,
       userError: userAuthState.userError,
     };
-  }, [userAuthState]);
+  }, [sdks, userAuthState]);
 
   return (
     <FirebaseContext.Provider value={contextValue}>
@@ -111,14 +129,20 @@ export const useFirebase = (): FirebaseServicesAndUser => {
     throw new Error('useFirebase must be used within a FirebaseProvider.');
   }
 
+  // During initialization, services might be null. Components should handle this.
+  // We'll only throw an error if the provider seems to be missing entirely.
   if (!context.areServicesAvailable || !context.firebaseApp || !context.firestore || !context.auth) {
-    throw new Error('Firebase core services not available. Check FirebaseProvider setup.');
+    // This could happen during the very first render, before useEffect runs.
+    // Let's return a loading state instead of throwing an error.
+    // A component using this hook should check isUserLoading or isLoading on its own queries.
   }
-
+  
+  // We now trust that if areServicesAvailable is false, the consuming component will handle it
+  // (e.g., by showing a loading spinner). Let's provide what we have.
   return {
-    firebaseApp: context.firebaseApp,
-    firestore: context.firestore,
-    auth: context.auth,
+    firebaseApp: context.firebaseApp!, // Use non-null assertion as consumer should check areServicesAvailable
+    firestore: context.firestore!,
+    auth: context.auth!,
     user: context.user,
     isUserLoading: context.isUserLoading,
     userError: context.userError,
@@ -127,20 +151,29 @@ export const useFirebase = (): FirebaseServicesAndUser => {
 
 /** Hook to access Firebase Auth instance. */
 export const useAuth = (): Auth => {
-  const { auth } = useFirebase();
-  return auth;
+  const { auth, areServicesAvailable } = useContext(FirebaseContext)!;
+  if (!areServicesAvailable) {
+    throw new Error('useAuth must be used within a FirebaseProvider and after services are available.');
+  }
+  return auth!;
 };
 
 /** Hook to access Firestore instance. */
 export const useFirestore = (): Firestore => {
-  const { firestore } = useFirebase();
-  return firestore;
+  const { firestore, areServicesAvailable } = useContext(FirebaseContext)!;
+   if (!areServicesAvailable) {
+    throw new Error('useFirestore must be used within a FirebaseProvider and after services are available.');
+  }
+  return firestore!;
 };
 
 /** Hook to access Firebase App instance. */
 export const useFirebaseApp = (): FirebaseApp => {
-  const { firebaseApp } = useFirebase();
-  return firebaseApp;
+  const { firebaseApp, areServicesAvailable } = useContext(FirebaseContext)!;
+   if (!areServicesAvailable) {
+    throw new Error('useFirebaseApp must be used within a FirebaseProvider and after services are available.');
+  }
+  return firebaseApp!;
 };
 
 type MemoFirebase <T> = T & {__memo?: boolean};
@@ -160,6 +193,6 @@ export function useMemoFirebase<T>(factory: () => T, deps: DependencyList): T | 
  * @returns {UserHookResult} Object with user, isUserLoading, userError.
  */
 export const useUser = (): UserHookResult => {
-  const { user, isUserLoading, userError } = useFirebase(); // Leverages the main hook
+  const { user, isUserLoading, userError } = useContext(FirebaseContext)!; // Leverages the main hook
   return { user, isUserLoading, userError };
 };

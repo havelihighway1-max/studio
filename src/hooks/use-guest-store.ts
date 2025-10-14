@@ -9,7 +9,7 @@ import {
   setDocumentNonBlocking,
   updateDocumentNonBlocking,
 } from '@/firebase/non-blocking-updates';
-import { collection, doc, writeBatch, getFirestore, getDocs, query, orderBy } from 'firebase/firestore';
+import { collection, doc, writeBatch, getFirestore, getDocs, query, orderBy, where } from 'firebase/firestore';
 
 interface AppState {
   // Local state properties
@@ -139,7 +139,7 @@ export const useGuestStore = create<AppState>((set, get) => ({
   addWaitingGuest: async (guest) => {
     const firestore = getDb();
     const waitingGuestsCollection = collection(firestore, 'waitingGuests');
-    const q = query(waitingGuestsCollection, orderBy('tokenNumber', 'desc'));
+    const q = query(waitingGuestsCollection, orderBy('tokenNumber', 'desc'), where('status', '==', 'waiting'));
     const querySnapshot = await getDocs(q);
     const lastGuest = querySnapshot.docs[0]?.data() as WaitingGuest;
     const nextToken = (lastGuest?.tokenNumber || 0) + 1;

@@ -1,10 +1,6 @@
 
-import { getApp, getApps, initializeApp } from 'firebase/app';
-import { getAuth } from 'firebase/auth';
-import { getFirestore } from 'firebase/firestore';
 import { firebaseConfig } from './config';
 
-// Initialize Firebase
-export const firebaseApp = !getApps().length ? initializeApp(firebaseConfig) : getApp();
-export const auth = getAuth(firebaseApp);
-export const firestore = getFirestore(firebaseApp);
+// This file is now only responsible for exporting the configuration.
+// Initialization is handled in the provider to prevent race conditions.
+export { firebaseConfig };
