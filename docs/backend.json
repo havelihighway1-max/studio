@@ -81,7 +81,7 @@
     }
   },
   "auth": {
-    "providers": ["anonymous", "email"]
+    "providers": ["email"]
   },
   "firestore": {
     "/guests/{guestId}": {

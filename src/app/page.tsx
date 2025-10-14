@@ -90,7 +90,7 @@ export default function DashboardPage() {
   }, []);
 
   useEffect(() => {
-    if (!isUserLoading && user?.isAnonymous) {
+    if (!isUserLoading && !user) {
       router.push('/login');
     }
   }, [isUserLoading, user, router]);
@@ -154,7 +154,7 @@ export default function DashboardPage() {
   };
 
 
-  if (!isClient || isUserLoading || guestsLoading || reservationsLoading || user?.isAnonymous) {
+  if (!isClient || isUserLoading || !user) {
     // You can keep a skeleton loader here if you want
     return (
         <div className="flex min-h-screen items-center justify-center bg-background">

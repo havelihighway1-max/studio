@@ -2,13 +2,13 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { PlusCircle, BarChart2, CalendarClock, Table, UserCheck, ArrowLeft, Utensils, Keyboard, LogOut } from "lucide-react";
 import { Button } from "./ui/button";
 import { useAuth, useUser } from "@/firebase";
 import { useKeyboard } from "./keyboard-provider";
 import { signOut } from "firebase/auth";
-import { useRouter } from "next/navigation";
+
 
 interface HeaderProps {
   onAddNewGuest: () => void;
@@ -27,9 +27,19 @@ export function Header({ onAddNewGuest }: HeaderProps) {
   }
   
   const handleSignOut = async () => {
-    await signOut(auth);
-    router.push('/login');
+    try {
+      await signOut(auth);
+      router.push('/login');
+    } catch (error) {
+      console.error("Error signing out:", error);
+    }
   };
+
+  const isAuthPage = pathname === '/login' || pathname === '/signup';
+
+  if (isAuthPage) {
+    return null; // Don't render the header on auth pages
+  }
 
   return (
     <header className="sticky top-0 z-10 border-b bg-background print:hidden">
@@ -85,7 +95,7 @@ export function Header({ onAddNewGuest }: HeaderProps) {
             <Keyboard className="h-4 w-4" />
             <span className="sr-only">Toggle Keyboard</span>
           </Button>
-          {!isUserLoading && user && !user.isAnonymous && (
+          {!isUserLoading && user && (
             <Button onClick={handleSignOut} variant="outline">
               <LogOut className="mr-2 h-4 w-4" />
               Sign Out

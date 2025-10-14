@@ -4,7 +4,7 @@
 import React, { DependencyList, createContext, useContext, ReactNode, useMemo, useState, useEffect } from 'react';
 import { FirebaseApp } from 'firebase/app';
 import { Firestore } from 'firebase/firestore';
-import { Auth, User, onAuthStateChanged, signInAnonymously } from 'firebase/auth';
+import { Auth, User, onAuthStateChanged } from 'firebase/auth';
 import { FirebaseErrorListener } from '@/components/FirebaseErrorListener'
 // Import the singleton instances directly
 import { firebaseApp, auth, firestore } from './client';
@@ -70,17 +70,8 @@ export const FirebaseProvider: React.FC<FirebaseProviderProps> = ({
     const unsubscribe = onAuthStateChanged(
       auth,
       (firebaseUser) => { // Auth state determined
-        if (firebaseUser) {
-          // If a user (anonymous or otherwise) is found, update the state.
-          setUserAuthState({ user: firebaseUser, isUserLoading: false, userError: null });
-        } else {
-          // No user is signed in. Attempt to sign in anonymously.
-          signInAnonymously(auth).catch((error) => {
-             // If anonymous sign-in fails, record the error.
-             console.error("FirebaseProvider: Anonymous sign-in error:", error);
-             setUserAuthState({ user: null, isUserLoading: false, userError: error });
-          });
-        }
+        // Update state with the current user (or null if not logged in)
+        setUserAuthState({ user: firebaseUser, isUserLoading: false, userError: null });
       },
       (error) => { // Auth listener itself threw an error
         console.error("FirebaseProvider: onAuthStateChanged error:", error);
