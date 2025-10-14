@@ -8,12 +8,10 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import menuData from '@/lib/menu-data.json';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, Utensils, Plus, Minus, Trash2 } from 'lucide-react';
+import { ArrowLeft, Utensils, Plus, Minus, Trash2, CreditCard, Wallet } from 'lucide-react';
 import { OrderMenuItem, Guest } from '@/lib/types';
 import { Input } from '@/components/ui/input';
 import { Separator } from '@/components/ui/separator';
-import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
-import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
 
 interface MenuItem {
@@ -32,7 +30,6 @@ export default function MenuPage() {
   const { toast } = useToast();
   const [selectedCategory, setSelectedCategory] = useState<MenuCategory | null>(null);
   const [orderItems, setOrderItems] = useState<OrderMenuItem[]>([]);
-  const [paymentMethod, setPaymentMethod] = useState<'cash' | 'card'>('cash');
   const [orderCount, setOrderCount] = useState(1);
   const menu: MenuCategory[] = menuData.menu;
 
@@ -63,25 +60,29 @@ export default function MenuPage() {
     setOrderItems((prevItems) => prevItems.filter((i) => i.name !== name));
   };
   
-  const { subtotal, tax, total } = useMemo(() => {
+  const { subtotal, cashTotal, cardTotal } = useMemo(() => {
     const subtotal = orderItems.reduce((acc, item) => acc + item.price * item.quantity, 0);
-    const taxRate = paymentMethod === 'cash' ? 0.15 : 0.08;
-    const tax = subtotal * taxRate;
-    const total = subtotal + tax;
-    return { subtotal, tax, total };
-  }, [orderItems, paymentMethod]);
+    const cashTax = subtotal * 0.15;
+    const cashTotal = subtotal + cashTax;
+    const cardTax = subtotal * 0.08;
+    const cardTotal = subtotal + cardTax;
+    return { subtotal, cashTotal, cardTotal };
+  }, [orderItems]);
 
   const handleSaveOrder = () => {
+    // Defaulting to cash for saving the order as per the new design
+    const cashTax = subtotal * 0.15;
+
     const guestData: Omit<Guest, 'id'> = {
         name: `Takeaway Order #${orderCount}`,
         numberOfGuests: 1,
         visitDate: new Date(),
         orderType: 'takeaway',
         orderItems: orderItems,
-        paymentMethod: paymentMethod,
+        paymentMethod: 'cash',
         subtotal: subtotal,
-        tax: tax,
-        total: total,
+        tax: cashTax,
+        total: cashTotal,
         status: 'open',
     };
     
@@ -206,33 +207,30 @@ export default function MenuPage() {
                 {orderItems.length > 0 && (
                     <CardFooter className="flex-col items-stretch space-y-4 pt-6">
                          <Separator />
-                          <div className="space-y-2">
-                            <RadioGroup
-                                value={paymentMethod}
-                                onValueChange={(value: 'cash' | 'card') => setPaymentMethod(value)}
-                                className="flex items-center space-x-4 py-2"
-                            >
-                                <div className="flex items-center space-x-2">
-                                    <RadioGroupItem value="cash" id="cash" />
-                                    <Label htmlFor="cash" className="font-normal">Cash (15% Tax)</Label>
-                                </div>
-                                <div className="flex items-center space-x-2">
-                                    <RadioGroupItem value="card" id="card" />
-                                    <Label htmlFor="card" className="font-normal">Card (8% Tax)</Label>
-                                </div>
-                            </RadioGroup>
-                            <div className="flex justify-between items-center text-sm">
+                          <div className="space-y-4">
+                            <div className="flex justify-between items-center text-md">
                                 <span className="text-muted-foreground">Subtotal</span>
-                                <span>{subtotal.toFixed(2)}</span>
+                                <span className="font-medium">{subtotal.toFixed(2)}</span>
                             </div>
-                            <div className="flex justify-between items-center text-sm">
-                                <span className="text-muted-foreground">Tax</span>
-                                <span>{tax.toFixed(2)}</span>
-                            </div>
-                            <div className="flex justify-between items-center font-bold text-lg">
-                                <span>Total</span>
-                                <span>{total.toFixed(2)}</span>
-                            </div>
+                             <Separator />
+                             <div className="grid grid-cols-2 gap-4">
+                                <div className="space-y-2">
+                                     <div className="flex items-center gap-2 text-muted-foreground">
+                                        <Wallet className="h-5 w-5" />
+                                        <h4 className="font-medium">Cash Total</h4>
+                                    </div>
+                                    <p className="text-xs">+ 15% Tax</p>
+                                    <p className="text-xl font-bold">{cashTotal.toFixed(2)}</p>
+                                </div>
+                                <div className="space-y-2 border-l pl-4">
+                                    <div className="flex items-center gap-2 text-muted-foreground">
+                                        <CreditCard className="h-5 w-5" />
+                                        <h4 className="font-medium">Card Total</h4>
+                                    </div>
+                                    <p className="text-xs">+ 8% Tax</p>
+                                    <p className="text-xl font-bold">{cardTotal.toFixed(2)}</p>
+                                </div>
+                             </div>
                         </div>
                         <Button size="lg" className="w-full" onClick={handlePlaceOrder}>Save Order</Button>
                     </CardFooter>
