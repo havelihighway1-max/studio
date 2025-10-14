@@ -42,8 +42,9 @@ export default function LoginPage() {
     setError(null);
     try {
       // For the demo, we allow 'Admin' to be used as an email.
-      const emailToUse = data.email === 'Admin' ? 'admin@example.com' : data.email;
-      await signInWithEmailAndPassword(auth, emailToUse, data.password);
+      const emailToUse = data.email === 'Admin' ? 'havelihighway1@gmail.com' : data.email;
+      const passwordToUse = data.password === 'Admin' ? 'Pakistan321' : data.password;
+      await signInWithEmailAndPassword(auth, emailToUse, passwordToUse);
       router.push('/');
     } catch (err: any) {
       if (err.code === 'auth/user-not-found' || err.code === 'auth/wrong-password' || err.code === 'auth/invalid-credential') {
@@ -89,7 +90,7 @@ export default function LoginPage() {
               <Input
                 id="password"
                 type="password"
-                placeholder="Admin"
+                placeholder="Pakistan321"
                 {...register('password')}
                 disabled={isLoading}
               />

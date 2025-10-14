@@ -32,12 +32,16 @@ export default function SignupPage() {
    const { register, handleSubmit, formState: { errors } } = useForm<SignupFormValues>({
     resolver: zodResolver(signupSchema),
     defaultValues: {
-      email: "admin@example.com",
-      password: "password"
+      email: "havelihighway1@gmail.com",
+      password: "Pakistan321"
     }
   });
 
   const onSubmit: SubmitHandler<SignupFormValues> = async (data) => {
+    if (!auth) {
+        setError("Auth service is not available.");
+        return;
+    }
     setIsLoading(true);
     setError(null);
     try {
@@ -93,7 +97,7 @@ export default function SignupPage() {
               />
               {errors.password && <p className="text-xs text-destructive">{errors.password.message}</p>}
             </div>
-            <Button type="submit" className="w-full" disabled={isLoading}>
+            <Button type="submit" className="w-full" disabled={isLoading || !auth}>
               {isLoading ? 'Creating Account...' : 'Sign Up'}
             </Button>
           </form>
