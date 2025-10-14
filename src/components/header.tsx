@@ -5,7 +5,8 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { PlusCircle, BarChart2, CalendarClock, Table, UserCheck, ArrowLeft, Utensils, Keyboard, LogOut } from "lucide-react";
 import { Button } from "./ui/button";
-import { useAuth, useUser } from "@/firebase";
+import { useUser } from "@/firebase";
+import { auth } from "@/firebase/client"; // Direct import
 import { useKeyboard } from "./keyboard-provider";
 import { signOut } from "firebase/auth";
 
@@ -16,7 +17,6 @@ interface HeaderProps {
 
 export function Header({ onAddNewGuest }: HeaderProps) {
   const { user, isUserLoading } = useUser();
-  const auth = useAuth();
   const router = useRouter();
   const pathname = usePathname();
   const isDashboardPage = pathname === '/';
