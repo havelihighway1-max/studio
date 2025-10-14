@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useMemo } from 'react';
@@ -12,6 +13,7 @@ import { OrderMenuItem, Guest } from '@/lib/types';
 import { Input } from '@/components/ui/input';
 import { Separator } from '@/components/ui/separator';
 import { useToast } from '@/hooks/use-toast';
+import { DashboardLayout } from '@/components/dashboard-layout';
 
 interface MenuItem {
   name: string;
@@ -25,7 +27,7 @@ interface MenuCategory {
 }
 
 export default function MenuPage() {
-  const { openGuestDialog, addGuest } = useGuestStore();
+  const { addGuest } = useGuestStore();
   const { toast } = useToast();
   const [selectedCategory, setSelectedCategory] = useState<MenuCategory | null>(null);
   const [orderItems, setOrderItems] = useState<OrderMenuItem[]>([]);
@@ -112,146 +114,148 @@ export default function MenuPage() {
   }
 
   return (
-    <div className="flex min-h-screen w-full flex-col bg-background">
-      <Header onAddNewGuest={() => openGuestDialog()} />
-      <main className="flex-1 p-4 md:p-6 lg:p-8">
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          <div className="lg:col-span-2">
-            {!selectedCategory ? (
-              <>
-                <div className="mb-8">
-                  <h1 className="font-headline text-4xl font-bold">Menu Categories</h1>
-                  <p className="text-muted-foreground">Select a category to view its items.</p>
-                </div>
-                <ScrollArea className="h-[calc(100vh-200px)]">
-                  <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4 pr-4">
-                    {menu.map((category) => (
-                      <Card
-                        key={category.category}
-                        className="cursor-pointer hover:bg-card/80 hover:border-primary transition-all"
-                        onClick={() => setSelectedCategory(category)}
-                      >
-                        <CardHeader className="items-center text-center">
-                          <Utensils className="h-8 w-8 mb-2 text-primary" />
-                          <CardTitle className="font-headline text-xl">{category.category}</CardTitle>
-                        </CardHeader>
-                      </Card>
-                    ))}
-                  </div>
-                </ScrollArea>
-              </>
-            ) : (
-              <>
-                <div className="mb-8 flex items-center gap-4">
-                   <Button variant="outline" size="icon" onClick={() => setSelectedCategory(null)}>
-                    <ArrowLeft className="h-4 w-4" />
-                    <span className="sr-only">Back to categories</span>
-                  </Button>
-                  <div>
-                    <h1 className="font-headline text-4xl font-bold">{selectedCategory.category}</h1>
-                    <p className="text-muted-foreground">A guide to our delicious offerings for your customers.</p>
-                  </div>
-                </div>
-
-                <ScrollArea className="h-[calc(100vh-220px)]">
-                  <div className="grid md:grid-cols-2 gap-4 pr-4">
-                    {selectedCategory.items.map((item) => (
-                      <Card key={item.name} className="flex flex-col">
-                        <CardHeader>
-                            <CardTitle>{item.name}</CardTitle>
-                            {item.description && <CardDescription>{item.description}</CardDescription>}
-                        </CardHeader>
-                        <CardContent className="flex-grow"></CardContent>
-                        <CardFooter className="flex justify-between items-center">
-                          <div className="font-semibold tabular-nums text-lg">{item.price.toFixed(2)}</div>
-                          <Button onClick={() => handleAddItem(item)}>
-                              <Plus className="mr-2 h-4 w-4" /> Add to Order
-                          </Button>
-                        </CardFooter>
-                      </Card>
-                    ))}
-                  </div>
-                </ScrollArea>
-              </>
-            )}
-          </div>
-          <div className="lg:col-span-1">
-             <Card className="sticky top-24">
-                <CardHeader>
-                    <CardTitle className="font-headline text-2xl">Current Order</CardTitle>
-                    <CardDescription>Items will appear here as you add them.</CardDescription>
-                </CardHeader>
-                <CardContent className="p-0">
-                    <ScrollArea className="h-64">
-                        <div className="space-y-4 p-6 pt-0">
-                            {orderItems.length === 0 ? (
-                                <p className="text-center text-muted-foreground py-16">No items added yet.</p>
-                            ) : (
-                                orderItems.map(item => (
-                                    <div key={item.name} className="flex items-center justify-between">
-                                        <div>
-                                            <p className="font-medium">{item.name}</p>
-                                            <p className="text-sm text-muted-foreground">Price: {item.price.toFixed(2)}</p>
-                                        </div>
-                                        <div className="flex items-center gap-2">
-                                            <Button variant="outline" size="icon" className="h-7 w-7" onClick={() => handleUpdateQuantity(item.name, item.quantity - 1)}><Minus className="h-4 w-4" /></Button>
-                                            <Input type="number" value={item.quantity} onChange={(e) => handleUpdateQuantity(item.name, parseInt(e.target.value) || 1)} className="h-8 w-14 text-center" />
-                                            <Button variant="outline" size="icon" className="h-7 w-7" onClick={() => handleUpdateQuantity(item.name, item.quantity + 1)}><Plus className="h-4 w-4" /></Button>
-                                            <Button variant="ghost" size="icon" className="h-7 w-7 text-destructive" onClick={() => handleRemoveItem(item.name)}><Trash2 className="h-4 w-4" /></Button>
-                                        </div>
-                                    </div>
-                                ))
-                            )}
-                        </div>
+    <DashboardLayout>
+        <div className="flex min-h-screen w-full flex-col bg-background">
+        <Header />
+        <main className="flex-1 p-4 md:p-6 lg:p-8">
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <div className="lg:col-span-2">
+                {!selectedCategory ? (
+                <>
+                    <div className="mb-8">
+                    <h1 className="font-headline text-4xl font-bold">Menu Categories</h1>
+                    <p className="text-muted-foreground">Select a category to view its items.</p>
+                    </div>
+                    <ScrollArea className="h-[calc(100vh-200px)]">
+                    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4 pr-4">
+                        {menu.map((category) => (
+                        <Card
+                            key={category.category}
+                            className="cursor-pointer hover:bg-card/80 hover:border-primary transition-all"
+                            onClick={() => setSelectedCategory(category)}
+                        >
+                            <CardHeader className="items-center text-center">
+                            <Utensils className="h-8 w-8 mb-2 text-primary" />
+                            <CardTitle className="font-headline text-xl">{category.category}</CardTitle>
+                            </CardHeader>
+                        </Card>
+                        ))}
+                    </div>
                     </ScrollArea>
-                </CardContent>
-                {orderItems.length > 0 && (
-                    <CardFooter className="flex-col items-stretch space-y-4 pt-6">
-                         <Separator />
-                          <div className="space-y-4">
-                            <div className="flex justify-between items-center text-md">
-                                <span className="text-muted-foreground">Subtotal</span>
-                                <span className="font-medium">{subtotal.toFixed(2)}</span>
-                            </div>
-                             <Separator />
-                             <div className="grid grid-cols-2 gap-4">
-                                <div className="space-y-2">
-                                     <div className="flex items-center gap-2 text-muted-foreground">
-                                        <Wallet className="h-5 w-5" />
-                                        <h4 className="font-medium">Cash Total</h4>
-                                    </div>
-                                    <p className="text-xs">+ 15% Tax</p>
-                                    <p className="text-xl font-bold">{cashTotal.toFixed(2)}</p>
-                                </div>
-                                <div className="space-y-2 border-l pl-4">
-                                    <div className="flex items-center gap-2 text-muted-foreground">
-                                        <CreditCard className="h-5 w-5" />
-                                        <h4 className="font-medium">Card Total</h4>
-                                    </div>
-                                    <p className="text-xs">+ 8% Tax</p>
-                                    <p className="text-xl font-bold">{cardTotal.toFixed(2)}</p>
-                                </div>
-                             </div>
-                        </div>
-                        <div className="grid grid-cols-2 gap-2">
-                          <Button size="lg" className="w-full" onClick={() => handleSaveOrder('cash')}>
-                            Save as Cash
-                          </Button>
-                          <Button size="lg" className="w-full" onClick={() => handleSaveOrder('card')} variant="secondary">
-                            Save as Card
-                          </Button>
-                        </div>
-                        <Button size="lg" className="w-full" onClick={handlePlaceOrder} variant="outline">
-                            <FileText className="mr-2 h-4 w-4" />
-                            Order Estimate
-                        </Button>
+                </>
+                ) : (
+                <>
+                    <div className="mb-8 flex items-center gap-4">
+                    <Button variant="outline" size="icon" onClick={() => setSelectedCategory(null)}>
+                        <ArrowLeft className="h-4 w-4" />
+                        <span className="sr-only">Back to categories</span>
+                    </Button>
+                    <div>
+                        <h1 className="font-headline text-4xl font-bold">{selectedCategory.category}</h1>
+                        <p className="text-muted-foreground">A guide to our delicious offerings for your customers.</p>
+                    </div>
+                    </div>
 
-                    </CardFooter>
+                    <ScrollArea className="h-[calc(100vh-220px)]">
+                    <div className="grid md:grid-cols-2 gap-4 pr-4">
+                        {selectedCategory.items.map((item) => (
+                        <Card key={item.name} className="flex flex-col">
+                            <CardHeader>
+                                <CardTitle>{item.name}</CardTitle>
+                                {item.description && <CardDescription>{item.description}</CardDescription>}
+                            </CardHeader>
+                            <CardContent className="flex-grow"></CardContent>
+                            <CardFooter className="flex justify-between items-center">
+                            <div className="font-semibold tabular-nums text-lg">{item.price.toFixed(2)}</div>
+                            <Button onClick={() => handleAddItem(item)}>
+                                <Plus className="mr-2 h-4 w-4" /> Add to Order
+                            </Button>
+                            </CardFooter>
+                        </Card>
+                        ))}
+                    </div>
+                    </ScrollArea>
+                </>
                 )}
-             </Card>
-          </div>
+            </div>
+            <div className="lg:col-span-1">
+                <Card className="sticky top-24">
+                    <CardHeader>
+                        <CardTitle className="font-headline text-2xl">Current Order</CardTitle>
+                        <CardDescription>Items will appear here as you add them.</CardDescription>
+                    </CardHeader>
+                    <CardContent className="p-0">
+                        <ScrollArea className="h-64">
+                            <div className="space-y-4 p-6 pt-0">
+                                {orderItems.length === 0 ? (
+                                    <p className="text-center text-muted-foreground py-16">No items added yet.</p>
+                                ) : (
+                                    orderItems.map(item => (
+                                        <div key={item.name} className="flex items-center justify-between">
+                                            <div>
+                                                <p className="font-medium">{item.name}</p>
+                                                <p className="text-sm text-muted-foreground">Price: {item.price.toFixed(2)}</p>
+                                            </div>
+                                            <div className="flex items-center gap-2">
+                                                <Button variant="outline" size="icon" className="h-7 w-7" onClick={() => handleUpdateQuantity(item.name, item.quantity - 1)}><Minus className="h-4 w-4" /></Button>
+                                                <Input type="number" value={item.quantity} onChange={(e) => handleUpdateQuantity(item.name, parseInt(e.target.value) || 1)} className="h-8 w-14 text-center" />
+                                                <Button variant="outline" size="icon" className="h-7 w-7" onClick={() => handleUpdateQuantity(item.name, item.quantity + 1)}><Plus className="h-4 w-4" /></Button>
+                                                <Button variant="ghost" size="icon" className="h-7 w-7 text-destructive" onClick={() => handleRemoveItem(item.name)}><Trash2 className="h-4 w-4" /></Button>
+                                            </div>
+                                        </div>
+                                    ))
+                                )}
+                            </div>
+                        </ScrollArea>
+                    </CardContent>
+                    {orderItems.length > 0 && (
+                        <CardFooter className="flex-col items-stretch space-y-4 pt-6">
+                            <Separator />
+                            <div className="space-y-4">
+                                <div className="flex justify-between items-center text-md">
+                                    <span className="text-muted-foreground">Subtotal</span>
+                                    <span className="font-medium">{subtotal.toFixed(2)}</span>
+                                </div>
+                                <Separator />
+                                <div className="grid grid-cols-2 gap-4">
+                                    <div className="space-y-2">
+                                        <div className="flex items-center gap-2 text-muted-foreground">
+                                            <Wallet className="h-5 w-5" />
+                                            <h4 className="font-medium">Cash Total</h4>
+                                        </div>
+                                        <p className="text-xs">+ 15% Tax</p>
+                                        <p className="text-xl font-bold">{cashTotal.toFixed(2)}</p>
+                                    </div>
+                                    <div className="space-y-2 border-l pl-4">
+                                        <div className="flex items-center gap-2 text-muted-foreground">
+                                            <CreditCard className="h-5 w-5" />
+                                            <h4 className="font-medium">Card Total</h4>
+                                        </div>
+                                        <p className="text-xs">+ 8% Tax</p>
+                                        <p className="text-xl font-bold">{cardTotal.toFixed(2)}</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div className="grid grid-cols-2 gap-2">
+                            <Button size="lg" className="w-full" onClick={() => handleSaveOrder('cash')}>
+                                Save as Cash
+                            </Button>
+                            <Button size="lg" className="w-full" onClick={() => handleSaveOrder('card')} variant="secondary">
+                                Save as Card
+                            </Button>
+                            </div>
+                            <Button size="lg" className="w-full" onClick={handlePlaceOrder} variant="outline">
+                                <FileText className="mr-2 h-4 w-4" />
+                                Order Estimate
+                            </Button>
+
+                        </CardFooter>
+                    )}
+                </Card>
+            </div>
+            </div>
+        </main>
         </div>
-      </main>
-    </div>
+    </DashboardLayout>
   );
 }

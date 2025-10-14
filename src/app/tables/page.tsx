@@ -1,7 +1,7 @@
 
 "use client";
 
-import { useRef, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { Header } from "@/components/header";
 import { TableDialog } from "@/components/table-data-table/table-dialog";
 import { useGuestStore } from "@/hooks/use-guest-store";
@@ -22,6 +22,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog"
+import { DashboardLayout } from "@/components/dashboard-layout";
 
 export default function TablesPage() {
   const { 
@@ -70,71 +71,73 @@ export default function TablesPage() {
 
 
   return (
-    <div className="flex min-h-screen w-full flex-col bg-background">
-      <Header onAddNewGuest={openGuestDialog} />
-      <main className="flex-1 p-4 md:p-6 lg:p-8">
-        <div className="mb-8 flex items-center justify-between">
-            <div>
-                <h1 className="font-headline text-4xl font-bold">Table View</h1>
-                <p className="text-muted-foreground">
-                    Select an available table to seat a guest or clear an occupied table.
-                </p>
-            </div>
-            <div className="flex items-center gap-2">
-                 <Button onClick={openTableDialog} variant="outline">
-                    Manage Tables
-                </Button>
-            </div>
-        </div>
-        
-        {isLoading ? (
-            <div className="grid grid-cols-4 sm:grid-cols-6 md:grid-cols-8 lg:grid-cols-10 gap-4">
-                {Array.from({ length: 24 }).map((_, i) => (
-                    <Skeleton key={i} className="h-20 w-full" />
-                ))}
-            </div>
-        ) : (
-            <div className="grid grid-cols-4 sm:grid-cols-6 md:grid-cols-8 lg:grid-cols-10 gap-4">
-                {safeTables.map((table) => (
-                    <Button
-                        key={table.id}
-                        variant="outline"
-                        onClick={() => handleTableClick(table)}
-                        className={cn("h-20 text-lg font-bold flex-col relative", {
-                            "bg-green-700 hover:bg-green-800 text-white": table.status === 'available',
-                            "bg-red-700 hover:bg-red-800 text-white": table.status === 'occupied',
-                            "bg-yellow-600 hover:bg-yellow-700 text-white": table.status === 'reserved'
-                        })}
-                    >
-                        <span>{table.name.replace('Table ', '')}</span>
-                        <span className="text-xs font-normal absolute bottom-1 right-2">{table.capacity}</span>
+    <DashboardLayout>
+        <div className="flex min-h-screen w-full flex-col bg-background">
+        <Header />
+        <main className="flex-1 p-4 md:p-6 lg:p-8">
+            <div className="mb-8 flex items-center justify-between">
+                <div>
+                    <h1 className="font-headline text-4xl font-bold">Table View</h1>
+                    <p className="text-muted-foreground">
+                        Select an available table to seat a guest or clear an occupied table.
+                    </p>
+                </div>
+                <div className="flex items-center gap-2">
+                    <Button onClick={openTableDialog} variant="outline">
+                        Manage Tables
                     </Button>
-                ))}
+                </div>
             </div>
-        )}
-        
-      </main>
-      <TableDialog
-        key={editingTable?.id || 'new-table'}
-        open={isTableDialogOpen}
-        onOpenChange={(isOpen) => !isOpen && closeTableDialog()}
-        table={editingTable}
-        allTables={safeTables}
-      />
-       <AlertDialog open={isConfirmDialogOpen} onOpenChange={setIsConfirmDialogOpen}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Clear Table {selectedTable?.name}?</AlertDialogTitle>
-            <AlertDialogDescription>
-              Are you sure you want to mark this table as available? This action cannot be undone.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel onClick={() => setSelectedTable(null)}>Cancel</AlertDialogCancel>
-            <AlertDialogAction onClick={handleConfirmClear}>Clear Table</AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
-    </div>
+            
+            {isLoading ? (
+                <div className="grid grid-cols-4 sm:grid-cols-6 md:grid-cols-8 lg:grid-cols-10 xl:grid-cols-12 gap-4">
+                    {Array.from({ length: 24 }).map((_, i) => (
+                        <Skeleton key={i} className="h-20 w-full" />
+                    ))}
+                </div>
+            ) : (
+                <div className="grid grid-cols-4 sm:grid-cols-6 md:grid-cols-8 lg:grid-cols-10 xl:grid-cols-12 gap-4">
+                    {safeTables.map((table) => (
+                        <Button
+                            key={table.id}
+                            variant="outline"
+                            onClick={() => handleTableClick(table)}
+                            className={cn("h-20 text-lg font-bold flex-col relative", {
+                                "bg-green-700 hover:bg-green-800 text-white": table.status === 'available',
+                                "bg-red-700 hover:bg-red-800 text-white": table.status === 'occupied',
+                                "bg-yellow-600 hover:bg-yellow-700 text-white": table.status === 'reserved'
+                            })}
+                        >
+                            <span>{table.name.replace('Table ', '')}</span>
+                            <span className="text-xs font-normal absolute bottom-1 right-2">{table.capacity}</span>
+                        </Button>
+                    ))}
+                </div>
+            )}
+            
+        </main>
+        <TableDialog
+            key={editingTable?.id || 'new-table'}
+            open={isTableDialogOpen}
+            onOpenChange={(isOpen) => !isOpen && closeTableDialog()}
+            table={editingTable}
+            allTables={safeTables}
+        />
+        <AlertDialog open={isConfirmDialogOpen} onOpenChange={setIsConfirmDialogOpen}>
+            <AlertDialogContent>
+            <AlertDialogHeader>
+                <AlertDialogTitle>Clear Table {selectedTable?.name}?</AlertDialogTitle>
+                <AlertDialogDescription>
+                Are you sure you want to mark this table as available? This action cannot be undone.
+                </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+                <AlertDialogCancel onClick={() => setSelectedTable(null)}>Cancel</AlertDialogCancel>
+                <AlertDialogAction onClick={handleConfirmClear}>Clear Table</AlertDialogAction>
+            </AlertDialogFooter>
+            </AlertDialogContent>
+        </AlertDialog>
+        </div>
+    </DashboardLayout>
   );
 }

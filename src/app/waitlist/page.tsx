@@ -10,6 +10,7 @@ import { useCollection, useFirestore, useMemoFirebase } from "@/firebase";
 import { WaitingGuest } from "@/lib/types";
 import { collection, query } from "firebase/firestore";
 import { useMemo } from "react";
+import { DashboardLayout } from "@/components/dashboard-layout";
 
 export default function WaitlistPage() {
   const { 
@@ -17,7 +18,6 @@ export default function WaitlistPage() {
     isWaitingGuestDialogOpen, 
     closeWaitingGuestDialog,
     editingWaitingGuest,
-    openGuestDialog // for adding a walk-in guest from other pages
   } = useGuestStore();
   const firestore = useFirestore();
 
@@ -30,24 +30,26 @@ export default function WaitlistPage() {
   const safeWaitingGuests = useMemo(() => waitingGuests || [], [waitingGuests]);
 
   return (
-    <div className="flex min-h-screen w-full flex-col bg-background">
-      <Header onAddNewGuest={openGuestDialog} />
-      <main className="flex-1 p-4 md:p-6 lg:p-8">
-        <div className="mb-8">
-          <h1 className="font-headline text-4xl font-bold">Waiting List</h1>
-          <p className="text-muted-foreground">
-            Manage guests waiting for a table.
-          </p>
-        </div>
+    <DashboardLayout>
+        <div className="flex min-h-screen w-full flex-col bg-background">
+        <Header />
+        <main className="flex-1 p-4 md:p-6 lg:p-8">
+            <div className="mb-8">
+            <h1 className="font-headline text-4xl font-bold">Waiting List</h1>
+            <p className="text-muted-foreground">
+                Manage guests waiting for a table.
+            </p>
+            </div>
 
-        <DataTable columns={columns} data={safeWaitingGuests} onAddWaitingGuest={openWaitingGuestDialog} isLoading={isLoading}/>
-      </main>
-      <WaitingGuestDialog
-        key={editingWaitingGuest?.id || 'new-waiting-guest'}
-        open={isWaitingGuestDialogOpen}
-        onOpenChange={(isOpen) => !isOpen && closeWaitingGuestDialog()}
-        guest={editingWaitingGuest}
-      />
-    </div>
+            <DataTable columns={columns} data={safeWaitingGuests} onAddWaitingGuest={openWaitingGuestDialog} isLoading={isLoading}/>
+        </main>
+        <WaitingGuestDialog
+            key={editingWaitingGuest?.id || 'new-waiting-guest'}
+            open={isWaitingGuestDialogOpen}
+            onOpenChange={(isOpen) => !isOpen && closeWaitingGuestDialog()}
+            guest={editingWaitingGuest}
+        />
+        </div>
+    </DashboardLayout>
   );
 }
