@@ -2,29 +2,12 @@
 'use client';
 
 import React, { DependencyList, createContext, useContext, ReactNode, useMemo, useState, useEffect } from 'react';
-import { FirebaseApp, getApp, getApps, initializeApp } from 'firebase/app';
-import { Firestore, getFirestore } from 'firebase/firestore';
-import { Auth, User, onAuthStateChanged, signInAnonymously } from 'firebase/auth';
+import { FirebaseApp } from 'firebase/app';
+import { Firestore } from 'firebase/firestore';
+import { Auth, User, onAuthStateChanged } from 'firebase/auth';
 import { FirebaseErrorListener } from '@/components/FirebaseErrorListener';
-import { firebaseConfig } from './config';
-import { getAuth } from 'firebase/auth';
+import { auth, firestore, firebaseApp } from './client';
 
-// --- Singleton Instances ---
-// This ensures Firebase is initialized only once.
-let firebaseApp: FirebaseApp;
-if (!getApps().length) {
-  firebaseApp = initializeApp(firebaseConfig);
-} else {
-  firebaseApp = getApp();
-}
-
-export const auth = getAuth(firebaseApp);
-export const firestore = getFirestore(firebaseApp);
-// --- End Singleton Instances ---
-
-interface FirebaseProviderProps {
-  children: ReactNode;
-}
 
 // Internal state for user authentication
 interface UserAuthState {
@@ -68,7 +51,7 @@ export const FirebaseContext = createContext<FirebaseContextState | undefined>(u
 /**
  * FirebaseProvider manages and provides Firebase services and user authentication state.
  */
-export const FirebaseProvider: React.FC<FirebaseProviderProps> = ({
+export const FirebaseProvider: React.FC<{children: ReactNode}> = ({
   children
 }) => {
   const [userAuthState, setUserAuthState] = useState<UserAuthState>({
@@ -79,21 +62,10 @@ export const FirebaseProvider: React.FC<FirebaseProviderProps> = ({
 
   // Effect to subscribe to Firebase auth state changes
   useEffect(() => {
-    // We use the imported `auth` singleton here. It is guaranteed to be initialized.
     const unsubscribe = onAuthStateChanged(
       auth,
       (firebaseUser) => { // Auth state determined
-        if (firebaseUser) {
-            // User is signed in.
-            setUserAuthState({ user: firebaseUser, isUserLoading: false, userError: null });
-        } else {
-            // User is signed out. Attempt to sign in anonymously.
-            signInAnonymously(auth).catch((error) => {
-                console.error("FirebaseProvider: Anonymous sign-in failed:", error);
-                // Still update state even if anonymous sign-in fails
-                setUserAuthState({ user: null, isUserLoading: false, userError: error });
-            });
-        }
+        setUserAuthState({ user: firebaseUser, isUserLoading: false, userError: null });
       },
       (error) => { // Auth listener itself threw an error
         console.error("FirebaseProvider: onAuthStateChanged error:", error);

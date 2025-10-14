@@ -22,6 +22,7 @@ import { cn } from "@/lib/utils";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { useCollection, useFirestore, useMemoFirebase } from "@/firebase";
 import { collection, query, Timestamp, where } from "firebase/firestore";
+import { AuthGate } from "@/components/auth-gate";
 
 const convertGuestTimestamps = (guests: (Omit<Guest, 'visitDate'> & { visitDate: Timestamp })[]): Guest[] => {
   return guests
@@ -42,7 +43,7 @@ const convertReservationTimestamps = (reservations: (Omit<Reservation, 'dateOfEv
 };
 
 
-export default function DashboardPage() {
+function DashboardContent() {
   const [isClient, setIsClient] = useState(false);
   const [isOffline, setIsOffline] = useState(false);
   const { isGuestDialogOpen, closeGuestDialog, openGuestDialog, isInsightsDialogOpen, closeInsightsDialog } = useGuestStore();
@@ -146,13 +147,8 @@ export default function DashboardPage() {
 
   const isLoading = guestsLoading || reservationsLoading;
 
-  if (!isClient || isLoading) {
-    // You can keep a skeleton loader here if you want
-    return (
-        <div className="flex min-h-screen items-center justify-center bg-background">
-            <p>Loading Dashboard...</p>
-        </div>
-    )
+  if (!isClient) {
+    return null;
   }
 
   return (
@@ -273,5 +269,13 @@ export default function DashboardPage() {
         events={anniversaryEvents}
       />
     </div>
+  );
+}
+
+export default function DashboardPage() {
+  return (
+    <AuthGate>
+      <DashboardContent />
+    </AuthGate>
   );
 }

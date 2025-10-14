@@ -78,10 +78,22 @@
             "createdAt": { "type": "string", "format": "date-time", "description": "The time the guest was added to the waitlist." }
         },
         "required": ["id", "tokenNumber", "name", "numberOfGuests", "status", "createdAt"]
+    },
+    "User": {
+        "title": "User",
+        "description": "A user of the application.",
+        "type": "object",
+        "properties": {
+          "email": {
+            "type": "string",
+            "description": "The user's email address."
+          }
+        },
+        "required": ["email"]
     }
   },
   "auth": {
-    "providers": []
+    "providers": ["password"]
   },
   "firestore": {
     "/guests/{guestId}": {
@@ -99,6 +111,10 @@
     "/waitingGuests/{waitingGuestId}": {
       "schema": { "$ref": "#/entities/WaitingGuest" },
       "description": "Stores the list of guests currently waiting for a table."
+    },
+    "/users/{userId}": {
+        "schema": { "$ref": "#/entities/User" },
+        "description": "Stores user profile information."
     }
   }
 }
