@@ -52,6 +52,7 @@ export function WaitingGuestDialog({ open, onOpenChange, guest }: WaitingGuestDi
       phone: guest?.phone || "",
       numberOfGuests: guest?.numberOfGuests || 1,
       status: guest?.status || "waiting",
+      estimatedWaitTime: guest?.estimatedWaitTime || undefined,
     },
   });
 
@@ -61,6 +62,7 @@ export function WaitingGuestDialog({ open, onOpenChange, guest }: WaitingGuestDi
       phone: guest?.phone || "",
       numberOfGuests: guest?.numberOfGuests || 1,
       status: guest?.status || "waiting",
+      estimatedWaitTime: guest?.estimatedWaitTime || undefined,
     });
   }, [guest, form]);
 
@@ -101,7 +103,7 @@ export function WaitingGuestDialog({ open, onOpenChange, guest }: WaitingGuestDi
                 control={form.control}
                 name="name"
                 render={({ field }) => (
-                  <FormItem className="col-span-2 sm:col-span-1">
+                  <FormItem className="col-span-2">
                     <FormLabel>Full Name</FormLabel>
                     <FormControl>
                       <Input placeholder="John Doe" {...field} />
@@ -114,10 +116,23 @@ export function WaitingGuestDialog({ open, onOpenChange, guest }: WaitingGuestDi
                 control={form.control}
                 name="numberOfGuests"
                 render={({ field }) => (
-                  <FormItem className="col-span-2 sm:col-span-1">
+                  <FormItem>
                     <FormLabel>Number of Guests</FormLabel>
                     <FormControl>
                       <Input type="number" min="1" {...field} onChange={e => field.onChange(parseInt(e.target.value))} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="estimatedWaitTime"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Wait Time (mins)</FormLabel>
+                    <FormControl>
+                      <Input type="number" placeholder="e.g., 15" {...field} onChange={e => field.onChange(e.target.value === '' ? undefined : parseInt(e.target.value))} value={field.value ?? ''} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>

@@ -75,7 +75,8 @@
             "phone": { "type": "string", "description": "The phone number of the guest." },
             "numberOfGuests": { "type": "number", "description": "The number of people in the party." },
             "status": { "type": "string", "enum": ["waiting", "called", "seated"], "description": "The current status of the waiting guest." },
-            "createdAt": { "type": "string", "format": "date-time", "description": "The time the guest was added to the waitlist." }
+            "createdAt": { "type": "string", "format": "date-time", "description": "The time the guest was added to the waitlist." },
+            "estimatedWaitTime": { "type": "number", "description": "The estimated wait time in minutes." }
         },
         "required": ["id", "tokenNumber", "name", "numberOfGuests", "status", "createdAt"]
     }
@@ -102,5 +103,3 @@
     }
   }
 }
-
-    

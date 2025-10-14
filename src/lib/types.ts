@@ -61,6 +61,7 @@ export const waitingGuestSchema = z.object({
   numberOfGuests: z.coerce.number().min(1, { message: "Must have at least one guest." }),
   status: z.enum(["waiting", "called", "seated"]).default("waiting"),
   createdAt: z.date(),
+  estimatedWaitTime: z.coerce.number().optional(),
 });
 
 export type WaitingGuest = z.infer<typeof waitingGuestSchema>;

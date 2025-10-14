@@ -94,6 +94,14 @@ export const columns: ColumnDef<WaitingGuest>[] = [
     cell: ({ row }) => <div className="text-muted-foreground">{row.getValue("phone") || 'N/A'}</div>
   },
   {
+    accessorKey: "estimatedWaitTime",
+    header: "Est. Wait",
+    cell: ({ row }) => {
+      const waitTime = row.getValue("estimatedWaitTime") as number | undefined;
+      return <div className="text-center">{waitTime ? `${waitTime} min` : 'N/A'}</div>
+    }
+  },
+  {
     accessorKey: "createdAt",
     header: ({ column }) => (
       <Button variant="ghost" onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}>
