@@ -65,6 +65,11 @@ export function GuestDialog({ open, onOpenChange, guest }: GuestDialogProps) {
       preferences: guest?.preferences || "",
       feedback: guest?.feedback || "",
       orderType: guest?.orderType || "dine-in",
+      orderItems: guest?.orderItems || [],
+      paymentMethod: guest?.paymentMethod || "cash",
+      subtotal: guest?.subtotal || 0,
+      tax: guest?.tax || 0,
+      total: guest?.total || 0,
       status: guest?.status || "open",
     },
   });
@@ -83,6 +88,11 @@ export function GuestDialog({ open, onOpenChange, guest }: GuestDialogProps) {
         preferences: guest?.preferences || "",
         feedback: guest?.feedback || "",
         orderType: guest?.orderType || "dine-in",
+        orderItems: guest?.orderItems || [],
+        paymentMethod: guest?.paymentMethod || "cash",
+        subtotal: guest?.subtotal || 0,
+        tax: guest?.tax || 0,
+        total: guest?.total || 0,
         status: guest?.status || "open",
       });
     }

@@ -4,12 +4,19 @@
 import { create } from 'zustand';
 import { Guest, Reservation, Table, WaitingGuest } from '@/lib/types';
 import {
-  addDocumentNonBlocking,
-  deleteDocumentNonBlocking,
-  setDocumentNonBlocking,
-  updateDocumentNonBlocking,
-} from '@/firebase/non-blocking-updates';
-import { collection, doc, writeBatch, getFirestore, getDocs, query, orderBy, where } from 'firebase/firestore';
+  addDoc,
+  collection,
+  deleteDoc,
+  doc,
+  getDocs,
+  getFirestore,
+  orderBy,
+  query,
+  setDoc,
+  updateDoc,
+  where,
+  writeBatch,
+} from 'firebase/firestore';
 
 interface AppState {
   // Local state properties
@@ -80,51 +87,49 @@ export const useGuestStore = create<AppState>((set, get) => ({
   
   addGuest: (guest) => {
     const firestore = getDb();
-    const guestWithId = { ...guest, id: crypto.randomUUID() };
-    const docRef = doc(firestore, "guests", guestWithId.id);
-    setDocumentNonBlocking(docRef, guestWithId, {});
+    addDoc(collection(firestore, 'guests'), guest);
   },
   updateGuest: (id, updatedData) => {
     const firestore = getDb();
     const docRef = doc(firestore, "guests", id);
-    updateDocumentNonBlocking(docRef, updatedData);
+    updateDoc(docRef, updatedData);
   },
   deleteGuest: (id) => {
     const firestore = getDb();
     const docRef = doc(firestore, "guests", id);
-    deleteDocumentNonBlocking(docRef);
+    deleteDoc(docRef);
   },
   addReservation: (reservation) => {
     const firestore = getDb();
     const reservationWithId = { ...reservation, id: crypto.randomUUID() };
     const docRef = doc(firestore, "reservations", reservationWithId.id);
-    setDocumentNonBlocking(docRef, reservationWithId, {});
+    setDoc(docRef, reservationWithId, {});
   },
   updateReservation: (id, updatedData) => {
     const firestore = getDb();
     const docRef = doc(firestore, "reservations", id);
-    updateDocumentNonBlocking(docRef, updatedData);
+    updateDoc(docRef, updatedData);
   },
   deleteReservation: (id) => {
     const firestore = getDb();
     const docRef = doc(firestore, "reservations", id);
-    deleteDocumentNonBlocking(docRef);
+    deleteDoc(docRef);
   },
   addTable: (table) => {
     const firestore = getDb();
     const tableWithId = { ...table, id: crypto.randomUUID(), status: 'available' as const };
     const docRef = doc(firestore, "tables", tableWithId.id);
-    setDocumentNonBlocking(docRef, tableWithId, {});
+    setDoc(docRef, tableWithId, {});
   },
   updateTable: (id, updatedData) => {
     const firestore = getDb();
     const docRef = doc(firestore, "tables", id);
-    updateDocumentNonBlocking(docRef, updatedData);
+    updateDoc(docRef, updatedData);
   },
   deleteTable: (id) => {
     const firestore = getDb();
     const docRef = doc(firestore, "tables", id);
-    deleteDocumentNonBlocking(docRef);
+    deleteDoc(docRef);
   },
   setTables: async (tables) => {
       const firestore = getDb();
@@ -152,16 +157,16 @@ export const useGuestStore = create<AppState>((set, get) => ({
         status: 'waiting' as const,
     };
     const docRef = doc(firestore, "waitingGuests", newGuest.id);
-    setDocumentNonBlocking(docRef, newGuest, {});
+    setDoc(docRef, newGuest, {});
   },
   updateWaitingGuest: (id, data) => {
     const firestore = getDb();
     const docRef = doc(firestore, "waitingGuests", id);
-    updateDocumentNonBlocking(docRef, data);
+    updateDoc(docRef, data);
   },
   deleteWaitingGuest: (id) => {
     const firestore = getDb();
     const docRef = doc(firestore, "waitingGuests", id);
-    deleteDocumentNonBlocking(docRef);
+    deleteDoc(docRef);
   },
 }));
