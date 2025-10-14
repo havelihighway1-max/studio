@@ -13,11 +13,11 @@ import {
   startOfYear,
 } from "date-fns";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Users, Calendar, UserPlus, CalendarCheck, MessageSquare, History, WifiOff } from "lucide-react";
+import { Users, Calendar, UserPlus, CalendarCheck, MessageSquare, History, WifiOff, Hourglass } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { PlaceHolderImages } from "@/lib/placeholder-images";
 import { AnniversaryDialog } from "@/components/anniversary-dialog";
-import { Guest, Reservation } from "@/lib/types";
+import { Guest, Reservation, WaitingGuest } from "@/lib/types";
 import { cn } from "@/lib/utils";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { useCollection, useFirestore, useMemoFirebase } from "@/firebase";
@@ -60,8 +60,14 @@ export default function DashboardPage() {
     return query(collection(firestore, 'reservations'), where('dateOfEvent', '>=', currentYearStart));
   }, [firestore, currentYearStart]);
 
+  const waitingGuestsQuery = useMemoFirebase(() => {
+    if (!firestore) return null;
+    return query(collection(firestore, 'waitingGuests'), where('status', '==', 'waiting'));
+  }, [firestore]);
+
   const { data: rawGuests, isLoading: guestsLoading } = useCollection<(Omit<Guest, 'visitDate'> & { visitDate: Timestamp })>(guestsQuery);
   const { data: rawReservations, isLoading: reservationsLoading } = useCollection<(Omit<Reservation, 'dateOfEvent'> & { dateOfEvent: Timestamp })>(reservationsQuery);
+  const { data: waitingGuests, isLoading: waitingGuestsLoading } = useCollection<WaitingGuest>(waitingGuestsQuery);
   
   const guests = useMemo(() => (rawGuests ? convertGuestTimestamps(rawGuests) : []), [rawGuests]);
   const reservations = useMemo(() => (rawReservations ? convertReservationTimestamps(rawReservations) : []), [rawReservations]);
@@ -121,6 +127,7 @@ export default function DashboardPage() {
   const lastWeekSameDay = new Date(today);
   lastWeekSameDay.setDate(today.getDate() - 7);
   const sameDayLastWeekCount = guests.filter((g) => isSameDay(new Date(g.visitDate), lastWeekSameDay)).reduce((sum, guest) => sum + (Number(guest.numberOfGuests) || 0), 0);
+  const totalWaiting = waitingGuests?.length || 0;
 
   const handleWhatsAppBroadcast = () => {
     if (isOffline) {
@@ -144,7 +151,7 @@ export default function DashboardPage() {
     }
   };
 
-  const isLoading = guestsLoading || reservationsLoading || !firestore;
+  const isLoading = guestsLoading || reservationsLoading || waitingGuestsLoading || !firestore;
 
   if (!isClient) {
     return null;
@@ -174,7 +181,7 @@ export default function DashboardPage() {
                   </AlertDescription>
                 </Alert>
             )}
-            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-5">
+            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-6">
               <Card className="border-chart-1 bg-chart-1">
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                   <CardTitle className="text-sm font-medium">
@@ -209,6 +216,18 @@ export default function DashboardPage() {
                 </CardHeader>
                 <CardContent>
                   <div className="text-2xl font-bold">{isLoading ? '...' : `+${newThisMonth}`}</div>
+                </CardContent>
+              </Card>
+               <Card className="border-yellow-500 bg-yellow-500/80">
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                  <CardTitle className="text-sm font-medium text-black">
+                    Total Waiting
+                     <span className="block text-xl text-yellow-900">إن شاء الله</span>
+                  </CardTitle>
+                  <Hourglass className="h-4 w-4 text-black/70" />
+                </CardHeader>
+                <CardContent>
+                  <div className="text-2xl font-bold text-black">{isLoading ? '...' : totalWaiting}</div>
                 </CardContent>
               </Card>
               <Card className="border-chart-4 bg-chart-4">
