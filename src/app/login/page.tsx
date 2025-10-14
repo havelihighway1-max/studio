@@ -34,6 +34,10 @@ export default function LoginPage() {
   });
 
   const onSubmit: SubmitHandler<LoginFormValues> = async (data) => {
+    if (!auth) {
+      setError('Authentication service is not ready. Please wait a moment and try again.');
+      return;
+    }
     setIsLoading(true);
     setError(null);
     try {
@@ -91,7 +95,7 @@ export default function LoginPage() {
               />
               {errors.password && <p className="text-xs text-destructive">{errors.password.message}</p>}
             </div>
-            <Button type="submit" className="w-full" disabled={isLoading}>
+            <Button type="submit" className="w-full" disabled={isLoading || !auth}>
               {isLoading ? 'Signing In...' : 'Sign In'}
             </Button>
           </form>

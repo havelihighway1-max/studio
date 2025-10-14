@@ -6,7 +6,7 @@ import { FirebaseApp, getApp, getApps, initializeApp } from 'firebase/app';
 import { Firestore, getFirestore } from 'firebase/firestore';
 import { Auth, User, onAuthStateChanged, getAuth } from 'firebase/auth';
 import { FirebaseErrorListener } from '@/components/FirebaseErrorListener';
-import { firebaseConfig } from './client';
+import { firebaseConfig } from './config';
 
 // Define a shape for the core SDKs
 interface FirebaseSDKs {
@@ -149,22 +149,22 @@ export const useFirebase = (): FirebaseServicesAndUser => {
   };
 };
 
-/** Hook to access Firebase Auth instance. */
-export const useAuth = (): Auth => {
-  const { auth, areServicesAvailable } = useContext(FirebaseContext)!;
-  if (!areServicesAvailable) {
-    throw new Error('useAuth must be used within a FirebaseProvider and after services are available.');
+/** Hook to access Firebase Auth instance. Returns null if not yet available. */
+export const useAuth = (): Auth | null => {
+  const context = useContext(FirebaseContext);
+  if (context === undefined) {
+    throw new Error('useAuth must be used within a FirebaseProvider.');
   }
-  return auth!;
+  return context.auth;
 };
 
-/** Hook to access Firestore instance. */
+/** Hook to access Firestore instance. Throws error if not available. */
 export const useFirestore = (): Firestore => {
   const { firestore, areServicesAvailable } = useContext(FirebaseContext)!;
-   if (!areServicesAvailable) {
+   if (!areServicesAvailable || !firestore) {
     throw new Error('useFirestore must be used within a FirebaseProvider and after services are available.');
   }
-  return firestore!;
+  return firestore;
 };
 
 /** Hook to access Firebase App instance. */
@@ -193,6 +193,10 @@ export function useMemoFirebase<T>(factory: () => T, deps: DependencyList): T | 
  * @returns {UserHookResult} Object with user, isUserLoading, userError.
  */
 export const useUser = (): UserHookResult => {
-  const { user, isUserLoading, userError } = useContext(FirebaseContext)!; // Leverages the main hook
+  const context = useContext(FirebaseContext);
+   if (context === undefined) {
+    throw new Error('useUser must be used within a FirebaseProvider.');
+  }
+  const { user, isUserLoading, userError } = context;
   return { user, isUserLoading, userError };
 };
