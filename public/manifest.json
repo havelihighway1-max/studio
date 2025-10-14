@@ -1,11 +1,12 @@
 {
-  "name": "Haveli Kebab & Grill",
+  "name": "HAVELI KEBAB & GRILL",
   "short_name": "Haveli",
   "description": "Your Restaurant. Smarter.",
   "start_url": "/",
+  "id": "/?lfhs=2",
   "display": "standalone",
-  "background_color": "#fdf6f8",
-  "theme_color": "#d64b6f",
+  "background_color": "#fff",
+  "theme_color": "#E53E3E",
   "icons": [
     {
       "src": "/icons/icon-192x192.png",
