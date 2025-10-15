@@ -11,23 +11,42 @@ export const firebaseConfig = {
   "appId": "1:306828239267:web:74881c9436e9869463fa16"
 };
 
-// Singleton pattern to initialize and get Firebase instances
-function getFirebaseInstances() {
-    let app: FirebaseApp;
-    if (!getApps().length) {
-        app = initializeApp(firebaseConfig);
-    } else {
-        app = getApp();
-    }
-    const db = getFirestore(app);
-    return { app, db };
-}
-
+// This is a temporary type to augment the global object for caching.
+type GlobalWithFirebase = typeof globalThis & {
+  firebaseApp?: FirebaseApp;
+  firestore?: Firestore;
+};
 
 /**
- * Returns the Firestore database instance for server-side usage.
- * This ensures a single instance is used across the server.
+ * Creates and caches a single Firebase App instance for the server.
+ * This prevents re-initialization on every server-side render in Next.js.
+ * @returns The singleton FirebaseApp instance.
  */
-export const getDb = (): Firestore => {
-  return getFirebaseInstances().db;
-};
+function getFirebaseApp(): FirebaseApp {
+  if (typeof window === 'undefined') { // Server-side
+    const g = global as GlobalWithFirebase;
+    if (!g.firebaseApp) {
+      g.firebaseApp = initializeApp(firebaseConfig);
+    }
+    return g.firebaseApp;
+  }
+  // Client-side
+  return getApps().length > 0 ? getApp() : initializeApp(firebaseConfig);
+}
+
+/**
+ * Creates and caches a single Firestore instance for the server.
+ * @returns The singleton Firestore instance.
+ */
+export function getDb(): Firestore {
+    const app = getFirebaseApp();
+    if (typeof window === 'undefined') { // Server-side
+        const g = global as GlobalWithFirebase;
+        if (!g.firestore) {
+            g.firestore = getFirestore(app);
+        }
+        return g.firestore;
+    }
+    // Client-side
+    return getFirestore(app);
+}
