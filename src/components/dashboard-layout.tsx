@@ -28,7 +28,7 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
     { href: '/reports', label: 'Reports', icon: BarChart2, shortcut: 'r' },
     { href: '/reservations', label: 'Reservations', icon: CalendarClock, shortcut: 's' },
     { href: '/tables', label: 'Tables', icon: Table, shortcut: 't' },
-    { href: '/waitlist', label: 'Waitlist', icon: UserCheck, shortcut: 'w' },
+    { href: '/waitlist', label: 'Waitlist', icon: UserCheck, shortcut: 'l' },
     { href: '/menu', label: 'Menu', icon: Utensils, shortcut: 'm' },
   ];
   
@@ -45,9 +45,9 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
         'r': () => router.push('/reports'),
         's': () => router.push('/reservations'),
         't': () => router.push('/tables'),
-        'w': () => router.push('/waitlist'),
+        'l': () => router.push('/waitlist'),
         'm': () => router.push('/menu'),
-        'a': () => openGuestDialog(),
+        'w': () => openGuestDialog(),
       };
 
       const action = shortcutMap[event.key.toLowerCase()];
@@ -86,7 +86,7 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
                   </SidebarMenuItem>
               ))}
               <SidebarMenuItem>
-                  <SidebarMenuButton onClick={() => openGuestDialog()} tooltip="Add a walk-in guest (a)">
+                  <SidebarMenuButton onClick={() => openGuestDialog()} tooltip="Add a walk-in guest (w)">
                       <PlusCircle />
                       <span>Walking Guest</span>
                   </SidebarMenuButton>
