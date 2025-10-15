@@ -5,7 +5,6 @@ import { useState, useMemo } from 'react';
 import { Header } from '@/components/header';
 import { useGuestStore } from '@/hooks/use-guest-store';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import menuData from '@/lib/menu-data.json';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft, Utensils, Plus, Minus, Trash2, CreditCard, Wallet, FileText } from 'lucide-react';
@@ -24,6 +23,423 @@ interface MenuCategory {
   category: string;
   items: MenuItem[];
 }
+
+const menuData = {
+  "menu": [
+    {
+      "category": "RAITA & SALAD",
+      "items": [
+        { "name": "FRESH GREEN SALAD", "price": 310 },
+        { "name": "HAVELI SPECIAL RAITA", "price": 310 },
+        { "name": "CACHUMBER SALAD", "price": 300 },
+        { "name": "RUSSIAN  SALAD ", "price": 799 },
+        { "name": "HUMMUS WITH TAVUK", "price": 1299 },
+        { "name": "CEASER SALAD", "price": 799 },
+        { "name": "HUMMUS", "price": 799 }
+      ]
+    },
+    {
+      "category": "STARTER",
+      "items": [
+        { "name": "HAVELI SPECIAL SOUP", "price": 549 },
+        { "name": "HOT & SOUR SOUP ( RED )", "price": 410 },
+        { "name": "CHICKEN CORN SOUP", "price": 410 },
+        { "name": "HOT & SOUR SOUP ( WHITE )", "price": 410 },
+        { "name": "CREAM OF MASHROOM SOUP", "price": 499 },
+        { "name": "SEA FOOD CHOWDER", "price": 549 },
+        { "name": "Extra Sale", "price": 0 },
+        { "name": "GRILL PROWNS", "price": 1200 },
+        { "name": "WILD MUSHROOM SOUP", "price": 449 },
+        { "name": "CHICKEN WINGS (MEXICAN)", "price": 1299 }
+      ]
+    },
+    {
+      "category": "NAAN",
+      "items": [
+        { "name": "CHEESE NAAN", "price": 769 },
+        { "name": "KANDHARI NAAN", "price": 169 },
+        { "name": "ROGHNI NAAN", "price": 149 },
+        { "name": "GARLIC NAAN", "price": 149 },
+        { "name": "IRANI NAAN", "price": 149 },
+        { "name": "PLAIN NAAN", "price": 90 },
+        { "name": "PURI PRATHA", "price": 159 },
+        { "name": "TANDOORI PARATHA", "price": 159 },
+        { "name": "STAFF NAAN", "price": 0 },
+        { "name": "CHAPATI", "price": 59 },
+        { "name": "CHEESE SPICY NAAN", "price": 390 },
+        { "name": "KALONJI NAAN", "price": 80 },
+        { "name": "WALVET NAAN", "price": 60 },
+        { "name": "COCONUT NAAN", "price": 499 },
+        { "name": "WHOLE WHEAT NAAN", "price": 120 }
+      ]
+    },
+    {
+      "category": "APPETIZER",
+      "items": [
+        { "name": "FRIES", "price": 439 },
+        { "name": "HAVELI WASABI CHICKEN", "price": 750 },
+        { "name": "DHAKA CHICKEN", "price": 1269 },
+        { "name": "DHAKA FISH", "price": 1319 },
+        { "name": "CHICKEN FINGER", "price": 1049 },
+        { "name": "FISH FINGER", "price": 1319 },
+        { "name": "FRIED FISH", "price": 880 },
+        { "name": "PRAWN TEMPURA", "price": 1819 },
+        { "name": "ROYAL FISH N CHIPS", "price": 1429 },
+        { "name": "DYNAMITE CHICKEN", "price": 1319 },
+        { "name": "BUFFALO WINGS ( 6PCS )", "price": 699 },
+        { "name": "CHICKEN CHEESE STRIPS", "price": 1049 },
+        { "name": "CHICKEN CHILLI POPPERS", "price": 999 },
+        { "name": "HONEY MUSTARD WINGS (6 PCS)", "price": 699 },
+        { "name": "ASIAN CHILLI PRAWN (5PCS)", "price": 999 },
+        { "name": "GRILL PRAWN", "price": 2250 }
+      ]
+    },
+    {
+      "category": "CHINESE",
+      "items": [
+        { "name": "DRAGON CHICKEN WITH RICE", "price": 1429 },
+        { "name": "CHICKEN SZECHUAN WITH RICE", "price": 1429 },
+        { "name": "CHICKEN GARLIC EITH RICE", "price": 899 },
+        { "name": "CHICKEN KUNGPAO WITH RICE", "price": 1429 },
+        { "name": "CHICKEN CHILLI DRY WITH RICE", "price": 1429 },
+        { "name": "CHICKEN CHILLI GRAVY WITH RICE", "price": 1429 },
+        { "name": "CHICKEN SHASHLIK WITH RICE", "price": 1429 },
+        { "name": "CHICKEN MANCHURIAN WITH RICE", "price": 1429 },
+        { "name": "VEGETABLE CHOWMEIN", "price": 1269 },
+        { "name": "CHICKEN GARLIC WITH RICE", "price": 899 },
+        { "name": "HAVELI SPECIAL CHOWMEIN", "price": 1199 },
+        { "name": "CHICKEN CHINESE", "price": 649 },
+        { "name": "BEEF CHILLI GRAVY WITH RICE", "price": 1429 },
+        { "name": "BEEF CHILLI DRY WITH RICE", "price": 1429 },
+        { "name": "CHICKEN CHOWMIEN", "price": 1379 },
+        { "name": "BASIL CHICKEN WITH RICE", "price": 999 },
+        { "name": "SWEET & SOUR WITH RICE", "price": 999 },
+        { "name": "KHABSU CHICKEN WITH RICE", "price": 999 },
+        { "name": "BEEF MANGOLIAN", "price": 1429 },
+        { "name": "CHICKEN SPICY GARLIC", "price": 1429 }
+      ]
+    },
+    {
+      "category": "RICE",
+      "items": [
+        { "name": "VEGETABLE FRIED RICE", "price": 839 },
+        { "name": "CHICKEN FRIED RICE", "price": 969 },
+        { "name": "EXTRA RICE", "price": 299 },
+        { "name": "GARLIC RICE", "price": 699 },
+        { "name": "MASALA RICE", "price": 969 },
+        { "name": "SINGAPORIAN RICE", "price": 1199 },
+        { "name": "ZAFRANI RICE", "price": 249 }
+      ]
+    },
+    {
+      "category": "STEAKS",
+      "items": [
+        { "name": "TEXAS STEAK CHICKEN", "price": 2529 },
+        { "name": "MUSHROOM STEAK BEEF", "price": 3029 },
+        { "name": "TARRAGON STEAK BEEF", "price": 3029 },
+        { "name": "MEXICAN STEAK BEEF", "price": 3029 },
+        { "name": "HAVELI FIRE CHICKEN", "price": 1199 },
+        { "name": "MUSHROOM STEAK CHICKEN ", "price": 2529 },
+        { "name": "TARRAGON CHICKEN", "price": 2529 },
+        { "name": "MEXICAN STEAK CHICKEN", "price": 2529 },
+        { "name": "ALFREDO PASTA", "price": 1319 },
+        { "name": "TEXAS STEAK BEEF", "price": 3029 },
+        { "name": "HAVELI BON FIRE BEEF", "price": 3029 },
+        { "name": "HAVELI BON FIRE CHICKEN", "price": 2529 },
+        { "name": "MORROCAN STEAK BEEF", "price": 3029 },
+        { "name": "MORROCAN STEAK CHICKEN", "price": 2529 },
+        { "name": "PENNE ARBIATA PASTA", "price": 1099 },
+        { "name": "PEPPER STEAK CHICKEN", "price": 1899 },
+        { "name": "PEPPER STEAK BEEF", "price": 2299 },
+        { "name": "AMERICAN STEAK CHICKEN", "price": 1399 },
+        { "name": "AMERICAN STEAK BEEF", "price": 1699 },
+        { "name": "HUNTER BEEF STEAK", "price": 4349 },
+        { "name": "MAC N CHEESE PASTA", "price": 999 },
+        { "name": "SPICY ALFREDO ", "price": 1319 }
+      ]
+    },
+    {
+      "category": "GRILL BURGER",
+      "items": [
+        { "name": "SIGNATURE BURGER (CHICKEN)", "price": 1209 },
+        { "name": "CLUB SANDWICH", "price": 1209 },
+        { "name": "CRISPY BURGER (CHICKEN)", "price": 1209 },
+        { "name": "TAXAS BBQ BURGER", "price": 599 },
+        { "name": "BEEF SIRACHA BURGER", "price": 599 },
+        { "name": "HAVELI BOSS BURGER", "price": 1099 },
+        { "name": "BBQ BURGER (BEEF DOUBLE PATTY)", "price": 1499 },
+        { "name": "MUSHROOM SWISS BURGER(BEEF)", "price": 1099 },
+        { "name": "BEEF SMASH BURGER", "price": 1209 }
+      ]
+    },
+    {
+      "category": "BAR BQ TEMPTATION",
+      "items": [
+        { "name": "ARABIC TIKKA", "price": 719 },
+        { "name": "CHICKEN DARBARI BOTI", "price": 1319 },
+        { "name": "CHICKEN TURKISH BOTI", "price": 1319 },
+        { "name": "CHICKEN LEBANESE BOTI", "price": 1319 },
+        { "name": "CHICKEN MALAI BOTI", "price": 1319 },
+        { "name": "CHICKEN GREEN CHARGHA", "price": 2810 },
+        { "name": "BEEF BIHARI BOTI", "price": 1429 },
+        { "name": "MUGHLAI TIKKA", "price": 1499 },
+        { "name": "CHICKEN BEHARI TIKKA", "price": 719 },
+        { "name": "CHICKEN BEHARI BOTI", "price": 1319 },
+        { "name": "KASTORI BOTI CHICKEN", "price": 1319 },
+        { "name": "BULGHARI BOTI", "price": 1429 },
+        { "name": "JOJA SHASHLIK", "price": 1319 },
+        { "name": "MUTTON MASALA CHOP", "price": 1499 },
+        { "name": "MUTTON NAMKEEN CHOP", "price": 1499 }
+      ]
+    },
+    {
+      "category": "AFGHANI",
+      "items": [
+        { "name": "BEEF AFGHANI BOTI ", "price": 1299 },
+        { "name": "BEEF AFGHANI PULAO", "price": 1149 }
+      ]
+    },
+    {
+      "category": "KEBABS",
+      "items": [
+        { "name": "CHICKEN BIHARI BOTI ", "price": 799 },
+        { "name": "SHISH TAOUK", "price": 899 },
+        { "name": "MUTTON DATI WITH RICE", "price": 3099 },
+        { "name": "BEEF SEEKH KEBAB", "price": 1429 },
+        { "name": "BEEF GULZARI KEBAB", "price": 1429 },
+        { "name": "CHICKEN RESHMI KEBAB", "price": 1319 },
+        { "name": "CHICKEN TURKISH KEBAB", "price": 1429 },
+        { "name": "MUTTON HUNZAI KEBAB", "price": 1429 },
+        { "name": "CHICKEN BIHARI TIKKA", "price": 375 },
+        { "name": "SICAK TABAK PLATTER", "price": 3200 },
+        { "name": "ANGARA KABAB (PER KG)", "price": 899 },
+        { "name": "KOLATI KABAB", "price": 899 },
+        { "name": "ANGARA KEBAB", "price": 899 },
+        { "name": "BEEF GOLA KEBAB", "price": 999 },
+        { "name": "CHICKEN PANEER KEBAB", "price": 1199 },
+        { "name": "SULTAN SHAHI BEEF KEBAB", "price": 1429 },
+        { "name": "MAKHMALI KEBAB CHICKEN", "price": 1099 },
+        { "name": "DIL KHUSH KEBAB MUTTON", "price": 1599 },
+        { "name": "ADNA KEBAB MUTTON", "price": 1599 },
+        { "name": "KOOBIDEH KEBAB MUTTON", "price": 1599 },
+        { "name": "CHICKEN ALFREDO KEBAB", "price": 1499 },
+        { "name": "MALAI GOLA KEBAB", "price": 1699 },
+        { "name": "PESHAWRI KEBAB", "price": 1429 }
+      ]
+    },
+    {
+      "category": "CHULLU",
+      "items": [
+        { "name": "TURKISH CHULLU", "price": 1819 },
+        { "name": "ARABIC CHULLU", "price": 1319 },
+        { "name": "MUTTON HUNZAI CHULLU", "price": 1499 },
+        { "name": "MURGH NOOR MAHAL", "price": 1929 },
+        { "name": "IRANI CHULLU KEBAB", "price": 1869 }
+      ]
+    },
+    {
+      "category": "CHICKEN KARAHI",
+      "items": [
+        { "name": "CHICKEN SHAl KARAHI ( HALF )", "price": 1199 },
+        { "name": "CHICKEN SHAl KARAHI ( FULL )", "price": 1700 },
+        { "name": "CHICKEN WHITE KARAHI ( HALF )", "price": 1629 },
+        { "name": "CHICKEN WHITE KARAHI ( FULL )", "price": 2639 },
+        { "name": "CHICKEN SHAHI KARAHI ( HALF )", "price": 1629 },
+        { "name": "CHICKEN SHAHI KARAHI ( FULL )", "price": 2639 },
+        { "name": "CHICKEN GREEN KARAHI ( HALF )", "price": 1199 },
+        { "name": "CHICKEN GREEN KARAHI ( FULL )", "price": 1899 },
+        { "name": "CHICKEN BALOCHI KARAHI ( HALF )", "price": 1199 },
+        { "name": "CHICKEN BALOCHI KARAHI ( FULL )", "price": 1899 },
+        { "name": "SMOKY KRHAI", "price": 1999 },
+        { "name": "MEXICAN CHK KARAHI (HALF)", "price": 1449 },
+        { "name": "MEXICAN CHK KARAHI (FULL)", "price": 2399 },
+        { "name": "CHICKEN PESHAWARI KARAHI (HALF)", "price": 1629 },
+        { "name": "CHICKEN PESHAWARI KARAHI (FULL)", "price": 2639 },
+        { "name": "CHICKEN CHEF SPECIAL KARAHI (HALF)", "price": 1629 },
+        { "name": "CHICKEN CHEF SPECIAL KARAHI (FULL)", "price": 2639 }
+      ]
+    },
+    {
+      "category": "MUTTON KARAHI",
+      "items": [
+        { "name": "MUTTON CHEF SPECIAL KARAHI ( LEG ONLY ) HALF", "price": 2639 },
+        { "name": "MUTTON CHEF SPECIAL KARAHI ( LEG ONLY ) FULL", "price": 4459 },
+        { "name": "MUTTON SHAHl KARAHI ( LEG ONLY ) HALF", "price": 2419 },
+        { "name": "MUTTON SHAHl KARAHI ( LEG ONLY ) FULL", "price": 4239 },
+        { "name": "BROWN KARAHI HALF", "price": 1999 },
+        { "name": "BROWN KARAHI FULL", "price": 3299 },
+        { "name": "NAMKEEN KARAHI FULL", "price": 4239 },
+        { "name": "NAMKEEN KARAHI HALF", "price": 2419 },
+        { "name": "MEXICAN MUTTON KARAHI (HALF)", "price": 2099 },
+        { "name": "MEXICAN MUTTON KARAHI (FULL)", "price": 3499 },
+        { "name": "MUTTON PESHAWARI KARAHI (HALF)", "price": 2419 },
+        { "name": "MUTTON PESHAWARI KARAHI (FULL)", "price": 4239 },
+        { "name": "MUTTON CHARSI KARAHI HALF", "price": 2419 },
+        { "name": "MUTTON CHARSI KARAHI FULL", "price": 4239 }
+      ]
+    },
+    {
+      "category": "HANDI",
+      "items": [
+        { "name": "CHICKEN MAKHNI HANDI", "price": 2179 },
+        { "name": "PANEER RESHMI HANDI", "price": 2179 },
+        { "name": "VEGETABLE HANDI", "price": 650 },
+        { "name": "DAL MAKHNI HANDI", "price": 799 },
+        { "name": "PALAK PANEER HANDI", "price": 1099 },
+        { "name": "MUTTON HUNZAI HANDI", "price": 2179 },
+        { "name": "DAAL MAKHNI HANDI", "price": 799 },
+        { "name": "CHICKEN HARI MIRCH HANDI", "price": 1499 },
+        { "name": "CHICKEN ZEERA HANDI", "price": 1499 }
+      ]
+    },
+    {
+      "category": "CURRIES",
+      "items": [
+        { "name": "HAVELI SPECIAL MUTTON KATAKAT", "price": 1819 },
+        { "name": "HAVELI SPECIAL MUTTON  BRAIN ( 2 PIECE )", "price": 1819 }
+      ]
+    },
+    {
+      "category": "BEVERAGES",
+      "items": [
+        { "name": "LARGE WATER", "price": 175 },
+        { "name": "SMALL WATER", "price": 85 },
+        { "name": "SOFT DRINK", "price": 155 },
+        { "name": "STRING", "price": 99 },
+        { "name": "STING", "price": 165 },
+        { "name": "COLD COFFEE", "price": 199 },
+        { "name": "7UP 1.5LTR", "price": 117 },
+        { "name": "PAKOLA", "price": 165 }
+      ]
+    },
+    {
+      "category": "HOT BEVERGES",
+      "items": [
+        { "name": "DOODH PATTI", "price": 230 },
+        { "name": "GREEN CHENAK ( GUR OR NAQUL )", "price": 389 },
+        { "name": "STAFF TEA", "price": 100 },
+        { "name": "EXTRA SOUCE", "price": 99 },
+        { "name": "GREEN TEA CUP", "price": 169 },
+        { "name": "COFFEE", "price": 399 }
+      ]
+    },
+    {
+      "category": "DRINKS",
+      "items": [
+        { "name": "MINT LEMONADE", "price": 410 },
+        { "name": "FRESH LIME", "price": 279 },
+        { "name": "SWEET LASSI", "price": 249 },
+        { "name": "VANILLA SHAKE", "price": 439 },
+        { "name": "STAWBERRY SHAKE", "price": 375 },
+        { "name": "MARGARITTA", "price": 399 },
+        { "name": "BLUE COLADA", "price": 425 },
+        { "name": "HAVELI SIGNATURE", "price": 469 },
+        { "name": "COCONUT CHILLAR", "price": 449 },
+        { "name": "RED GRAPE VINE", "price": 375 },
+        { "name": "BLOOD DROP", "price": 375 },
+        { "name": "SOUR LASSI", "price": 249 },
+        { "name": "STRAWBERRY LASSI", "price": 299 },
+        { "name": "BLUE BERRY LASSI", "price": 299 },
+        { "name": "STRAWBERRY PUNCH", "price": 469 },
+        { "name": "MARS MOJITO", "price": 469 },
+        { "name": "LASSI", "price": 299 },
+        { "name": "FRESH MANGO BREEZE", "price": 530 },
+        { "name": "CHERRY LIME", "price": 520 },
+        { "name": "Couple time", "price": 520 },
+        { "name": "BLUE LAGOON", "price": 325 },
+        { "name": "PINA COLADA", "price": 469 }
+      ]
+    },
+    {
+      "category": "ICE CREAM",
+      "items": [
+        { "name": "ICE CREAM ( 2 SCOOP )", "price": 329 },
+        { "name": "KULFI", "price": 240 },
+        { "name": "KULFI WITH FALUDA", "price": 299 },
+        { "name": "CHEESE CAKE (SLICE)", "price": 449 },
+        { "name": "FUDGE CAKE (SLICE)", "price": 449 },
+        { "name": "LAVA CAKE (SLICE)", "price": 649 },
+        { "name": "SIZZLING BROWNIE", "price": 649 },
+        { "name": "CREME BRULEE", "price": 699 },
+        { "name": "GULAB JAMUN", "price": 299 },
+        { "name": "GAJAR HALWA", "price": 299 }
+      ]
+    },
+    {
+      "category": "BBQ MUTTON",
+      "items": [
+        { "name": "MUTTON DASTI WITH RICE", "price": 3200 },
+        { "name": "QUI GUSHTI SHORWA", "price": 1999 },
+        { "name": "QUI GUSHTI QOSHMA", "price": 1999 }
+      ]
+    },
+    {
+      "category": "DAM PUKHT",
+      "items": [
+        { "name": "MUTTON RIBS WITH RICE", "price": 5449 },
+        { "name": "DUMPUKHT (PER KG)", "price": 3949 },
+        { "name": "DAM PUKHT ", "price": 2900 },
+        { "name": "MUTTON DUMPUKHT DASTI WITH RICE", "price": 5449 },
+        { "name": "MUTTON CHOPS", "price": 1499 },
+        { "name": "MUTTON DUMPUKHT PIECE", "price": 1749 }
+      ]
+    },
+    {
+      "category": "BBQ BEEF",
+      "items": [
+        { "name": "HUNZAl KEBAB", "price": 899 }
+      ]
+    },
+    {
+      "category": "SHAKES",
+      "items": [
+        { "name": "VANILLA SHAKES", "price": 439 },
+        { "name": "STRAWBERRY SHAKES", "price": 439 },
+        { "name": "PISTA SHAKE", "price": 280 },
+        { "name": "CHOCOLATE SHAKE", "price": 439 },
+        { "name": "OREO SHAKE", "price": 439 },
+        { "name": "KIT KAT SHAKE", "price": 469 },
+        { "name": "CARAMEL SHAKE", "price": 399 },
+        { "name": "MANGO SHAKE", "price": 399 }
+      ]
+    },
+    {
+      "category": "HAVELI SPECIALITIES",
+      "items": [
+        { "name": "HUMMUS WITH GARLIC NAAN", "price": 699 },
+        { "name": "DYNAMITE PRAWNS", "price": 1710 },
+        { "name": "CHERRY CHILLI CHICKEN WITH RICE", "price": 899 },
+        { "name": "DRAGON BEEF WITH RICE", "price": 1349 },
+        { "name": "SICAK TABAK PLATTER (FULL)", "price": 5059 },
+        { "name": "FAMILY PLATTER", "price": 7199 },
+        { "name": "SONER PIDE", "price": 949 },
+        { "name": "PIZZA KEBAB", "price": 949 },
+        { "name": "DONER PIDE", "price": 949 },
+        { "name": "SICAK TABAK PLATTER (HALF)", "price": 1999 },
+        { "name": "PLATTER FOR ARMY", "price": 0 }
+      ]
+    },
+    {
+      "category": "FISH",
+      "items": [
+        { "name": "RED SNAPPER FISH", "price": 2849 },
+        { "name": "MUSHKA FISH (GRILLED)", "price": 2849 },
+        { "name": "BBQ GRILL PRAWN", "price": 2250 }
+      ]
+    },
+    {
+      "category": "TURKISH CUISINE",
+      "items": [
+        { "name": "CHICKEN CHOPS", "price": 1529 },
+        { "name": "TURKISH KAFTA KEBAB", "price": 1729 },
+        { "name": "TURKISH MUTTON CHOPS", "price": 1599 },
+        { "name": "BEEF ANTALYA CHOPS", "price": 1699 },
+        { "name": "TURKISH KUZU POT ROAST", "price": 1799 },
+        { "name": "ROASTED KUZU WITH RICE", "price": 1710 }
+      ]
+    }
+  ]
+};
 
 export default function MenuPage() {
   const { addGuest } = useGuestStore();
@@ -256,3 +672,5 @@ export default function MenuPage() {
     </div>
   );
 }
+
+    
