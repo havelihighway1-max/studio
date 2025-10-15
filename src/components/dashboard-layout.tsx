@@ -2,7 +2,7 @@
 'use client';
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import {
   SidebarProvider,
   Sidebar,
@@ -14,21 +14,55 @@ import {
   SidebarMenuButton,
 } from '@/components/ui/sidebar';
 import { useGuestStore } from "@/hooks/use-guest-store";
+import { useEffect } from "react";
 
 import { BarChart2, CalendarClock, Home, PlusCircle, Table, UserCheck, Utensils } from "lucide-react";
 
 export function DashboardLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
+  const router = useRouter();
   const { openGuestDialog } = useGuestStore();
 
   const menuItems = [
-    { href: '/', label: 'Dashboard', icon: Home },
-    { href: '/reports', label: 'Reports', icon: BarChart2 },
-    { href: '/reservations', label: 'Reservations', icon: CalendarClock },
-    { href: '/tables', label: 'Tables', icon: Table },
-    { href: '/waitlist', label: 'Waitlist', icon: UserCheck },
-    { href: '/menu', label: 'Menu', icon: Utensils },
+    { href: '/', label: 'Dashboard', icon: Home, shortcut: 'd' },
+    { href: '/reports', label: 'Reports', icon: BarChart2, shortcut: 'r' },
+    { href: '/reservations', label: 'Reservations', icon: CalendarClock, shortcut: 's' },
+    { href: '/tables', label: 'Tables', icon: Table, shortcut: 't' },
+    { href: '/waitlist', label: 'Waitlist', icon: UserCheck, shortcut: 'w' },
+    { href: '/menu', label: 'Menu', icon: Utensils, shortcut: 'm' },
   ];
+  
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      // Ignore shortcuts if an input, textarea, or select is focused
+      const target = event.target as HTMLElement;
+      if (['INPUT', 'TEXTAREA', 'SELECT'].includes(target.tagName)) {
+        return;
+      }
+
+      const shortcutMap: { [key: string]: () => void } = {
+        'd': () => router.push('/'),
+        'r': () => router.push('/reports'),
+        's': () => router.push('/reservations'),
+        't': () => router.push('/tables'),
+        'w': () => router.push('/waitlist'),
+        'm': () => router.push('/menu'),
+        'a': () => openGuestDialog(),
+      };
+
+      const action = shortcutMap[event.key.toLowerCase()];
+      if (action) {
+        event.preventDefault();
+        action();
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [router, openGuestDialog]);
+
 
   return (
     <SidebarProvider>
@@ -43,7 +77,7 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
             <SidebarMenu>
               {menuItems.map(item => (
                   <SidebarMenuItem key={item.href}>
-                      <SidebarMenuButton asChild tooltip={item.label} isActive={pathname === item.href}>
+                      <SidebarMenuButton asChild tooltip={`${item.label} (${item.shortcut})`} isActive={pathname === item.href}>
                           <Link href={item.href}>
                               <item.icon />
                               <span>{item.label}</span>
@@ -52,7 +86,7 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
                   </SidebarMenuItem>
               ))}
               <SidebarMenuItem>
-                  <SidebarMenuButton onClick={() => openGuestDialog()} tooltip="Add a walk-in guest">
+                  <SidebarMenuButton onClick={() => openGuestDialog()} tooltip="Add a walk-in guest (a)">
                       <PlusCircle />
                       <span>Walking Guest</span>
                   </SidebarMenuButton>
