@@ -19,23 +19,41 @@ import { DataTable } from "@/components/guest-data-table/data-table";
 import { columns } from "@/components/guest-data-table/columns";
 import { cn } from "@/lib/utils";
 import { GuestDialog } from "@/components/guest-data-table/guest-dialog";
+import { useCollection, useFirestore, useMemoFirebase } from "@/firebase";
+import { collection, query, Timestamp } from "firebase/firestore";
 
-interface ReportsClientContentProps {
-    allGuests: Guest[];
-}
+// Helper function to safely convert Firestore Timestamps to Dates
+const convertGuestTimestamps = (guests: (Omit<Guest, 'visitDate'> & { visitDate: Timestamp })[]): Guest[] => {
+  return guests
+    .filter(g => g.visitDate)
+    .map(g => ({
+      ...g,
+      visitDate: g.visitDate.toDate(),
+    }));
+};
 
-export function ReportsClientContent({ allGuests }: ReportsClientContentProps) {
-  const { isGuestDialogOpen, closeGuestDialog } = useGuestStore();
-  
+export function ReportsClientContent() {
+  const { isGuestDialogOpen, closeGuestDialog, editingGuest } = useGuestStore();
   const [date, setDate] = useState<DateRange | undefined>(undefined);
+  const firestore = useFirestore();
+
+  const guestsQuery = useMemoFirebase(() => {
+    if (!firestore) return null;
+    return query(collection(firestore, 'guests'));
+  }, [firestore]);
+
+  const { data: rawGuests, isLoading } = useCollection<(Omit<Guest, 'visitDate'> & { visitDate: Timestamp })>(guestsQuery);
+
+  const allGuests = useMemo(() => convertGuestTimestamps(rawGuests || []), [rawGuests]);
 
   const filteredGuests = useMemo(() => {
+    if (!date?.from) return allGuests; // If no start date, show all
+    const toDate = date.to || date.from;
+    
     return allGuests.filter((guest) => {
-      if (!date?.from) return true; // If no start date, show all
-      const toDate = date.to || date.from;
       const visitDate = guest.visitDate;
       if (!isValid(visitDate)) return false; // Skip invalid dates
-      return isWithinInterval(visitDate, { start: date.from, end: toDate });
+      return isWithinInterval(visitDate, { start: date.from!, end: toDate });
     });
   }, [allGuests, date]);
 
@@ -105,14 +123,14 @@ export function ReportsClientContent({ allGuests }: ReportsClientContentProps) {
                     Total Guests in Report: <strong>{filteredGuests.length}</strong>
                 </p>
             </div>
-            <DataTable columns={columns} data={filteredGuests} isLoading={false} />
+            <DataTable columns={columns} data={filteredGuests} isLoading={isLoading} />
             </div>
         </main>
         <GuestDialog
-            key={useGuestStore.getState().editingGuest?.id || 'new-report'}
+            key={editingGuest?.id || 'new-report'}
             open={isGuestDialogOpen}
             onOpenChange={(isOpen) => !isOpen && closeGuestDialog()}
-            guest={useGuestStore.getState().editingGuest}
+            guest={editingGuest}
         />
     </>
   );

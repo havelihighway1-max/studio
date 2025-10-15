@@ -8,13 +8,8 @@ import { columns } from "@/components/reservation-data-table/columns";
 import { useCollection, useFirestore, useMemoFirebase } from "@/firebase";
 import { Reservation } from "@/lib/types";
 import { collection, query } from "firebase/firestore";
-import { useMemo } from "react";
 
-interface ReservationsClientContentProps {
-  initialReservations: Reservation[];
-}
-
-export function ReservationsClientContent({ initialReservations }: ReservationsClientContentProps) {
+export function ReservationsClientContent() {
   const { 
     openReservationDialog, 
     isReservationDialogOpen, 
@@ -30,8 +25,6 @@ export function ReservationsClientContent({ initialReservations }: ReservationsC
 
   const { data: liveReservations, isLoading } = useCollection<Reservation>(reservationsQuery);
 
-  const dataToShow = useMemo(() => liveReservations || initialReservations, [liveReservations, initialReservations]);
-
   return (
     <>
       <main className="flex-1 p-4 md:p-6 lg:p-8">
@@ -42,7 +35,7 @@ export function ReservationsClientContent({ initialReservations }: ReservationsC
           </p>
           </div>
 
-          <DataTable columns={columns} data={dataToShow} onAddReservation={openReservationDialog} isLoading={isLoading && !liveReservations}/>
+          <DataTable columns={columns} data={liveReservations || []} onAddReservation={openReservationDialog} isLoading={isLoading && !liveReservations}/>
       </main>
       <ReservationDialog
           key={editingReservation?.id || 'new-reservation'}

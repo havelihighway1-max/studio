@@ -1,11 +1,11 @@
 
 'use client';
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { useGuestStore } from "@/hooks/use-guest-store";
 import { isSameDay, isThisMonth } from "date-fns";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Users, Calendar, UserPlus, CalendarCheck, MessageSquare, History, WifiOff, Hourglass } from "lucide-react";
+import { Users, Calendar, UserPlus, CalendarCheck, History, WifiOff, Hourglass } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { AnniversaryDialog } from "@/components/anniversary-dialog";
 import { Guest, Reservation, WaitingGuest } from "@/lib/types";
@@ -13,14 +13,29 @@ import { cn } from "@/lib/utils";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { GuestDialog } from "./guest-data-table/guest-dialog";
 import { InsightsDialog } from "./guest-data-table/insights-dialog";
+import { useCollection, useFirestore, useMemoFirebase } from "@/firebase";
+import { collection, query, where, Timestamp } from "firebase/firestore";
 
-interface DashboardClientContentProps {
-    guests: Guest[];
-    reservations: Reservation[];
-    waitingGuests: WaitingGuest[];
-}
+// Helper function to safely convert Firestore Timestamps to Dates
+const convertGuestTimestamps = (guests: (Omit<Guest, 'visitDate'> & { visitDate: Timestamp })[]): Guest[] => {
+  return guests
+    .filter(g => g.visitDate)
+    .map(g => ({
+      ...g,
+      visitDate: g.visitDate.toDate(),
+    }));
+};
 
-export function DashboardClientContent({ guests, reservations, waitingGuests }: DashboardClientContentProps) {
+const convertReservationTimestamps = (reservations: (Omit<Reservation, 'dateOfEvent'> & { dateOfEvent: Timestamp })[]): Reservation[] => {
+  return reservations
+    .filter(r => r.dateOfEvent)
+    .map(r => ({
+      ...r,
+      dateOfEvent: r.dateOfEvent.toDate(),
+    }));
+};
+
+export function DashboardClientContent() {
   const [isClient, setIsClient] = useState(false);
   const [isOffline, setIsOffline] = useState(false);
   const { 
@@ -33,7 +48,33 @@ export function DashboardClientContent({ guests, reservations, waitingGuests }: 
   
   const [isAnniversaryDialogOpen, setIsAnniversaryDialogOpen] = useState(false);
   const [anniversaryEvents, setAnniversaryEvents] = useState<(Guest | Reservation)[]>([]);
-  
+
+  const firestore = useFirestore();
+
+  const currentYearStart = useMemo(() => new Date(new Date().getFullYear(), 0, 1), []);
+
+  const guestsQuery = useMemoFirebase(() => {
+    if (!firestore) return null;
+    return query(collection(firestore, 'guests'), where('visitDate', '>=', currentYearStart));
+  }, [firestore, currentYearStart]);
+
+  const reservationsQuery = useMemoFirebase(() => {
+    if (!firestore) return null;
+    return query(collection(firestore, 'reservations'), where('dateOfEvent', '>=', currentYearStart));
+  }, [firestore, currentYearStart]);
+
+  const waitingGuestsQuery = useMemoFirebase(() => {
+    if (!firestore) return null;
+    return query(collection(firestore, 'waitingGuests'), where('status', '==', 'waiting'));
+  }, [firestore]);
+
+  const { data: rawGuests, isLoading: guestsLoading } = useCollection<(Omit<Guest, 'visitDate'> & { visitDate: Timestamp })>(guestsQuery);
+  const { data: rawReservations, isLoading: reservationsLoading } = useCollection<(Omit<Reservation, 'dateOfEvent'> & { dateOfEvent: Timestamp })>(reservationsQuery);
+  const { data: waitingGuests, isLoading: waitingGuestsLoading } = useCollection<WaitingGuest>(waitingGuestsQuery);
+
+  const guests = useMemo(() => convertGuestTimestamps(rawGuests || []), [rawGuests]);
+  const reservations = useMemo(() => convertReservationTimestamps(rawReservations || []), [rawReservations]);
+
   useEffect(() => {
     setIsClient(true);
     if (typeof window !== 'undefined') {
@@ -86,29 +127,7 @@ export function DashboardClientContent({ guests, reservations, waitingGuests }: 
   const sameDayLastWeekCount = guests.filter((g) => isSameDay(new Date(g.visitDate), lastWeekSameDay)).reduce((sum, guest) => sum + (Number(guest.numberOfGuests) || 0), 0);
   const totalWaiting = waitingGuests?.length || 0;
 
-  const handleWhatsAppBroadcast = () => {
-    if (isOffline) {
-        alert("This feature requires an internet connection.");
-        return;
-    }
-    const todaysGuests = guests.filter(g => isSameDay(new Date(g.visitDate), new Date()));
-    const phoneNumbers = todaysGuests
-      .map(guest => guest.phone)
-      .filter(phone => !!phone)
-      .map(phone => phone.replace(/\D/g, '')); // Remove non-numeric characters
-
-    if (phoneNumbers.length > 0) {
-      // The `wa.me` URL scheme does not support sending to a list.
-      // The best we can do is pre-fill the text and let the user select the contacts.
-      const text = encodeURIComponent("Good night and thank you for dining with us at HAVELI KEBAB & GRILL! We hope you enjoyed your meal and we look forward to seeing you again soon.");
-      const url = `https://wa.me/?text=${text}`;
-      window.open(url, '_blank');
-    } else {
-      alert("No guests with phone numbers were entered today.");
-    }
-  };
-
-  const isLoading = !isClient;
+  const isLoading = !isClient || guestsLoading || reservationsLoading || waitingGuestsLoading;
 
   if (!isClient) {
     // You can return a skeleton loader here if you want
@@ -206,12 +225,6 @@ export function DashboardClientContent({ guests, reservations, waitingGuests }: 
             </div>
             
         </main>
-        <div className="fixed bottom-4 right-4 z-20 print:hidden">
-            <Button onClick={handleWhatsAppBroadcast} size="lg" disabled={isOffline}>
-            <MessageSquare className="mr-2 h-5 w-5" />
-            WhatsApp Broadcast
-            </Button>
-        </div>
         
         <GuestDialog
             key={editingGuest?.id || 'new-dashboard-guest'}

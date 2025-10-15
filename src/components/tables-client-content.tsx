@@ -22,11 +22,7 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog"
 
-interface TablesClientContentProps {
-  initialTables: Table[];
-}
-
-export function TablesClientContent({ initialTables }: TablesClientContentProps) {
+export function TablesClientContent() {
   const { 
     openTableDialog, 
     isTableDialogOpen, 
@@ -47,7 +43,7 @@ export function TablesClientContent({ initialTables }: TablesClientContentProps)
 
   const { data: liveTables, isLoading } = useCollection<Table>(tablesQuery);
 
-  const dataToShow = useMemo(() => liveTables || initialTables, [liveTables, initialTables]);
+  const dataToShow = useMemo(() => liveTables || [], [liveTables]);
   
   const handleTableClick = (table: Table) => {
     if (table.status === 'available') {

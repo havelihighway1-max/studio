@@ -8,13 +8,8 @@ import { WaitingGuestDialog } from "@/components/waitlist-data-table/waitlist-di
 import { useCollection, useFirestore, useMemoFirebase } from "@/firebase";
 import { WaitingGuest } from "@/lib/types";
 import { collection, query } from "firebase/firestore";
-import { useMemo } from "react";
 
-interface WaitlistClientContentProps {
-  initialWaitingGuests: WaitingGuest[];
-}
-
-export function WaitlistClientContent({ initialWaitingGuests }: WaitlistClientContentProps) {
+export function WaitlistClientContent() {
   const { 
     openWaitingGuestDialog, 
     isWaitingGuestDialogOpen, 
@@ -30,8 +25,6 @@ export function WaitlistClientContent({ initialWaitingGuests }: WaitlistClientCo
 
   const { data: liveWaitingGuests, isLoading } = useCollection<WaitingGuest>(waitingGuestsQuery);
 
-  const dataToShow = useMemo(() => liveWaitingGuests || initialWaitingGuests, [liveWaitingGuests, initialWaitingGuests]);
-
   return (
     <>
       <main className="flex-1 p-4 md:p-6 lg:p-8">
@@ -42,7 +35,7 @@ export function WaitlistClientContent({ initialWaitingGuests }: WaitlistClientCo
           </p>
           </div>
 
-          <DataTable columns={columns} data={dataToShow} onAddWaitingGuest={openWaitingGuestDialog} isLoading={isLoading && !liveWaitingGuests}/>
+          <DataTable columns={columns} data={liveWaitingGuests || []} onAddWaitingGuest={openWaitingGuestDialog} isLoading={isLoading && !liveWaitingGuests}/>
       </main>
       <WaitingGuestDialog
           key={editingWaitingGuest?.id || 'new-waiting-guest'}
