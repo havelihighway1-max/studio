@@ -64,6 +64,9 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
                     </SidebarMenuButton>
                 </SidebarMenuItem>
              </SidebarMenu>
+            <div className="p-2 text-center text-xs text-muted-foreground/50">
+              created by Asif Khan
+            </div>
         </SidebarFooter>
       </Sidebar>
       {children}
