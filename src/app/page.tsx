@@ -2,16 +2,9 @@
 import { Header } from "@/components/header";
 import { Guest, Reservation, WaitingGuest } from "@/lib/types";
 import { collection, getDocs, query, Timestamp, where } from "firebase/firestore";
-import { initializeApp, getApps, getApp } from "firebase/app";
-import { firebaseConfig } from "@/firebase/config";
-import { getFirestore } from "firebase/firestore";
+import { getDb } from "@/firebase/config";
 import { DashboardClientContent } from "@/components/dashboard-client-content";
 
-// Helper function to initialize Firebase on the server
-const getDb = () => {
-    const app = !getApps().length ? initializeApp(firebaseConfig) : getApp();
-    return getFirestore(app);
-};
 
 // Helper function to safely convert Firestore Timestamps to Dates
 const convertGuestTimestamps = (guests: (Omit<Guest, 'visitDate'> & { visitDate: Timestamp })[]): Guest[] => {
