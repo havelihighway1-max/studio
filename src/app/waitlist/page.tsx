@@ -15,6 +15,7 @@ const convertWaitingGuestTimestamps = (guests: (Omit<WaitingGuest, 'createdAt'> 
 };
 
 async function getWaitingGuests() {
+  'use server';
   const db = getDb();
   let waitingGuests: WaitingGuest[] = [];
 

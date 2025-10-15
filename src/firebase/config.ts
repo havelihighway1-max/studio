@@ -12,26 +12,22 @@ export const firebaseConfig = {
 };
 
 // Singleton pattern to initialize and get Firebase instances
-let app: FirebaseApp;
-let db: Firestore;
-
-function initializeServerApp() {
-  if (!getApps().length) {
-    app = initializeApp(firebaseConfig);
-    db = getFirestore(app);
-  } else {
-    app = getApp();
-    db = getFirestore(app);
-  }
+function getFirebaseInstances() {
+    let app: FirebaseApp;
+    if (!getApps().length) {
+        app = initializeApp(firebaseConfig);
+    } else {
+        app = getApp();
+    }
+    const db = getFirestore(app);
+    return { app, db };
 }
 
-// Call initialization
-initializeServerApp();
 
 /**
  * Returns the Firestore database instance for server-side usage.
  * This ensures a single instance is used across the server.
  */
 export const getDb = (): Firestore => {
-  return db;
+  return getFirebaseInstances().db;
 };

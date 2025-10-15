@@ -16,6 +16,7 @@ const convertReservationTimestamps = (reservations: (Omit<Reservation, 'dateOfEv
 };
 
 async function getReservations() {
+  'use server';
   const db = getDb();
   let reservations: Reservation[] = [];
 

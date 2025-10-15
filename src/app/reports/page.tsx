@@ -16,6 +16,7 @@ const convertGuestTimestamps = (guests: (Omit<Guest, 'visitDate'> & { visitDate:
 };
 
 async function getGuests() {
+  'use server';
   const db = getDb();
   let guests: Guest[] = [];
 

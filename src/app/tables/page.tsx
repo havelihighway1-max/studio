@@ -6,6 +6,7 @@ import { Header } from "@/components/header";
 import { TablesClientContent } from "@/components/tables-client-content";
 
 async function getTables() {
+    'use server';
     const db = getDb();
     let tables: Table[] = [];
 
