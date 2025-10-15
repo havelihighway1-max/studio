@@ -173,7 +173,6 @@ export default function DashboardPage() {
                   <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                   <CardTitle className="text-sm font-medium">
                       Total Guests
-                      <span className="block text-xl text-primary/80">الحمد لله</span>
                   </CardTitle>
                   <Users className="h-4 w-4 text-muted-foreground" />
                   </CardHeader>
@@ -185,7 +184,6 @@ export default function DashboardPage() {
                   <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                   <CardTitle className="text-sm font-medium">
                       New Today
-                      <span className="block text-xl text-secondary-foreground/80">الحمد لله</span>
                   </CardTitle>
                   <Calendar className="h-4 w-4 text-muted-foreground" />
                   </CardHeader>
@@ -197,7 +195,6 @@ export default function DashboardPage() {
                   <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                   <CardTitle className="text-sm font-medium">
                       New This Month
-                      <span className="block text-xl text-accent-foreground/80">الحمد لله</span>
                   </CardTitle>
                   <UserPlus className="h-4 w-4 text-muted-foreground" />
                   </CardHeader>
@@ -209,7 +206,6 @@ export default function DashboardPage() {
                   <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                   <CardTitle className="text-sm font-medium text-yellow-700 dark:text-yellow-400">
                       Total Waiting
-                      <span className="block text-xl text-yellow-600/80 dark:text-yellow-500/80">إن شاء الله</span>
                   </CardTitle>
                   <Hourglass className="h-4 w-4 text-muted-foreground" />
                   </CardHeader>
@@ -221,7 +217,6 @@ export default function DashboardPage() {
                   <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                   <CardTitle className="text-sm font-medium text-blue-700 dark:text-blue-400">
                       Same Day Last Week
-                      <span className="block text-xl text-blue-600/80 dark:text-blue-500/80">الحمد لله</span>
                   </CardTitle>
                   <CalendarCheck className="h-4 w-4 text-muted-foreground" />
                   </CardHeader>
@@ -239,7 +234,6 @@ export default function DashboardPage() {
                   <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                   <CardTitle className="text-sm font-medium text-pink-700 dark:text-pink-400">
                       This Day in History
-                      <span className="block text-xl text-pink-600/80 dark:text-pink-500/80">ما شاء الله</span>
                   </CardTitle>
                   <History className="h-4 w-4 text-muted-foreground" />
                   </CardHeader>
@@ -276,5 +270,3 @@ export default function DashboardPage() {
     </DashboardLayout>
   );
 }
-
-    
