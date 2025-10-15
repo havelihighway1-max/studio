@@ -1,59 +1,37 @@
 
-'use client';
-
-import { useEffect, useState, useMemo, use } from 'react';
+import { doc, getDoc } from 'firebase/firestore';
+import { getDb } from '@/firebase/config';
 import { WaitingGuest } from '@/lib/types';
-import { Button } from '@/components/ui/button';
-import { Printer } from 'lucide-react';
-import { useDoc, useFirestore, useMemoFirebase } from '@/firebase';
-import { doc } from 'firebase/firestore';
+import { TokenPrintClientContent } from '@/components/waitlist-token-client-content';
 
-export default function TokenPrintPage({ params }: { params: { id: string } }) {
-  const firestore = useFirestore();
-  const { id } = params; // Next.js 15 can sometimes make params a promise. This handles it.
-  
-  const guestDocRef = useMemoFirebase(() => doc(firestore, 'waitingGuests', id), [firestore, id]);
-  const { data: guest, isLoading } = useDoc<WaitingGuest>(guestDocRef);
+async function getWaitingGuest(id: string): Promise<WaitingGuest | null> {
+  if (!id) return null;
+  try {
+    const db = getDb();
+    const guestDocRef = doc(db, 'waitingGuests', id);
+    const docSnap = await getDoc(guestDocRef);
 
-  if (isLoading) {
-    return (
-      <div className="flex items-center justify-center h-screen bg-gray-100">
-        <p className="text-2xl text-gray-600">Loading guest details...</p>
-      </div>
-    );
+    if (docSnap.exists()) {
+      // The timestamp will be automatically serialized when passed from RSC to Client Component
+      return { ...docSnap.data(), id: docSnap.id } as WaitingGuest;
+    }
+    return null;
+  } catch (error) {
+    console.error("Error fetching waiting guest:", error);
+    return null;
   }
+}
+
+export default async function TokenPrintPage({ params }: { params: { id: string } }) {
+  const guest = await getWaitingGuest(params.id);
 
   if (!guest) {
-     return (
+    return (
       <div className="flex items-center justify-center h-screen bg-gray-100">
-        <p className="text-2xl text-gray-600">Guest not found.</p>
+        <p className="text-2xl text-gray-600">Guest not found or could not be loaded.</p>
       </div>
     );
   }
 
-  return (
-    <div className="flex flex-col items-center justify-center h-screen bg-gray-100 p-4 print:bg-white">
-      <div className="w-full max-w-xs p-8 text-center bg-white rounded-lg shadow-2xl border-4 border-dashed border-gray-400 print:shadow-none print:border-none">
-        <h1 className="text-2xl font-bold font-headline text-gray-800">HAVELI KEBAB & GRILL</h1>
-        <p className="mt-2 text-sm text-gray-500">Your Token</p>
-        <div className="my-6">
-          <p className="text-8xl font-bold text-primary tabular-nums">{guest.tokenNumber}</p>
-        </div>
-        <p className="text-xl font-semibold text-gray-700">{guest.name}</p>
-        <p className="text-md text-gray-600">Party of {guest.numberOfGuests}</p>
-        <p className="mt-4 text-xs text-gray-500">
-          Issued: {new Date(guest.createdAt).toLocaleTimeString()}
-        </p>
-      </div>
-      <div className="mt-8 text-center print:hidden">
-        <Button onClick={() => window.print()}>
-          <Printer className="mr-2 h-5 w-5" />
-          Print Token
-        </Button>
-        <Button variant="link" onClick={() => window.close()} className="ml-4">
-          Close
-        </Button>
-      </div>
-    </div>
-  );
+  return <TokenPrintClientContent guest={guest} />;
 }
