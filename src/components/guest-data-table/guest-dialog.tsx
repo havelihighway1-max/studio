@@ -155,7 +155,7 @@ export function GuestDialog({ open, onOpenChange, guest }: GuestDialogProps) {
                     <FormItem>
                       <FormLabel>Party Size</FormLabel>
                       <FormControl>
-                        <Input type="number" min="1" {...field} onChange={e => field.onChange(parseInt(e.target.value, 10))} />
+                        <Input type="number" min="1" {...field} onChange={e => field.onChange(e.target.value === '' ? '' : parseInt(e.target.value, 10))} value={field.value === 0 ? '' : field.value} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>

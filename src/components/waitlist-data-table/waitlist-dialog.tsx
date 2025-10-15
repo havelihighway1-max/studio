@@ -119,7 +119,7 @@ export function WaitingGuestDialog({ open, onOpenChange, guest }: WaitingGuestDi
                   <FormItem>
                     <FormLabel>Number of Guests</FormLabel>
                     <FormControl>
-                      <Input type="number" min="1" {...field} onChange={e => field.onChange(parseInt(e.target.value))} />
+                      <Input type="number" min="1" {...field} onChange={e => field.onChange(e.target.value === '' ? '' : parseInt(e.target.value))} value={field.value === 0 ? '' : field.value} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
