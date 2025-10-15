@@ -42,4 +42,5 @@ export default withPWA({
   register: true,
   skipWaiting: true,
   disable: false,
+  reloadOnOnline: false,
 })(nextConfig);
