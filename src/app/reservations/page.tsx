@@ -1,54 +1,44 @@
 
-"use client";
-
-import { useGuestStore } from "@/hooks/use-guest-store";
-import { Header } from "@/components/header";
-import { ReservationDialog } from "@/components/reservation-data-table/reservation-dialog";
-import { DataTable } from "@/components/reservation-data-table/data-table";
-import { columns } from "@/components/reservation-data-table/columns";
-import { useCollection, useFirestore, useMemoFirebase } from "@/firebase";
 import { Reservation } from "@/lib/types";
-import { collection, query } from "firebase/firestore";
-import { useMemo } from "react";
+import { collection, getDocs, query, Timestamp } from "firebase/firestore";
+import { getDb } from "@/firebase/config";
+import { Header } from "@/components/header";
+import { ReservationsClientContent } from "@/components/reservations-client-content";
 
-export default function ReservationsPage() {
-  const { 
-    openReservationDialog, 
-    isReservationDialogOpen, 
-    closeReservationDialog,
-    editingReservation,
-  } = useGuestStore();
-  const firestore = useFirestore();
+// Helper function to safely convert Firestore Timestamps to Dates
+const convertReservationTimestamps = (reservations: (Omit<Reservation, 'dateOfEvent'> & { dateOfEvent: Timestamp })[]): Reservation[] => {
+  return reservations
+    .filter(r => r.dateOfEvent)
+    .map(r => ({
+      ...r,
+      dateOfEvent: r.dateOfEvent.toDate(),
+    }));
+};
 
-  const reservationsQuery = useMemoFirebase(() => {
-    if (!firestore) return null;
-    return query(collection(firestore, 'reservations'));
-  }, [firestore]);
+async function getReservations() {
+  const db = getDb();
+  let reservations: Reservation[] = [];
 
-  const { data: reservations, isLoading } = useCollection<Reservation>(reservationsQuery);
+  try {
+    const reservationsQuery = query(collection(db, 'reservations'));
+    const reservationsSnapshot = await getDocs(reservationsQuery);
+    const rawReservations = reservationsSnapshot.docs.map(doc => ({ ...doc.data(), id: doc.id })) as (Omit<Reservation, 'dateOfEvent'> & { dateOfEvent: Timestamp })[];
+    reservations = convertReservationTimestamps(rawReservations);
+  } catch (e) {
+      console.error("Could not fetch reservations data. This might be due to Firestore API not being enabled.", e);
+  }
+  
+  return reservations;
+}
 
-  const safeReservations = useMemo(() => reservations || [], [reservations]);
 
+export default async function ReservationsPage() {
+  const reservations = await getReservations();
 
   return (
     <div className="flex min-h-screen w-full flex-col bg-background">
-    <Header />
-    <main className="flex-1 p-4 md:p-6 lg:p-8">
-        <div className="mb-8">
-        <h1 className="font-headline text-4xl font-bold">Reservations</h1>
-        <p className="text-muted-foreground">
-            Manage your upcoming and past reservations.
-        </p>
-        </div>
-
-        <DataTable columns={columns} data={safeReservations} onAddReservation={openReservationDialog} isLoading={isLoading}/>
-    </main>
-    <ReservationDialog
-        key={editingReservation?.id || 'new-reservation'}
-        open={isReservationDialogOpen}
-        onOpenChange={(isOpen) => !isOpen && closeReservationDialog()}
-        reservation={editingReservation}
-    />
+      <Header />
+      <ReservationsClientContent initialReservations={reservations} />
     </div>
   );
 }

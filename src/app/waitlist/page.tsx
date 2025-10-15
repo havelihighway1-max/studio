@@ -1,52 +1,42 @@
 
-"use client";
-
-import { useGuestStore } from "@/hooks/use-guest-store";
-import { Header } from "@/components/header";
-import { DataTable } from "@/components/waitlist-data-table/data-table";
-import { columns } from "@/components/waitlist-data-table/columns";
-import { WaitingGuestDialog } from "@/components/waitlist-data-table/waitlist-dialog";
-import { useCollection, useFirestore, useMemoFirebase } from "@/firebase";
 import { WaitingGuest } from "@/lib/types";
-import { collection, query } from "firebase/firestore";
-import { useMemo } from "react";
+import { collection, getDocs, query, Timestamp } from "firebase/firestore";
+import { getDb } from "@/firebase/config";
+import { Header } from "@/components/header";
+import { WaitlistClientContent } from "@/components/waitlist-client-content";
 
-export default function WaitlistPage() {
-  const { 
-    openWaitingGuestDialog, 
-    isWaitingGuestDialogOpen, 
-    closeWaitingGuestDialog,
-    editingWaitingGuest,
-  } = useGuestStore();
-  const firestore = useFirestore();
+const convertWaitingGuestTimestamps = (guests: (Omit<WaitingGuest, 'createdAt'> & { createdAt: Timestamp })[]): WaitingGuest[] => {
+  return guests
+    .filter(g => g.createdAt)
+    .map(g => ({
+      ...g,
+      createdAt: g.createdAt.toDate(),
+    }));
+};
 
-  const waitingGuestsQuery = useMemoFirebase(() => {
-    if (!firestore) return null;
-    return query(collection(firestore, 'waitingGuests'));
-  }, [firestore]);
+async function getWaitingGuests() {
+  const db = getDb();
+  let waitingGuests: WaitingGuest[] = [];
 
-  const { data: waitingGuests, isLoading } = useCollection<WaitingGuest>(waitingGuestsQuery);
-  const safeWaitingGuests = useMemo(() => waitingGuests || [], [waitingGuests]);
+  try {
+    const waitingGuestsQuery = query(collection(db, 'waitingGuests'));
+    const waitingGuestsSnapshot = await getDocs(waitingGuestsQuery);
+    const rawGuests = waitingGuestsSnapshot.docs.map(doc => ({ ...doc.data(), id: doc.id })) as (Omit<WaitingGuest, 'createdAt'> & { createdAt: Timestamp })[];
+    waitingGuests = convertWaitingGuestTimestamps(rawGuests);
+  } catch (e) {
+      console.error("Could not fetch waiting guests data. This might be due to Firestore API not being enabled.", e);
+  }
+
+  return waitingGuests;
+}
+
+export default async function WaitlistPage() {
+  const waitingGuests = await getWaitingGuests();
 
   return (
     <div className="flex min-h-screen w-full flex-col bg-background">
-    <Header />
-    <main className="flex-1 p-4 md:p-6 lg:p-8">
-        <div className="mb-8">
-        <h1 className="font-headline text-4xl font-bold">Waiting List</h1>
-        <p className="text-muted-foreground">
-            Manage guests waiting for a table.
-        </p>
-        </div>
-
-        <DataTable columns={columns} data={safeWaitingGuests} onAddWaitingGuest={openWaitingGuestDialog} isLoading={isLoading}/>
-    </main>
-    <WaitingGuestDialog
-        key={editingWaitingGuest?.id || 'new-waiting-guest'}
-        open={isWaitingGuestDialogOpen}
-        onOpenChange={(isOpen) => !isOpen && closeWaitingGuestDialog()}
-        guest={editingWaitingGuest}
-    />
+      <Header />
+      <WaitlistClientContent initialWaitingGuests={waitingGuests} />
     </div>
   );
 }
