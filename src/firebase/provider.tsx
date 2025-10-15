@@ -3,7 +3,7 @@
 
 import React, { DependencyList, createContext, useContext, ReactNode, useMemo, useState, useEffect } from 'react';
 import { FirebaseApp, getApp, getApps, initializeApp } from 'firebase/app';
-import { Firestore, getFirestore } from 'firebase/firestore';
+import { Firestore, getFirestore, enableIndexedDbPersistence } from 'firebase/firestore';
 import { Auth, getAuth } from 'firebase/auth';
 import { FirebaseErrorListener } from '@/components/FirebaseErrorListener';
 import { firebaseConfig } from './config';
@@ -45,6 +45,19 @@ export const FirebaseProvider: React.FC<{children: ReactNode}> = ({
     const app = !getApps().length ? initializeApp(firebaseConfig) : getApp();
     const auth = getAuth(app);
     const firestore = getFirestore(app);
+    
+    enableIndexedDbPersistence(firestore).catch((err) => {
+      if (err.code == 'failed-precondition') {
+        // Multiple tabs open, persistence can only be enabled
+        // in one tab at a time.
+        console.warn('Firestore persistence failed: multiple tabs open.');
+      } else if (err.code == 'unimplemented') {
+        // The current browser does not support all of the
+        // features required to enable persistence.
+        console.warn('Firestore persistence not available in this browser.');
+      }
+    });
+
     setSdks({ app, auth, firestore });
   }, []);
 
