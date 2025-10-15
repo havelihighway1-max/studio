@@ -16,7 +16,6 @@ import {
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Users, Calendar, UserPlus, CalendarCheck, MessageSquare, History, WifiOff, Hourglass } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { PlaceHolderImages } from "@/lib/placeholder-images";
 import { AnniversaryDialog } from "@/components/anniversary-dialog";
 import { Guest, Reservation, WaitingGuest } from "@/lib/types";
 import { cn } from "@/lib/utils";
@@ -77,8 +76,6 @@ export default function DashboardPage() {
   const [isAnniversaryDialogOpen, setIsAnniversaryDialogOpen] = useState(false);
   const [anniversaryEvents, setAnniversaryEvents] = useState<(Guest | Reservation)[]>([]);
   
-  const backgroundImage = PlaceHolderImages.find(img => img.id === 'crowd-background');
-
   useEffect(() => {
     setIsClient(true);
     if (typeof window !== 'undefined') {
@@ -162,17 +159,16 @@ export default function DashboardPage() {
   return (
     <DashboardLayout>
         <div className="relative flex min-h-screen w-full flex-col">
-        {backgroundImage && (
-            <Image
-            src={backgroundImage.imageUrl}
-            alt={backgroundImage.description}
+          <Image
+            src="https://picsum.photos/seed/restaurant/1280/720"
+            alt="A background image of a bustling restaurant."
             fill
-            className="object-cover object-center filter blur-sm brightness-50"
-            data-ai-hint={backgroundImage.imageHint}
+            className="object-cover object-center"
+            data-ai-hint="restaurant crowd"
             priority
-            />
-        )}
-        <div className="relative z-10 flex min-h-screen w-full flex-col">
+          />
+          <div className="absolute inset-0 bg-black/60 backdrop-blur-sm backdrop-brightness-75" />
+          <div className="relative z-10 flex min-h-screen w-full flex-col">
             <Header />
             <main className="flex-1 p-4 md:p-6 lg:p-8">
                 {isOffline && (
@@ -293,3 +289,4 @@ export default function DashboardPage() {
     </DashboardLayout>
   );
 }
+
