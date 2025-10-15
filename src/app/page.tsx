@@ -1,9 +1,7 @@
 
-
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import Image from "next/image";
 import { Header } from "@/components/header";
 import { useGuestStore } from "@/hooks/use-guest-store";
 import { GuestDialog } from "@/components/guest-data-table/guest-dialog";
@@ -158,120 +156,110 @@ export default function DashboardPage() {
 
   return (
     <DashboardLayout>
-        <div className="relative flex min-h-screen w-full flex-col">
-          <Image
-            src="https://picsum.photos/seed/restaurant/1280/720"
-            alt="A background image of a bustling restaurant."
-            fill
-            className="object-cover object-center"
-            data-ai-hint="restaurant crowd"
-            priority
-          />
-          <div className="absolute inset-0 bg-black/60 backdrop-blur-sm backdrop-brightness-75" />
-          <div className="relative z-10 flex min-h-screen w-full flex-col">
-            <Header />
-            <main className="flex-1 p-4 md:p-6 lg:p-8">
-                {isOffline && (
-                    <Alert variant="destructive" className="mb-4">
-                    <WifiOff className="h-4 w-4" />
-                    <AlertTitle>You are offline</AlertTitle>
-                    <AlertDescription>
-                        Some features may be unavailable. Your data is being saved locally and will sync when you're back online.
-                    </AlertDescription>
-                    </Alert>
-                )}
-                <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6">
-                <Card className="border-chart-1 bg-chart-1">
-                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                    <CardTitle className="text-sm font-medium">
-                        Total Guests
-                        <span className="block text-xl text-accent-foreground">الحمد لله</span>
-                    </CardTitle>
-                    <Users className="h-4 w-4 text-muted-foreground" />
-                    </CardHeader>
-                    <CardContent>
-                    <div className="text-2xl font-bold">{isLoading ? '...' : totalGuests}</div>
-                    </CardContent>
-                </Card>
-                <Card className="border-chart-2 bg-chart-2">
-                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                    <CardTitle className="text-sm font-medium">
-                        New Today
-                        <span className="block text-xl text-accent-foreground">الحمد لله</span>
-                    </CardTitle>
-                    <Calendar className="h-4 w-4 text-muted-foreground" />
-                    </CardHeader>
-                    <CardContent>
-                    <div className="text-2xl font-bold">{isLoading ? '...' : `+${newToday}`}</div>
-                    </CardContent>
-                </Card>
-                <Card className="border-chart-3 bg-chart-3">
-                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                    <CardTitle className="text-sm font-medium">
-                        New This Month
-                        <span className="block text-xl text-accent-foreground">الحمد لله</span>
-                    </CardTitle>
-                    <UserPlus className="h-4 w-4 text-muted-foreground" />
-                    </CardHeader>
-                    <CardContent>
-                    <div className="text-2xl font-bold">{isLoading ? '...' : `+${newThisMonth}`}</div>
-                    </CardContent>
-                </Card>
-                <Card className="border-yellow-500 bg-yellow-500/80">
-                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                    <CardTitle className="text-sm font-medium text-black">
-                        Total Waiting
-                        <span className="block text-xl text-yellow-900">إن شاء الله</span>
-                    </CardTitle>
-                    <Hourglass className="h-4 w-4 text-black/70" />
-                    </CardHeader>
-                    <CardContent>
-                    <div className="text-2xl font-bold text-black">{isLoading ? '...' : totalWaiting}</div>
-                    </CardContent>
-                </Card>
-                <Card className="border-chart-4 bg-chart-4">
-                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                    <CardTitle className="text-sm font-medium">
-                        Same Day Last Week
-                        <span className="block text-xl text-accent-foreground">الحمد لله</span>
-                    </CardTitle>
-                    <CalendarCheck className="h-4 w-4 text-muted-foreground" />
-                    </CardHeader>
-                    <CardContent>
-                    <div className="text-2xl font-bold">{isLoading ? '...' : sameDayLastWeekCount}</div>
-                    </CardContent>
-                </Card>
-                <Card
-                    className={cn(
-                    "border-chart-5 bg-chart-5",
-                    anniversaryEvents.length > 0 && !isLoading ? "cursor-pointer hover:bg-chart-5/90" : ""
-                    )}
-                    onClick={() => anniversaryEvents.length > 0 && !isLoading && setIsAnniversaryDialogOpen(true)}
-                >
-                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                    <CardTitle className="text-sm font-medium">
-                        This Day in History
-                        <span className="block text-xl text-accent-foreground">ما شاء الله</span>
-                    </CardTitle>
-                    <History className="h-4 w-4 text-muted-foreground" />
-                    </CardHeader>
-                    <CardContent>
-                    <div className="text-2xl font-bold">{isLoading ? '...' : anniversaryEvents.length}</div>
-                    <p className="text-xs text-muted-foreground">
-                        {isLoading ? 'Loading...' : (anniversaryEvents.length > 0 ? "Click to view anniversaries" : "No events from past years")}
-                    </p>
-                    </CardContent>
-                </Card>
-                </div>
-                
-            </main>
-            <div className="fixed bottom-4 right-4 z-20 print:hidden">
-                <Button onClick={handleWhatsAppBroadcast} size="lg" disabled={isOffline}>
-                <MessageSquare className="mr-2 h-5 w-5" />
-                WhatsApp Broadcast
-                </Button>
-            </div>
-            </div>
+        <div className="flex min-h-screen w-full flex-col bg-background">
+          <Header />
+          <main className="flex-1 p-4 md:p-6 lg:p-8">
+              {isOffline && (
+                  <Alert variant="destructive" className="mb-4">
+                  <WifiOff className="h-4 w-4" />
+                  <AlertTitle>You are offline</AlertTitle>
+                  <AlertDescription>
+                      Some features may be unavailable. Your data is being saved locally and will sync when you're back online.
+                  </AlertDescription>
+                  </Alert>
+              )}
+              <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6">
+              <Card className="border-primary bg-primary/10">
+                  <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                  <CardTitle className="text-sm font-medium">
+                      Total Guests
+                      <span className="block text-xl text-primary/80">الحمد لله</span>
+                  </CardTitle>
+                  <Users className="h-4 w-4 text-muted-foreground" />
+                  </CardHeader>
+                  <CardContent>
+                  <div className="text-2xl font-bold">{isLoading ? '...' : totalGuests}</div>
+                  </CardContent>
+              </Card>
+              <Card className="border-secondary bg-secondary/10">
+                  <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                  <CardTitle className="text-sm font-medium">
+                      New Today
+                      <span className="block text-xl text-secondary-foreground/80">الحمد لله</span>
+                  </CardTitle>
+                  <Calendar className="h-4 w-4 text-muted-foreground" />
+                  </CardHeader>
+                  <CardContent>
+                  <div className="text-2xl font-bold">{isLoading ? '...' : `+${newToday}`}</div>
+                  </CardContent>
+              </Card>
+              <Card className="border-accent bg-accent/10">
+                  <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                  <CardTitle className="text-sm font-medium">
+                      New This Month
+                      <span className="block text-xl text-accent-foreground/80">الحمد لله</span>
+                  </CardTitle>
+                  <UserPlus className="h-4 w-4 text-muted-foreground" />
+                  </CardHeader>
+                  <CardContent>
+                  <div className="text-2xl font-bold">{isLoading ? '...' : `+${newThisMonth}`}</div>
+                  </CardContent>
+              </Card>
+              <Card className="border-yellow-500 bg-yellow-500/10">
+                  <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                  <CardTitle className="text-sm font-medium text-yellow-700 dark:text-yellow-400">
+                      Total Waiting
+                      <span className="block text-xl text-yellow-600/80 dark:text-yellow-500/80">إن شاء الله</span>
+                  </CardTitle>
+                  <Hourglass className="h-4 w-4 text-muted-foreground" />
+                  </CardHeader>
+                  <CardContent>
+                  <div className="text-2xl font-bold">{isLoading ? '...' : totalWaiting}</div>
+                  </CardContent>
+              </Card>
+              <Card className="border-blue-500 bg-blue-500/10">
+                  <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                  <CardTitle className="text-sm font-medium text-blue-700 dark:text-blue-400">
+                      Same Day Last Week
+                      <span className="block text-xl text-blue-600/80 dark:text-blue-500/80">الحمد لله</span>
+                  </CardTitle>
+                  <CalendarCheck className="h-4 w-4 text-muted-foreground" />
+                  </CardHeader>
+                  <CardContent>
+                  <div className="text-2xl font-bold">{isLoading ? '...' : sameDayLastWeekCount}</div>
+                  </CardContent>
+              </Card>
+              <Card
+                  className={cn(
+                  "border-pink-500 bg-pink-500/10",
+                  anniversaryEvents.length > 0 && !isLoading ? "cursor-pointer hover:bg-pink-500/20" : ""
+                  )}
+                  onClick={() => anniversaryEvents.length > 0 && !isLoading && setIsAnniversaryDialogOpen(true)}
+              >
+                  <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                  <CardTitle className="text-sm font-medium text-pink-700 dark:text-pink-400">
+                      This Day in History
+                      <span className="block text-xl text-pink-600/80 dark:text-pink-500/80">ما شاء الله</span>
+                  </CardTitle>
+                  <History className="h-4 w-4 text-muted-foreground" />
+                  </CardHeader>
+                  <CardContent>
+                  <div className="text-2xl font-bold">{isLoading ? '...' : anniversaryEvents.length}</div>
+                  <p className="text-xs text-muted-foreground">
+                      {isLoading ? 'Loading...' : (anniversaryEvents.length > 0 ? "Click to view anniversaries" : "No events from past years")}
+                  </p>
+                  </CardContent>
+              </Card>
+              </div>
+              
+          </main>
+          <div className="fixed bottom-4 right-4 z-20 print:hidden">
+              <Button onClick={handleWhatsAppBroadcast} size="lg" disabled={isOffline}>
+              <MessageSquare className="mr-2 h-5 w-5" />
+              WhatsApp Broadcast
+              </Button>
+          </div>
+        </div>
 
         <GuestDialog
             key={useGuestStore.getState().editingGuest?.id || 'new'}
@@ -285,8 +273,8 @@ export default function DashboardPage() {
         onOpenChange={setIsAnniversaryDialogOpen}
         events={anniversaryEvents}
       />
-        </div>
     </DashboardLayout>
   );
 }
 
+    
