@@ -3,7 +3,6 @@ import type { Metadata } from 'next';
 import './globals.css';
 import { Toaster } from "@/components/ui/toaster";
 import { FirebaseProvider } from '@/firebase';
-import 'react-simple-keyboard/build/css/index.css';
 import { KeyboardProvider } from '@/components/keyboard-provider';
 import { PT_Sans, Playfair_Display } from 'next/font/google';
 import { cn } from '@/lib/utils';
