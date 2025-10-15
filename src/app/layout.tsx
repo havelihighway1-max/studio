@@ -7,6 +7,7 @@ import 'react-simple-keyboard/build/css/index.css';
 import { KeyboardProvider } from '@/components/keyboard-provider';
 import { PT_Sans, Playfair_Display } from 'next/font/google';
 import { cn } from '@/lib/utils';
+import { DashboardLayout } from '@/components/dashboard-layout';
 
 const ptSans = PT_Sans({
   subsets: ['latin'],
@@ -36,7 +37,9 @@ export default function RootLayout({
       <body className={cn("font-body antialiased", ptSans.variable, playfairDisplay.variable)}>
         <FirebaseProvider>
           <KeyboardProvider>
-            {children}
+            <DashboardLayout>
+              {children}
+            </DashboardLayout>
           </KeyboardProvider>
         </FirebaseProvider>
         <Toaster />

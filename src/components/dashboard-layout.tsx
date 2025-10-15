@@ -32,39 +32,43 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
 
   return (
     <SidebarProvider>
-      <Sidebar>
-        <SidebarHeader>
-             <Link href="/" className="font-headline text-2xl font-bold text-primary">
-                HAVELI
-            </Link>
-        </SidebarHeader>
-        <SidebarContent>
-          <SidebarMenu>
-            {menuItems.map(item => (
-                 <SidebarMenuItem key={item.href}>
-                    <SidebarMenuButton asChild tooltip={item.label} isActive={pathname === item.href}>
-                        <Link href={item.href}>
-                            <item.icon />
-                            <span>{item.label}</span>
-                        </Link>
-                    </SidebarMenuButton>
-                </SidebarMenuItem>
-            ))}
-            <SidebarMenuItem>
-                <SidebarMenuButton onClick={() => openGuestDialog()} tooltip="Add a walk-in guest">
-                    <PlusCircle />
-                    <span>Walking Guest</span>
-                </SidebarMenuButton>
-            </SidebarMenuItem>
-          </SidebarMenu>
-        </SidebarContent>
-        <SidebarFooter>
-            <div className="p-2 text-center text-xs text-muted-foreground/50">
-              created by Asif Khan
-            </div>
-        </SidebarFooter>
-      </Sidebar>
-      {children}
+      <div className="flex">
+        <Sidebar>
+          <SidebarHeader>
+              <Link href="/" className="font-headline text-2xl font-bold text-primary">
+                  HAVELI
+              </Link>
+          </SidebarHeader>
+          <SidebarContent>
+            <SidebarMenu>
+              {menuItems.map(item => (
+                  <SidebarMenuItem key={item.href}>
+                      <SidebarMenuButton asChild tooltip={item.label} isActive={pathname === item.href}>
+                          <Link href={item.href}>
+                              <item.icon />
+                              <span>{item.label}</span>
+                          </Link>
+                      </SidebarMenuButton>
+                  </SidebarMenuItem>
+              ))}
+              <SidebarMenuItem>
+                  <SidebarMenuButton onClick={() => openGuestDialog()} tooltip="Add a walk-in guest">
+                      <PlusCircle />
+                      <span>Walking Guest</span>
+                  </SidebarMenuButton>
+              </SidebarMenuItem>
+            </SidebarMenu>
+          </SidebarContent>
+          <SidebarFooter>
+              <div className="p-2 text-center text-xs text-muted-foreground/50">
+                created by Asif Khan
+              </div>
+          </SidebarFooter>
+        </Sidebar>
+        <main className="flex-1">
+          {children}
+        </main>
+      </div>
     </SidebarProvider>
   );
 }

@@ -1,7 +1,6 @@
 
 import { Header } from "@/components/header";
 import { Guest, Reservation, WaitingGuest } from "@/lib/types";
-import { DashboardLayout } from "@/components/dashboard-layout";
 import { collection, getDocs, query, Timestamp, where } from "firebase/firestore";
 import { initializeApp, getApps, getApp } from "firebase/app";
 import { firebaseConfig } from "@/firebase/config";
@@ -72,11 +71,9 @@ export default async function DashboardPage() {
   const { guests, reservations, waitingGuests } = await getDashboardData();
 
   return (
-    <DashboardLayout>
-        <div className="flex min-h-screen w-full flex-col bg-background">
-          <Header />
-          <DashboardClientContent guests={guests} reservations={reservations} waitingGuests={waitingGuests} />
-        </div>
-    </DashboardLayout>
+    <div className="flex min-h-screen w-full flex-col bg-background">
+      <Header />
+      <DashboardClientContent guests={guests} reservations={reservations} waitingGuests={waitingGuests} />
+    </div>
   );
 }

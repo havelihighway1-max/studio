@@ -22,7 +22,6 @@ import { cn } from "@/lib/utils";
 import { Header } from "@/components/header";
 import { GuestDialog } from "@/components/guest-data-table/guest-dialog";
 import { useCollection, useFirestore, useMemoFirebase } from "@/firebase";
-import { DashboardLayout } from "@/components/dashboard-layout";
 
 const convertGuestTimestamps = (guests: (Omit<Guest, 'visitDate'> & { visitDate: Timestamp })[]): Guest[] => {
   return guests
@@ -60,83 +59,81 @@ export default function ReportsPage() {
   }, [safeGuests, date]);
 
   return (
-     <DashboardLayout>
-        <div className="flex min-h-screen w-full flex-col bg-background print:bg-white">
-            <Header />
-            <main className="flex-1 p-4 md:p-6 lg:p-8 print:p-0">
-                <div className="mb-8 print:hidden">
-                <h1 className="font-headline text-4xl font-bold">Guest Reports</h1>
-                <p className="text-muted-foreground">
-                    Analyze your guest data by selecting a date range. All guests are shown by default.
-                </p>
-                </div>
+    <div className="flex min-h-screen w-full flex-col bg-background print:bg-white">
+        <Header />
+        <main className="flex-1 p-4 md:p-6 lg:p-8 print:p-0">
+            <div className="mb-8 print:hidden">
+            <h1 className="font-headline text-4xl font-bold">Guest Reports</h1>
+            <p className="text-muted-foreground">
+                Analyze your guest data by selecting a date range. All guests are shown by default.
+            </p>
+            </div>
 
-                <div className="mb-8 flex items-center gap-4 print:hidden">
-                <Popover>
-                    <PopoverTrigger asChild>
-                    <Button
-                        id="date"
-                        variant={"outline"}
-                        className={cn(
-                        "w-[300px] justify-start text-left font-normal",
-                        !date && "text-muted-foreground"
-                        )}
-                    >
-                        <CalendarIcon className="mr-2 h-4 w-4" />
-                        {date?.from ? (
-                        date.to ? (
-                            <>
-                            {format(date.from, "LLL dd, y")} -{" "}
-                            {format(date.to, "LLL dd, y")}
-                            </>
-                        ) : (
-                            format(date.from, "LLL dd, y")
-                        )
-                        ) : (
-                        <span>Pick a date range</span>
-                        )}
-                    </Button>
-                    </PopoverTrigger>
-                    <PopoverContent className="w-auto p-0" align="start">
-                    <Calendar
-                        initialFocus
-                        mode="range"
-                        defaultMonth={date?.from}
-                        selected={date}
-                        onSelect={setDate}
-                        numberOfMonths={2}
-                    />
-                    </PopoverContent>
-                </Popover>
-                <p className="text-muted-foreground">
-                    Showing <strong>{filteredGuests.length}</strong> of <strong>{safeGuests.length}</strong> guests.
-                </p>
-                <Button onClick={() => window.print()} variant="outline" className="ml-auto">
-                    <Printer className="mr-2 h-4 w-4" />
-                    Print Report
+            <div className="mb-8 flex items-center gap-4 print:hidden">
+            <Popover>
+                <PopoverTrigger asChild>
+                <Button
+                    id="date"
+                    variant={"outline"}
+                    className={cn(
+                    "w-[300px] justify-start text-left font-normal",
+                    !date && "text-muted-foreground"
+                    )}
+                >
+                    <CalendarIcon className="mr-2 h-4 w-4" />
+                    {date?.from ? (
+                    date.to ? (
+                        <>
+                        {format(date.from, "LLL dd, y")} -{" "}
+                        {format(date.to, "LLL dd, y")}
+                        </>
+                    ) : (
+                        format(date.from, "LLL dd, y")
+                    )
+                    ) : (
+                    <span>Pick a date range</span>
+                    )}
                 </Button>
-                </div>
+                </PopoverTrigger>
+                <PopoverContent className="w-auto p-0" align="start">
+                <Calendar
+                    initialFocus
+                    mode="range"
+                    defaultMonth={date?.from}
+                    selected={date}
+                    onSelect={setDate}
+                    numberOfMonths={2}
+                />
+                </PopoverContent>
+            </Popover>
+            <p className="text-muted-foreground">
+                Showing <strong>{filteredGuests.length}</strong> of <strong>{safeGuests.length}</strong> guests.
+            </p>
+            <Button onClick={() => window.print()} variant="outline" className="ml-auto">
+                <Printer className="mr-2 h-4 w-4" />
+                Print Report
+            </Button>
+            </div>
 
-                <div className="print:block" id="print-area">
-                <div className="mb-4 hidden print:block">
-                    <h1 className="font-headline text-2xl font-bold">Guest Report</h1>
-                    <p className="text-sm">
-                        Date Range: {date?.from ? format(date.from, "LLL dd, y") : 'All Time'} - {date?.to ? format(date.to, "LLL dd, y") : ''}
-                    </p>
-                    <p className="text-sm">
-                        Total Guests in Report: <strong>{filteredGuests.length}</strong>
-                    </p>
-                </div>
-                <DataTable columns={columns} data={filteredGuests} isLoading={isLoading} />
-                </div>
-            </main>
-            <GuestDialog
-                key={useGuestStore.getState().editingGuest?.id || 'new-report'}
-                open={isGuestDialogOpen}
-                onOpenChange={(isOpen) => !isOpen && closeGuestDialog()}
-                guest={useGuestStore.getState().editingGuest}
-            />
-        </div>
-    </DashboardLayout>
+            <div className="print:block" id="print-area">
+            <div className="mb-4 hidden print:block">
+                <h1 className="font-headline text-2xl font-bold">Guest Report</h1>
+                <p className="text-sm">
+                    Date Range: {date?.from ? format(date.from, "LLL dd, y") : 'All Time'} - {date?.to ? format(date.to, "LLL dd, y") : ''}
+                </p>
+                <p className="text-sm">
+                    Total Guests in Report: <strong>{filteredGuests.length}</strong>
+                </p>
+            </div>
+            <DataTable columns={columns} data={filteredGuests} isLoading={isLoading} />
+            </div>
+        </main>
+        <GuestDialog
+            key={useGuestStore.getState().editingGuest?.id || 'new-report'}
+            open={isGuestDialogOpen}
+            onOpenChange={(isOpen) => !isOpen && closeGuestDialog()}
+            guest={useGuestStore.getState().editingGuest}
+        />
+    </div>
   );
 }
