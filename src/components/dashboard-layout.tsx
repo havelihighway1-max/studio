@@ -12,13 +12,10 @@ import {
   SidebarMenu,
   SidebarMenuItem,
   SidebarMenuButton,
-  SidebarMenuSub,
-  SidebarMenuSubItem,
-  SidebarMenuSubButton,
 } from '@/components/ui/sidebar';
 import { useGuestStore } from "@/hooks/use-guest-store";
 
-import { BarChart2, CalendarClock, Home, Keyboard, PlusCircle, Table, UserCheck, Utensils } from "lucide-react";
+import { BarChart2, CalendarClock, Home, PlusCircle, Table, UserCheck, Utensils } from "lucide-react";
 
 export function DashboardLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
@@ -53,17 +50,15 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
                     </SidebarMenuButton>
                 </SidebarMenuItem>
             ))}
+            <SidebarMenuItem>
+                <SidebarMenuButton onClick={() => openGuestDialog()} tooltip="Add a walk-in guest">
+                    <PlusCircle />
+                    <span>Walking Guest</span>
+                </SidebarMenuButton>
+            </SidebarMenuItem>
           </SidebarMenu>
         </SidebarContent>
         <SidebarFooter>
-             <SidebarMenu>
-                <SidebarMenuItem>
-                    <SidebarMenuButton onClick={() => openGuestDialog()} tooltip="Add a walk-in guest">
-                        <PlusCircle />
-                        <span>Walking Guest</span>
-                    </SidebarMenuButton>
-                </SidebarMenuItem>
-             </SidebarMenu>
             <div className="p-2 text-center text-xs text-muted-foreground/50">
               created by Asif Khan
             </div>
