@@ -1,6 +1,6 @@
 
 import { initializeApp, getApps, getApp, FirebaseApp } from 'firebase/app';
-import { getFirestore, Firestore } from 'firebase/firestore';
+import { getFirestore, Firestore, enableIndexedDbPersistence } from 'firebase/firestore';
 
 export const firebaseConfig = {
   "apiKey": "AIzaSyAAyTI-aCJBlGy5nZoui0IT5DTFlyCOqgI",
@@ -40,13 +40,15 @@ function getFirebaseApp(): FirebaseApp {
  */
 export function getDb(): Firestore {
     const app = getFirebaseApp();
-    if (typeof window === 'undefined') { // Server-side
-        const g = global as GlobalWithFirebase;
-        if (!g.firestore) {
-            g.firestore = getFirestore(app);
-        }
-        return g.firestore;
+    const db = getFirestore(app);
+    if (typeof window !== 'undefined') {
+        enableIndexedDbPersistence(db).catch((err) => {
+            if (err.code == 'failed-precondition') {
+                console.warn('Multiple tabs open, persistence can only be enabled in one tab at a time.');
+            } else if (err.code == 'unimplemented') {
+                console.warn('The current browser does not support all of the features required to enable persistence.');
+            }
+        });
     }
-    // Client-side
-    return getFirestore(app);
+    return db;
 }
